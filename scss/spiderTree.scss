@@ -1,0 +1,168 @@
+:root {
+    --hc-root-el-bg-image: url('');
+    --hc-root-container-cursor: default;
+    --zoom-level: 1;
+    --move-x: 0px;
+    --move-y: 0px;
+}
+
+$root-gray: rgb(95, 95, 95);
+$root-light-gray: rgb(187, 186, 186);
+$circle-fill: rgb(170, 170, 170);
+$line-gray: #545454;
+$vertical-space: 150px;
+
+.hv-root-wrapper-element * {
+    -webkit-user-select: none;  /* Safari */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+.hv-root-wrapper-element {
+    width: 900px;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: var(--hc-root-el-bg-image);
+    position: relative;
+    overflow: hidden;
+    cursor: var(--hc-root-container-cursor);
+}
+
+.hv-root-wrapper-element .root-el {
+    transition: all 1s ease-in;
+}
+
+.hv-root-wrapper-element * {
+    font-family: 'Lato';
+}
+
+.hv-root-wrapper-element .hc-inner-container {
+    width: auto;
+    // transform-style: preserve-3d;
+    transform: scale(var(--zoom-level)) translate(var(--move-x), var(--move-y));
+    display: flex;
+    position: absolute;
+    // transition: top 1s ease-in, left 1s ease-in;
+}
+
+.main-svg-el {
+    background-color: white !important;
+    overflow: visible;
+    border-radius: 10px;
+}
+
+.main-svg-el rect {
+    stroke: $root-light-gray;
+    stroke-width: 1px;
+    fill: none;
+}
+
+.main-svg-el text, tspan, .hc-linker {
+    fill: $root-gray;
+}
+
+.hc-linker {
+    z-index: +999;
+}
+
+.main-svg-el .linker-line {
+    stroke: $line-gray;
+    pointer-events: none;
+}
+
+.main-svg-el circle {
+    fill: $circle-fill;
+}
+
+.hc-head-wrapper {
+    padding: 10px;
+    // width: 100%;
+    // height: 100%;
+    display: flex;
+    // flex-direction: column;
+    // justify-content: center;
+    // align-items: flex-start;
+    flex-wrap: wrap;
+    // transform: scale(var(--zoom-level)) translate(var(--move-x), var(--move-y));
+
+}
+
+.hc-head-wrapper svg {
+    margin: 0px 25px;
+}
+
+.child-container {
+    margin-top: $vertical-space;
+    width: 100%;
+    flex-wrap: nowrap !important;
+}
+
+.hc-head-wrapper .hc-head-node-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+// HC Vertical Tree Styles
+.hc-v-spider-head-wrapper {
+    padding: 10px;
+    display: flex !important;
+    // align-items: flex-start;
+    flex-wrap: wrap;
+    flex-direction: column !important;
+    // justify-content: center;
+    // align-items: center;
+    // transition: top 1s ease-in, left 1s ease-in;
+}
+
+.hc-v-spider-head-wrapper > div {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.hc-v-spider-head-wrapper > div:first-child {
+    align-items: flex-end !important;
+}
+
+.hc-v-spider-head-wrapper > div:nth-child(2) {
+    align-items: center !important;
+    padding-top: $vertical-space;
+
+}
+
+.hc-v-spider-head-wrapper > div:nth-child(2) > div {
+    margin-bottom: 0px !important;
+}
+
+.hc-v-spider-head-wrapper .child-container {
+    margin-top: $vertical-space;
+    width: 100%;
+    flex-wrap: nowrap !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.hc-v-spider-head-wrapper .child-container.top {
+    margin-top: 0px !important;
+    margin-bottom: $vertical-space !important;
+    align-items: flex-end !important;
+}
+
+.hc-v-spider-head-wrapper .hc-head-node-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    margin-right: 15px !important;
+}
