@@ -1,4 +1,4 @@
-import { TChartHeadPointPosition, TTreeToItemHierarchy } from "src/types/utils";
+import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "src/types/utils";
 import { IChartHead } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
 
@@ -8,6 +8,20 @@ class ChartMainHelper {
     handleCollapseChildren: (svgNode: any, id: string, clicked_pos: number) => void | undefined = () => {};
 
     itemHierarchy: TTreeToItemHierarchy = [];
+
+    link_point_position: {[key in THeadPointPosition]: Function} = {
+        top: (rect: any) => `translate(${parseInt(rect!.attr('width'))/2}, 0)`,
+        bottom: (rect: any) => `translate(${parseInt(rect!.attr('width'))/2}, ${rect!.attr('height')})`,
+        right: (rect: any) => `translate(${rect!.attr('width')}, ${rect!.attr('height') / 2})`,
+        left: (rect: any) => `translate(0, ${rect!.attr('height') / 2})`,
+    }
+
+    inverse_link_point_position: {[key in THeadPointPosition]: string} = {
+        "top": "bottom",
+        "bottom": "top",
+        "left": "right",
+        "right": "left",
+    }
 
     constructor () {
         
@@ -37,7 +51,7 @@ class ChartMainHelper {
         return clip_name
     } 
 
-    public makeHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = "top") {
+    public makeHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = {parent: "bottom", children: "top"}) {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
 
@@ -132,12 +146,12 @@ class ChartMainHelper {
             .attr('class', 'hc-linker')
             .attr('width', 50)
             .attr('height', 50)
-            .attr('transform', `translate(${parseInt(rect!.attr('width'))/2}, ${pointPosition == "bottom" ? rect!.attr('height') : 0})`)
+            .attr('transform', this.link_point_position[pointPosition.children](rect))
         }
         
         if (has_children) {
             const _class = this;
-            const translate_y = pointPosition == "bottom" ? 0 : rect!.attr('height') as unknown as number;
+            const translate_y = pointPosition.parent == "bottom" ? 0 : rect!.attr('height') as unknown as number;
             svgNode?.append('path')
             .attr('d', this.hc_d3!.symbol(this.hc_d3!.symbolCircle))
             .attr('x', parseInt(rect!.attr('width'))/2)
@@ -146,7 +160,7 @@ class ChartMainHelper {
             .attr('width', 50)
             .attr('height', 50)
             .attr('style', 'cursor: pointer')
-            .attr('transform', `translate(${parseInt(rect!.attr('width'))/2}, ${pointPosition == "bottom" ? 0 : rect!.attr('height')})`)
+            .attr('transform', this.link_point_position[pointPosition.parent](rect))
             .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y))
 
             if (doubleVerticalPoints) {
@@ -159,7 +173,7 @@ class ChartMainHelper {
                 .attr('width', 50)
                 .attr('height', 50)
                 .attr('style', 'cursor: pointer')
-                .attr('transform', `translate(${parseInt(rect!.attr('width'))/2}, ${translate_y_2})`)
+                .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent] as keyof typeof this.link_point_position](rect))
                 .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2))
             }
         }

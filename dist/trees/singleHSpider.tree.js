@@ -1,5 +1,5 @@
 import ChartMainHelper from "../helpers/chart-helper.js";
-class DefaultTree {
+class SingleHorizontalSpider {
     chartHelper;
     tree_data = [];
     tree_map_arr = [];
@@ -8,8 +8,8 @@ class DefaultTree {
     hcInnerContainer = null;
     current_scale = 1;
     constructor({ tree_data, hcInnerContainer }) {
-        this.hcInnerContainer = hcInnerContainer;
         this.tree_data = tree_data;
+        this.hcInnerContainer = hcInnerContainer;
         this.chartHelper = new ChartMainHelper();
         this.chartHelper.tree_data = tree_data;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
@@ -17,15 +17,27 @@ class DefaultTree {
             this.organizeUI();
         }, 0);
     }
+    organizeUI() {
+        this.content_wrapper = this.chartHelper.createDynamicEl();
+        this.content_wrapper.className = "hc-head-wrapper";
+        this.map_children_data_to_head();
+        this.hcInnerContainer.appendChild(this.content_wrapper);
+        this.drawBranchLinkFresh();
+        setTimeout(() => {
+            this.hcInnerContainer.style.left = "0px";
+        }, 0);
+    }
     map_children_data_to_head(parentSVGEl, parentId) {
         const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
-            const head_UI = this.chartHelper.makeHead(head);
-            head_UI_wrapper.appendChild(head_UI?.node());
+            const head_UI_inner = this.chartHelper.createDynamicEl();
+            const head_UI = this.chartHelper.makeHead(head, false, { parent: "right", children: "left" });
+            head_UI_inner.append(head_UI?.node());
+            head_UI_wrapper.appendChild(head_UI_inner);
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
-            head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;
+            head_UI_wrapper.className = "hc-head-node-wrapper st-single-h hc-w-id-" + head.id + root_el_cls;
             childElContainer.appendChild(head_UI_wrapper);
             const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
             parentSVGEl != undefined && this.tree_map_arr.push({ id: head.id, svgNode: parentSVGEl, targetChild: head_UI_wrapper, parentId: parentId });
@@ -33,17 +45,10 @@ class DefaultTree {
                 head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id));
             }
         });
-        childElContainer.className = "hc-head-wrapper child-container";
+        childElContainer.className = "hc-head-wrapper st-single-h-child-container";
         if (parentSVGEl === undefined)
             this.content_wrapper?.appendChild(childElContainer);
         return childElContainer;
-    }
-    organizeUI() {
-        this.content_wrapper = this.chartHelper.createDynamicEl();
-        this.content_wrapper.className = "hc-head-wrapper";
-        this.map_children_data_to_head();
-        this.hcInnerContainer.appendChild(this.content_wrapper);
-        this.drawBranchLinkFresh();
     }
     drawBranchLinkFresh() {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
@@ -55,10 +60,10 @@ class DefaultTree {
             return;
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
-        const lineStartX = (svgSourceNodeBounds.width / this.current_scale) / 2;
-        const lineStartY = svgSourceNodeBounds.height / this.current_scale;
-        const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2);
-        const lineEndY = (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale);
+        const lineStartX = (svgSourceNodeBounds.width / this.current_scale);
+        const lineStartY = (svgSourceNodeBounds.height / this.current_scale) / 2;
+        const lineEndX = ((elementBounds.x) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0;
+        const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale));
         const lineMove1X = lineStartX + (lineEndX * 0.18);
         const lineMove1Y = lineStartY + (lineEndY * 0.15);
         const lineMove2X = lineEndX * 0.75;
@@ -82,7 +87,7 @@ class DefaultTree {
             .attr('style', 'z-index: -1');
     }
     handleCollapseChildren(svgNode, id, clicked_pos) {
-        const nodeAncestor = svgNode.node()?.parentElement;
+        const nodeAncestor = svgNode.node()?.parentElement.parentElement;
         const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden');
         if (nodeChildrenHidden == 'true') {
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
@@ -90,7 +95,8 @@ class DefaultTree {
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');
         }
         else {
-            const childrenContainer = nodeAncestor?.querySelector('.child-container');
+            const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
+            console.log("childrenContainer", childrenContainer);
             childrenContainer?.remove();
             nodeAncestor?.querySelectorAll('.linker-line').forEach((line) => line.remove());
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'true');
@@ -106,4 +112,4 @@ class DefaultTree {
         });
     }
 }
-export default DefaultTree;
+export default SingleHorizontalSpider;

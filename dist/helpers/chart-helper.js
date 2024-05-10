@@ -4,6 +4,18 @@ class ChartMainHelper {
     tree_data = [];
     handleCollapseChildren = () => { };
     itemHierarchy = [];
+    link_point_position = {
+        top: (rect) => `translate(${parseInt(rect.attr('width')) / 2}, 0)`,
+        bottom: (rect) => `translate(${parseInt(rect.attr('width')) / 2}, ${rect.attr('height')})`,
+        right: (rect) => `translate(${rect.attr('width')}, ${rect.attr('height') / 2})`,
+        left: (rect) => `translate(0, ${rect.attr('height') / 2})`,
+    };
+    inverse_link_point_position = {
+        "top": "bottom",
+        "bottom": "top",
+        "left": "right",
+        "right": "left",
+    };
     constructor() {
     }
     createDynamicEl() {
@@ -26,7 +38,7 @@ class ChartMainHelper {
         const clip_name = this.splitStringIntoBatch(make_name.slice(0, 28), 15);
         return clip_name;
     }
-    makeHead(head_data, doubleVerticalPoints = false, pointPosition = "top") {
+    makeHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
         const svgNode = this.hc_d3?.create('svg')
@@ -104,11 +116,11 @@ class ChartMainHelper {
                 .attr('class', 'hc-linker')
                 .attr('width', 50)
                 .attr('height', 50)
-                .attr('transform', `translate(${parseInt(rect.attr('width')) / 2}, ${pointPosition == "bottom" ? rect.attr('height') : 0})`);
+                .attr('transform', this.link_point_position[pointPosition.children](rect));
         }
         if (has_children) {
             const _class = this;
-            const translate_y = pointPosition == "bottom" ? 0 : rect.attr('height');
+            const translate_y = pointPosition.parent == "bottom" ? 0 : rect.attr('height');
             svgNode?.append('path')
                 .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
                 .attr('x', parseInt(rect.attr('width')) / 2)
@@ -117,7 +129,7 @@ class ChartMainHelper {
                 .attr('width', 50)
                 .attr('height', 50)
                 .attr('style', 'cursor: pointer')
-                .attr('transform', `translate(${parseInt(rect.attr('width')) / 2}, ${pointPosition == "bottom" ? 0 : rect.attr('height')})`)
+                .attr('transform', this.link_point_position[pointPosition.parent](rect))
                 .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y));
             if (doubleVerticalPoints) {
                 const translate_y_2 = translate_y == 0 ? rect.attr('height') : 0;
@@ -129,7 +141,7 @@ class ChartMainHelper {
                     .attr('width', 50)
                     .attr('height', 50)
                     .attr('style', 'cursor: pointer')
-                    .attr('transform', `translate(${parseInt(rect.attr('width')) / 2}, ${translate_y_2})`)
+                    .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent]](rect))
                     .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2));
             }
         }

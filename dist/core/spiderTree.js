@@ -1,7 +1,7 @@
 import HCRootContainer from "../utils/st-root-container.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
-import VerticalSpider from "../trees/vSpider.tree.js";
+import SingleHorizontalSpider from "../trees/singleHSpider.tree.js";
 class SpiderTree extends EventTarget {
     /**
      * The library name
@@ -51,7 +51,7 @@ class SpiderTree extends EventTarget {
         if (options.targetContainer == undefined) {
             throw new Error(this.libraryName + ": The target container is required");
         }
-        const randData = new RandomDataGenerator({ length: 100 });
+        const randData = new RandomDataGenerator({ length: 10 });
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
         this.loadFont();
@@ -137,7 +137,11 @@ class SpiderTree extends EventTarget {
         //     tree_data: this.options.tree_data,
         //     hcInnerContainer: this.hcInnerContainer
         // });
-        this.currentChartUI = new VerticalSpider({
+        // this.currentChartUI = new VerticalSpider({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer
+        // });
+        this.currentChartUI = new SingleHorizontalSpider({
             tree_data: this.options.tree_data,
             hcInnerContainer: this.hcInnerContainer
         });

@@ -1,6 +1,6 @@
 import ChartMainHelper from "../helpers/chart-helper.js";
 class VerticalSpider {
-    head_wrapper = null;
+    content_wrapper = null;
     head_child_wrapper_center = null;
     head_child_wrapper_1 = null;
     head_child_wrapper_2 = null;
@@ -22,19 +22,19 @@ class VerticalSpider {
         }, 0);
     }
     organizeUI() {
-        this.head_wrapper = this.chartHelper.createDynamicEl();
+        this.content_wrapper = this.chartHelper.createDynamicEl();
         this.head_child_wrapper_center = this.chartHelper.createDynamicEl();
         this.head_child_wrapper_1 = this.chartHelper.createDynamicEl();
         this.head_child_wrapper_2 = this.chartHelper.createDynamicEl();
         this.head_child_wrapper_center.className = "hc-vs-wrapper";
         this.head_child_wrapper_1.className = "hc-vs-wrapper";
         this.head_child_wrapper_2.className = "hc-vs-wrapper";
-        this.head_wrapper.appendChild(this.head_child_wrapper_1);
-        this.head_wrapper.appendChild(this.head_child_wrapper_center);
-        this.head_wrapper.appendChild(this.head_child_wrapper_2);
-        this.head_wrapper.className = "hc-v-spider-head-wrapper";
+        this.content_wrapper.appendChild(this.head_child_wrapper_1);
+        this.content_wrapper.appendChild(this.head_child_wrapper_center);
+        this.content_wrapper.appendChild(this.head_child_wrapper_2);
+        this.content_wrapper.className = "hc-v-spider-head-wrapper";
         this.map_children_data_to_head();
-        this.hcInnerContainer.appendChild(this.head_wrapper);
+        this.hcInnerContainer.appendChild(this.content_wrapper);
         // (document.querySelector('#click-me') as HTMLButtonElement).onclick = () => this.chartHelper?.center_root_tree_el(this.hcInnerContainer as HTMLElement, this.current_scale);
         // this.chartHelper?.center_root_tree_el(this.hcInnerContainer as HTMLElement, this.current_scale);
         this.drawBranchLinkFresh();
@@ -60,7 +60,7 @@ class VerticalSpider {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
             const get_item_root_item = this.chartHelper.get_second_ancestor_item(head.id);
             let second_ancestor_rel_pos = get_item_root_item == undefined ? 1 : this.getElemRelPosInTree(get_item_root_item?.id);
-            const head_UI = this.chartHelper.makeHead(head, parentId == undefined, second_ancestor_rel_pos % 2 == 0 ? "bottom" : 'top');
+            const head_UI = this.chartHelper.makeHead(head, parentId == undefined, { parent: "bottom", children: second_ancestor_rel_pos % 2 == 0 ? "bottom" : 'top' });
             head_UI_wrapper.appendChild(head_UI?.node());
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
             head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;

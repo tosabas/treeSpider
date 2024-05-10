@@ -5,8 +5,10 @@ import HCElement from "../utils/st-element.js";
 import { TChildrenMapperReturnEl, TSingleChildrenMap, TTreeMapArr } from "../types/utils.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
+// trees
 import DefaultTree from "../trees/default.tree.js";
 import VerticalSpider from "../trees/vSpider.tree.js";
+import SingleHorizontalSpider from "../trees/singleHSpider.tree.js";
 
 
 class SpiderTree extends EventTarget {
@@ -69,7 +71,7 @@ class SpiderTree extends EventTarget {
             throw new Error(this.libraryName + ": The target container is required")
         }
 
-        const randData = new RandomDataGenerator({length: 100});
+        const randData = new RandomDataGenerator({length: 10});
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
 
@@ -163,7 +165,12 @@ class SpiderTree extends EventTarget {
         //     hcInnerContainer: this.hcInnerContainer
         // });
 
-        this.currentChartUI = new VerticalSpider({
+        // this.currentChartUI = new VerticalSpider({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer
+        // });
+
+        this.currentChartUI = new SingleHorizontalSpider({
             tree_data: this.options.tree_data,
             hcInnerContainer: this.hcInnerContainer
         });

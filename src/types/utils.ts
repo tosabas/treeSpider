@@ -23,7 +23,12 @@ export type TTreeClassParams = {
     hcInnerContainer: HTMLElement;
 }
 
-export type TChartHeadPointPosition = "top" | "bottom"
+export type THeadPointPosition = "top" | "bottom" | "left" | "right";
+
+export type TChartHeadPointPosition = {
+    parent: THeadPointPosition;
+    children: THeadPointPosition;
+}
 
 export type TTreeToItemHierarchy = Array<{level: number, items: Array<IChartHead>}>;
 
