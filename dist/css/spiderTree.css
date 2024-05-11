@@ -180,4 +180,110 @@
   margin-bottom: 15px !important;
 }
 
+.st-hsw-content-wrapper {
+  display: flex;
+}
+
+.st-hsw-content-wrapper .st-child-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.st-hsw-content-wrapper .st-child-wrapper:nth-child(2) {
+  justify-content: center;
+  align-items: center;
+}
+
+.st-hsw-content-wrapper .st-child-wrapper:nth-child(2) .hc-head-node-wrapper {
+  justify-content: center !important;
+  margin: 0px !important;
+  padding: 0px 150px 0px 150px !important;
+}
+
+.st-hsw-content-wrapper .st-child-wrapper:nth-child(2) .child-container {
+  margin: 0px !important;
+}
+
+.st-hsw-content-wrapper .hc-head-node-wrapper {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.st-hsw-content-wrapper .hc-head-node-wrapper.top {
+  justify-content: flex-end !important;
+}
+
+.st-hsw-content-wrapper .hc-head-node-wrapper .child-container {
+  margin-top: 0px !important;
+  margin-left: 150px;
+}
+
+.st-hsw-content-wrapper .hc-head-node-wrapper .child-container.top {
+  margin-right: 150px;
+}
+
+.st-cs-content-wrapper {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
+  grid-row: 1fr 60px;
+  grid-template-areas: "leftContainer rightContainer" "centerContainer centerContainer";
+  min-height: 200px;
+}
+
+.st-cs-content-wrapper .st-child-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  justify-content: flex-end;
+}
+
+.st-cs-content-wrapper .hc-head-node-wrapper {
+  display: flex;
+  flex-direction: row !important;
+  margin-right: 150px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.st-cs-content-wrapper .st-child-wrapper .child-container {
+  margin: 0px 150px 150px 0px !important;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:nth-child(2) .child-container {
+  margin: 0px 0px 150px 150px !important;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:first-child {
+  grid-area: leftContainer;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:nth-child(2) {
+  grid-area: rightContainer;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:nth-child(2) .hc-head-node-wrapper {
+  justify-content: flex-start !important;
+  margin-right: 0px !important;
+  margin-left: 150px !important;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:last-child {
+  grid-area: centerContainer;
+  align-items: center;
+  justify-content: center;
+  padding-top: 150px;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:last-child .hc-head-node-wrapper {
+  margin: 0px !important;
+}
+
+.st-cs-content-wrapper .st-child-wrapper:last-child .child-container {
+  margin: 0px !important;
+}
+
 /*# sourceMappingURL=spiderTree.css.map */

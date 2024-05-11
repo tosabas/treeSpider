@@ -1,11 +1,11 @@
-import HCElement from "src/utils/st-element";
+import HCElement from "../utils/st-element";
 import { IChartHead } from "./MainTypes";
 
 export type TD3 = typeof globalThis.d3
 
 export type TTreeMapArr = {
     svgNode: any; 
-    targetChild: HTMLElement; 
+    targetChild: SVGSVGElement; 
     parentId: string;
     id: string;
     lineOrigin?: TBranchLineOrigin;

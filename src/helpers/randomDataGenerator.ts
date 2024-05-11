@@ -1,4 +1,4 @@
-import { IChartHead } from "src/types/MainTypes";
+import { IChartHead } from "../types/MainTypes";
 import { faker, allFakers } from '../../deps/faker/index.mjs';
 
 class RandomDataGenerator {

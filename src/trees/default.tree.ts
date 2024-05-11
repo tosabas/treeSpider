@@ -2,6 +2,8 @@ import ChartMainHelper from "../helpers/chart-helper.js";
 import { IChartHead } from "../types/MainTypes";
 import { TChildrenMapperReturnEl, TTreeClassParams, TTreeMapArr } from "../types/utils";
 import HCElement from "../utils/st-element.js";
+// @ts-ignore
+import * as d3_v from '../../deps/d3/d3.min.js'
 
 class DefaultTree {
 
@@ -24,6 +26,8 @@ class DefaultTree {
         this.chartHelper = new ChartMainHelper();
         this.chartHelper.tree_data = tree_data;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
+        // console.log("d3_2d3_2d3_2d3_2", d3, d3?.linkHorizontal, d3?.d3);
+        
         setTimeout(() => {
             this.organizeUI();
         }, 0);
@@ -41,7 +45,7 @@ class DefaultTree {
             childElContainer.appendChild(head_UI_wrapper);
             const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
             
-            parentSVGEl != undefined && this.tree_map_arr.push({id: head.id, svgNode: parentSVGEl, targetChild: head_UI_wrapper, parentId: parentId as string});
+            parentSVGEl != undefined && this.tree_map_arr.push({id: head.id, svgNode: parentSVGEl, targetChild: head_UI?.node() as SVGSVGElement, parentId: parentId as string});
             
             if (has_childs) {
                 head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id) as HCElement);
@@ -63,10 +67,10 @@ class DefaultTree {
 
     private drawBranchLinkFresh () {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as HTMLElement, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
     }
 
-    private drawBranchLink (svgNode: any, targetChild: HTMLElement, parentId: string) {
+    private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true') return;
         
@@ -79,28 +83,15 @@ class DefaultTree {
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2)
         const lineEndY = (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale)
 
-        const lineMove1X = lineStartX + (lineEndX * 0.18)
-        const lineMove1Y = lineStartY + (lineEndY * 0.15)
-
-        const lineMove2X = lineEndX * 0.75;
-        const lineMove2Y = lineEndY * 0.75;
-
-        const link = this.hc_d3!.line()
-        .curve(this.hc_d3!.curveNatural);
+        const link = this.hc_d3!.linkVertical();
         
-        const lineCurveData = [
-            [lineMove1X, lineMove1Y],
-            [lineMove2X, lineMove2Y],
-        ]
-
         const data = [
-            [lineStartX, lineStartY],
-            ...lineCurveData,
-            [lineEndX, lineEndY],
-        ]  as Iterable<[number, number]>;
+            {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},
+        ];
         
         svgNode?.append('path')
-        .attr('d', link(data))
+        .data(data)
+        .attr('d', link)
         .attr('fill', 'none')
         .attr('class', 'linker-line')
         .attr('stroke-width', 1)

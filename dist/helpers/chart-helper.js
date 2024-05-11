@@ -129,7 +129,7 @@ class ChartMainHelper {
                 .attr('width', 50)
                 .attr('height', 50)
                 .attr('style', 'cursor: pointer')
-                .attr('transform', this.link_point_position[pointPosition.parent](rect))
+                .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children]](rect))
                 .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y));
             if (doubleVerticalPoints) {
                 const translate_y_2 = translate_y == 0 ? rect.attr('height') : 0;
@@ -208,6 +208,11 @@ class ChartMainHelper {
             hcInnerContainer.style.top = moveY + `px`;
             console.log("root_container_rect", root_container_rect, hcInnerContainer.getBoundingClientRect(), moveX, moveY, root_tree_el.offsetLeft, root_tree_el.offsetTop);
         }, 1000);
+    }
+    getElemRelPosInTree(el_id) {
+        const find_el = this.tree_data.find(data => data.id == el_id);
+        const find_all_siblings = this.tree_data.filter(data => data.parentId == find_el.parentId);
+        return find_all_siblings.findIndex(data => data.id == find_el.id) + 1;
     }
 }
 export default ChartMainHelper;

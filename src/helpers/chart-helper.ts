@@ -1,4 +1,4 @@
-import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "src/types/utils";
+import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
 import { IChartHead } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
 
@@ -160,7 +160,7 @@ class ChartMainHelper {
             .attr('width', 50)
             .attr('height', 50)
             .attr('style', 'cursor: pointer')
-            .attr('transform', this.link_point_position[pointPosition.parent](rect))
+            .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children] as keyof typeof this.link_point_position](rect))
             .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y))
 
             if (doubleVerticalPoints) {
@@ -251,6 +251,12 @@ class ChartMainHelper {
 
             console.log("root_container_rect", root_container_rect, hcInnerContainer.getBoundingClientRect(), moveX, moveY, root_tree_el.offsetLeft, root_tree_el.offsetTop);
         }, 1000);
+    }
+
+    public getElemRelPosInTree (el_id: string) {
+        const find_el = this.tree_data.find(data => data.id == el_id);
+        const find_all_siblings = this.tree_data.filter(data => data.parentId == find_el!.parentId);
+        return find_all_siblings.findIndex(data => data.id == find_el!.id) + 1;
     }
 
 

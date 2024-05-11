@@ -1,9 +1,9 @@
-import { IChartHead } from "src/types/MainTypes";
+import { IChartHead } from "../types/MainTypes";
 import ChartMainHelper from "../helpers/chart-helper.js";
-import { TTreeClassParams, TTreeMapArr } from "src/types/utils.js";
-import HCElement from "src/utils/st-element.js";
+import { TTreeClassParams, TTreeMapArr } from "../types/utils.js";
+import HCElement from "../utils/st-element.js";
 
-class SingleHorizontalSpider {
+class HorizontalSpiderTree {
     chartHelper: ChartMainHelper | undefined;
 
     tree_data: Array<IChartHead> = [];
@@ -51,12 +51,12 @@ class SingleHorizontalSpider {
             head_UI_inner.append(head_UI?.node() as SVGSVGElement)
 
             head_UI_wrapper.appendChild(head_UI_inner);
-            const root_el_cls = parentId == undefined ? " st-root-el" : ""
+            const root_el_cls = parentId == undefined ? " st-root-el" : "";
             head_UI_wrapper.className = "hc-head-node-wrapper st-single-h hc-w-id-" + head.id + root_el_cls;
             childElContainer.appendChild(head_UI_wrapper);
             const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
             
-            parentSVGEl != undefined && this.tree_map_arr.push({id: head.id, svgNode: parentSVGEl, targetChild: head_UI_wrapper, parentId: parentId as string});
+            parentSVGEl != undefined && this.tree_map_arr.push({id: head.id, svgNode: parentSVGEl, targetChild: head_UI?.node() as SVGSVGElement, parentId: parentId as string});
             
             if (has_childs) {
                 head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id) as HCElement);
@@ -70,10 +70,10 @@ class SingleHorizontalSpider {
 
     private drawBranchLinkFresh () {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as HTMLElement, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
     }
 
-    private drawBranchLink (svgNode: any, targetChild: HTMLElement, parentId: string) {
+    private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true') return;
         
@@ -84,30 +84,18 @@ class SingleHorizontalSpider {
         const lineStartY = (svgSourceNodeBounds.height / this.current_scale) / 2;
 
         const lineEndX = ((elementBounds.x) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0
-        const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale))
+        const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale));
 
-        const lineMove1X = lineStartX + (lineEndX * 0.18);
-        const lineMove1Y = lineStartY + (lineEndY * 0.15);
 
-        const lineMove2X = lineEndX * 0.75;
-        const lineMove2Y = lineEndY * 0.75;
-
-        const link = this.hc_d3!.line()
-        .curve(this.hc_d3!.curveNatural);
+        const link = this.hc_d3!.linkHorizontal();
         
-        const lineCurveData = [
-            [lineMove1X, lineMove1Y],
-            [lineMove2X, lineMove2Y],
-        ]
-
         const data = [
-            [lineStartX, lineStartY],
-            ...lineCurveData,
-            [lineEndX, lineEndY],
-        ]  as Iterable<[number, number]>;
+            {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},
+        ];
         
         svgNode?.append('path')
-        .attr('d', link(data))
+        .data(data)
+        .attr('d', link)
         .attr('fill', 'none')
         .attr('class', 'linker-line')
         .attr('stroke-width', 1)
@@ -142,4 +130,4 @@ class SingleHorizontalSpider {
     }
 }
 
-export default SingleHorizontalSpider;
+export default HorizontalSpiderTree;

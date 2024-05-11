@@ -1,4 +1,4 @@
-import { IChartHead, ISpiderTreeMain } from "types/MainTypes";
+import { IChartHead, ISpiderTreeMain } from "../types/MainTypes";
 import HCCanvas from "../utils/stcanvas.js";
 import HCRootContainer from "../utils/st-root-container.js";
 import HCElement from "../utils/st-element.js";
@@ -7,9 +7,10 @@ import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
 // trees
 import DefaultTree from "../trees/default.tree.js";
-import VerticalSpider from "../trees/vSpider.tree.js";
-import SingleHorizontalSpider from "../trees/singleHSpider.tree.js";
-
+import VerticalSpiderWalkTree from "../trees/vSpiderWalk.tree.js";
+import HorizontalSpiderTree from "../trees/hSpider.tree.js";
+import HorizontalSpiderWalkTree from "../trees/hSpiderWalk.tree.js";
+import CellarSpiderTree from "../trees/cellarSpider.tree.js";
 
 class SpiderTree extends EventTarget {
     /**
@@ -29,6 +30,8 @@ class SpiderTree extends EventTarget {
     current_scale_offsetX = 0;
     current_scale_offsetY = 0;
     zoom_factor = 0.05;
+    minimum_scale = 0.1;
+    maximum_scale = 3;
 
     tree_data = [
         {id: "1", name: "Abayomi AmusaOyediran", role: "Manager", location: "Lagos, Nigeria"},
@@ -71,7 +74,7 @@ class SpiderTree extends EventTarget {
             throw new Error(this.libraryName + ": The target container is required")
         }
 
-        const randData = new RandomDataGenerator({length: 10});
+        const randData = new RandomDataGenerator({length: 100});
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
 
@@ -89,7 +92,7 @@ class SpiderTree extends EventTarget {
 
     private addD3Script () {
         const script = document.createElement('script')
-        script.src = "https://d3js.org/d3.v4.min.js"
+        script.src = "https://cdn.jsdelivr.net/npm/d3@7"
         document.body.appendChild(script)
         script.onload = () => {
             this.createUI();
@@ -165,12 +168,22 @@ class SpiderTree extends EventTarget {
         //     hcInnerContainer: this.hcInnerContainer
         // });
 
-        // this.currentChartUI = new VerticalSpider({
+        // this.currentChartUI = new VerticalSpiderWalkTree({
         //     tree_data: this.options.tree_data,
         //     hcInnerContainer: this.hcInnerContainer
         // });
 
-        this.currentChartUI = new SingleHorizontalSpider({
+        // this.currentChartUI = new HorizontalSpiderTree({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer
+        // });
+
+        // this.currentChartUI = new HorizontalSpiderWalkTree({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer
+        // });
+
+        this.currentChartUI = new CellarSpiderTree({
             tree_data: this.options.tree_data,
             hcInnerContainer: this.hcInnerContainer
         });
@@ -199,19 +212,17 @@ class SpiderTree extends EventTarget {
         this.rootWrapperContainer!.onwheel = (e) => {
             e.preventDefault();
 
-            if (this.current_scale < 0.5) {
-                this.current_scale = 0.5;
-            } else if (this.current_scale > 3) {
-                this.current_scale = 3;
+            if (this.current_scale < this.minimum_scale) {
+                this.current_scale = this.minimum_scale;
+            } else if (this.current_scale > this.maximum_scale) {
+                this.current_scale = this.maximum_scale;
             }
 
             const delta = -e.deltaY / 100; // Adjust sensitivity as needed
-            const newScale = Math.max(0.5, this.current_scale + delta); // Limit zoom range
+            const newScale = Math.max(this.minimum_scale, this.current_scale + delta); // Limit zoom range
 
             const rect = this.hcInnerContainer!.getBoundingClientRect()
 
-            console.log("current_scale_offset rect", rect);
-            
             this.rootWrapperContainer?.style.setProperty('--zoom-level', newScale.toString())
             this.current_scale = newScale;
             this.currentChartUI.current_scale = this.current_scale;
@@ -224,8 +235,8 @@ class SpiderTree extends EventTarget {
     private handleMouseMove (e: MouseEvent) {
         e.preventDefault();
         this.rootWrapperContainer!.style.setProperty('--hc-root-container-cursor', 'grab')
-        this.current_move_x += e.clientX - this.last_client_x
-        this.current_move_y += e.clientY - this.last_client_y
+        this.current_move_x += (e.clientX - this.last_client_x) / this.current_scale
+        this.current_move_y += (e.clientY - this.last_client_y) / this.current_scale
         this.rootWrapperContainer?.style.setProperty('--move-x', this.current_move_x + "px")
         this.rootWrapperContainer?.style.setProperty('--move-y', this.current_move_y + "px")
         this.last_client_x = e.clientX;
