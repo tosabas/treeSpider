@@ -20,8 +20,6 @@ class VerticalSpiderWalkTree {
 
     current_scale = 1;
 
-    
-
     constructor ({tree_data, hcInnerContainer}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer;
 
@@ -69,7 +67,7 @@ class VerticalSpiderWalkTree {
         }
         
         const childElContainer = this.chartHelper!.createDynamicEl();
-        const isElParentRootEl = this.tree_data.find(data => data.id == parentId as string)?.parentId == undefined && parentId != undefined;
+        const isElParentRootEl = this.chartHelper!.getIsParentRootEl(parentId as string) && parentId != undefined;
 
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper!.createDynamicEl();
@@ -95,8 +93,6 @@ class VerticalSpiderWalkTree {
                 second_ancestor_rel_pos % 2 == 0 && childElContainer.classList.add("top");
             }
             
-            const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
-            
             parentSVGEl != undefined && this.tree_map_arr.push({
                 id: head.id, 
                 svgNode: parentSVGEl, 
@@ -105,7 +101,7 @@ class VerticalSpiderWalkTree {
                 lineOrigin: second_ancestor_rel_pos % 2 == 0 ? "top" : "bottom"
             });
 
-            if (has_childs) {
+            if (this.chartHelper?.el_has_children(head.id)) {
                 if (isElParentRootEl) {
                     if (this.chartHelper!.getElemRelPosInTree(head.id as string) % 2 == 0) { // el position relative to root parent is even
                         head_UI_wrapper.prepend(this.map_children_data_to_head(head_UI, head.id) as HCElement);
@@ -131,7 +127,7 @@ class VerticalSpiderWalkTree {
 
     private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string, lineOrigin: TBranchLineOrigin = "bottom") {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
-        const isElParentRootEl = this.tree_data.find(data => data.id == parentId)?.parentId == undefined;
+        const isElParentRootEl = this.chartHelper!.getIsParentRootEl(parentId as string);
         if (isParentChildrenHidden === 'true' && !isElParentRootEl) return;
         
         const elementBounds = targetChild.getBoundingClientRect();
@@ -160,7 +156,7 @@ class VerticalSpiderWalkTree {
 
     private handleCollapseChildren (svgNode: any, id: string, clicked_pos: number) {
         const nodeParent = svgNode.node()?.parentElement;
-        const isRootTreeEl = this.tree_data.find(data => data.id == id)?.parentId == undefined;
+        const isRootTreeEl = this.chartHelper!.getIsElRootTreeChild(id);
         const nodeChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden')
 
         if (isRootTreeEl) {

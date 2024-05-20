@@ -1,5 +1,14 @@
 {
   "devDependencies": {
-    "@types/d3": "^7.4.3"
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@types/d3": "^7.4.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "d3": "^7.9.0"
   }
 }

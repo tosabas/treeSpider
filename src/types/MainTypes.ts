@@ -26,3 +26,7 @@ export interface IChartHead {
     location: string;
     parentId?: undefined;
 }
+
+export interface ID3DataFormat extends IChartHead {
+    children: IChartHead[];
+}

@@ -28,7 +28,7 @@ export type THeadPointPosition = "top" | "bottom" | "left" | "right";
 export type TChartHeadPointPosition = {
     parent: THeadPointPosition;
     children: THeadPointPosition;
-}
+} | false
 
 export type TTreeToItemHierarchy = Array<{level: number, items: Array<IChartHead>}>;
 

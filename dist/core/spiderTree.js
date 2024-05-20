@@ -1,7 +1,7 @@
 import HCRootContainer from "../utils/st-root-container.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
-import CellarSpiderTree from "../trees/cellarSpider.tree.js";
+import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
 class SpiderTree extends EventTarget {
     /**
      * The library name
@@ -53,9 +53,10 @@ class SpiderTree extends EventTarget {
         if (options.targetContainer == undefined) {
             throw new Error(this.libraryName + ": The target container is required");
         }
-        const randData = new RandomDataGenerator({ length: 100 });
+        const randData = new RandomDataGenerator({ length: 50 });
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
+        console.log("data", this.options.tree_data);
         this.loadFont();
         this.setOptions(options);
         this.initialize();
@@ -151,7 +152,11 @@ class SpiderTree extends EventTarget {
         //     tree_data: this.options.tree_data,
         //     hcInnerContainer: this.hcInnerContainer
         // });
-        this.currentChartUI = new CellarSpiderTree({
+        // this.currentChartUI = new CellarSpiderTree({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer
+        // });
+        this.currentChartUI = new GoldenRodSpider({
             tree_data: this.options.tree_data,
             hcInnerContainer: this.hcInnerContainer
         });

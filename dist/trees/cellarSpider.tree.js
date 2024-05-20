@@ -45,7 +45,7 @@ class CellarSpiderTree {
             hierarchies = provided_hierarchy;
         }
         const childElContainer = this.chartHelper.createDynamicEl();
-        const isElParentRootEl = this.tree_data.find(data => data.id == parentId)?.parentId == undefined && parentId != undefined;
+        const isElParentRootEl = this.chartHelper.getIsParentRootEl(parentId) && parentId != undefined;
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
             const get_item_root_item = this.chartHelper.get_second_ancestor_item(head.id);
@@ -70,7 +70,6 @@ class CellarSpiderTree {
                 childElContainer.appendChild(head_UI_wrapper);
                 second_ancestor_rel_pos % 2 == 0 && childElContainer.classList.add("top");
             }
-            const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
             parentSVGEl != undefined && this.tree_map_arr.push({
                 id: head.id,
                 svgNode: parentSVGEl,
@@ -78,7 +77,7 @@ class CellarSpiderTree {
                 parentId: parentId,
                 lineOrigin: second_ancestor_rel_pos % 2 == 0 ? "right" : "left"
             });
-            if (has_childs) {
+            if (this.chartHelper?.el_has_children(head.id)) {
                 if (isElParentRootEl) {
                     if (this.chartHelper.getElemRelPosInTree(head.id) % 2 == 0) { // el position relative to root parent is even
                         head_UI_wrapper.prepend(this.map_children_data_to_head(head_UI, head.id));
@@ -105,7 +104,7 @@ class CellarSpiderTree {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-' + parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true')
             return;
-        const parentIsRoot = this.tree_data.find(data => data.id == parentId)?.parentId == undefined;
+        const parentIsRoot = this.chartHelper.getIsParentRootEl(parentId);
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
         let lineStartX, lineStartY;
@@ -133,7 +132,7 @@ class CellarSpiderTree {
     }
     handleCollapseChildren(svgNode, id, clicked_pos) {
         const nodeParent = svgNode.node()?.parentElement;
-        const isRootTreeEl = this.tree_data.find(data => data.id == id)?.parentId == undefined;
+        const isRootTreeEl = this.chartHelper.getIsElRootTreeChild(id);
         const nodeChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden');
         if (isRootTreeEl) {
             return this.handleCollapseRootElChildren(svgNode, id, clicked_pos);

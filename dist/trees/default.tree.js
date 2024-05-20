@@ -28,9 +28,8 @@ class DefaultTree {
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
             head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;
             childElContainer.appendChild(head_UI_wrapper);
-            const has_childs = this.tree_data.filter(data => data.parentId == head.id).length > 0;
             parentSVGEl != undefined && this.tree_map_arr.push({ id: head.id, svgNode: parentSVGEl, targetChild: head_UI?.node(), parentId: parentId });
-            if (has_childs) {
+            if (this.chartHelper?.el_has_children(head.id)) {
                 head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id));
             }
         });

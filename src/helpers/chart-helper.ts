@@ -1,5 +1,5 @@
 import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
-import { IChartHead } from "../types/MainTypes";
+import { IChartHead, ID3DataFormat } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
 
 class ChartMainHelper {
@@ -138,7 +138,7 @@ class ChartMainHelper {
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
 
-        if (has_parent) {
+        if (pointPosition != false && has_parent) {
             svgNode?.append('path')
             .attr('d', this.hc_d3!.symbol(this.hc_d3!.symbolCircle))
             .attr('x', parseInt(rect!.attr('width'))/2)
@@ -149,7 +149,7 @@ class ChartMainHelper {
             .attr('transform', this.link_point_position[pointPosition.children](rect))
         }
         
-        if (has_children) {
+        if (pointPosition != false && has_children) {
             const _class = this;
             const translate_y = pointPosition.parent == "bottom" ? 0 : rect!.attr('height') as unknown as number;
             svgNode?.append('path')
@@ -257,6 +257,42 @@ class ChartMainHelper {
         const find_el = this.tree_data.find(data => data.id == el_id);
         const find_all_siblings = this.tree_data.filter(data => data.parentId == find_el!.parentId);
         return find_all_siblings.findIndex(data => data.id == find_el!.id) + 1;
+    }
+
+    public getIsParentRootEl (parent_id: string) {
+        if (parent_id == undefined) return false;
+        return this.tree_data.find(data => data.id == parent_id)?.parentId == undefined;
+    }
+
+    public getIsElRootTreeChild (id: string) {
+        if (id == undefined) return false;
+        return this.tree_data.find(data => data.id == id)?.parentId == undefined
+    }
+
+    public getRootTreeEl () {
+        return this.tree_data.find(data => data.parentId == undefined)
+    }
+
+    public el_has_children (el_id: string) {
+        return this.tree_data.filter(data => data.parentId == el_id).length > 0;
+    }
+
+    public data_to_d3_format (parentId?: string) {
+        const parent_el: ID3DataFormat = this.tree_data.find(data => (parentId == undefined ? data.parentId : data.id) == parentId) as ID3DataFormat;
+
+        parent_el.children = [];
+
+        const children = this.tree_data.filter(data => data.parentId == parent_el.id);
+
+        children.forEach(child => {
+            if (this.el_has_children(child.id)) {
+                parent_el.children.push(this.data_to_d3_format(child.id))
+            }else{
+                parent_el.children.push(child)
+            }
+        })
+
+        return parent_el;
     }
 
 

@@ -108,7 +108,7 @@ class ChartMainHelper {
         const container_height = 130 + move_down;
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
-        if (has_parent) {
+        if (pointPosition != false && has_parent) {
             svgNode?.append('path')
                 .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
                 .attr('x', parseInt(rect.attr('width')) / 2)
@@ -118,7 +118,7 @@ class ChartMainHelper {
                 .attr('height', 50)
                 .attr('transform', this.link_point_position[pointPosition.children](rect));
         }
-        if (has_children) {
+        if (pointPosition != false && has_children) {
             const _class = this;
             const translate_y = pointPosition.parent == "bottom" ? 0 : rect.attr('height');
             svgNode?.append('path')
@@ -213,6 +213,36 @@ class ChartMainHelper {
         const find_el = this.tree_data.find(data => data.id == el_id);
         const find_all_siblings = this.tree_data.filter(data => data.parentId == find_el.parentId);
         return find_all_siblings.findIndex(data => data.id == find_el.id) + 1;
+    }
+    getIsParentRootEl(parent_id) {
+        if (parent_id == undefined)
+            return false;
+        return this.tree_data.find(data => data.id == parent_id)?.parentId == undefined;
+    }
+    getIsElRootTreeChild(id) {
+        if (id == undefined)
+            return false;
+        return this.tree_data.find(data => data.id == id)?.parentId == undefined;
+    }
+    getRootTreeEl() {
+        return this.tree_data.find(data => data.parentId == undefined);
+    }
+    el_has_children(el_id) {
+        return this.tree_data.filter(data => data.parentId == el_id).length > 0;
+    }
+    data_to_d3_format(parentId) {
+        const parent_el = this.tree_data.find(data => (parentId == undefined ? data.parentId : data.id) == parentId);
+        parent_el.children = [];
+        const children = this.tree_data.filter(data => data.parentId == parent_el.id);
+        children.forEach(child => {
+            if (this.el_has_children(child.id)) {
+                parent_el.children.push(this.data_to_d3_format(child.id));
+            }
+            else {
+                parent_el.children.push(child);
+            }
+        });
+        return parent_el;
     }
 }
 export default ChartMainHelper;
