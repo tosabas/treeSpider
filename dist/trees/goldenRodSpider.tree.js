@@ -1,21 +1,17 @@
-import ChartMainHelper from "../helpers/chart-helper.js";
 class GoldenRodSpider {
     content_wrapper = null;
     head_child_wrapper = null;
     hcInnerContainer = null;
     chartHelper;
-    tree_data = [];
     hc_d3 = window.d3;
     current_scale = 1;
     nodes_group = undefined;
     links_group = undefined;
     rotate_deg = 0;
     animation_interval = -1;
-    constructor({ tree_data, hcInnerContainer }) {
+    constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         setTimeout(() => {
             this.organizeUI();
         }, 0);
@@ -45,7 +41,7 @@ class GoldenRodSpider {
         const data = this.chartHelper.data_to_d3_format();
         const root = this.hc_d3.hierarchy(data)
             .sort((a, b) => b.height - a.height || a.data.name.localeCompare(b.data.name));
-        const radius = 540 * Math.sqrt(this.tree_data.length / 3);
+        const radius = 540 * Math.sqrt(this.chartHelper.tree_data.length / 3);
         const treeLayout = this.hc_d3.cluster()
             .size([360, radius])
             .separation((a, b) => 50);
@@ -63,14 +59,20 @@ class GoldenRodSpider {
         root.each((node) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
             node['head'] = chartHead.node();
+            node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id);
         });
         // draw nodes
         svgNode.select('g.nodes')
             .selectAll('svg.node')
             .data(root.descendants())
             .enter()
-            .append((d) => d.head)
+            .append((d) => {
+            d.head.querySelector('rect').style.fill = "white";
+            d.head.querySelector('rect').style.strokeWidth = "1";
+            return d.head;
+        })
             .classed('node', true)
+            .attr('style', 'background-color: red; fill: yellow')
             .attr("transform", (d) => `rotate(${d.x}, 0, 0), translate(0, ${-d.y})`);
         svgNode.select('g.nodes')
             .selectAll('circle.node')
@@ -81,8 +83,8 @@ class GoldenRodSpider {
             .attr('cx', 0)
             .attr('cy', (d) => -d.y)
             .attr('r', 5)
-            .attr("fill", "lightblue")
-            .attr('stroke', "darkgray")
+            .attr("fill", (d) => d.color_set.color)
+            .attr('stroke', (d) => d.color_set.gray)
             .attr('stroke-width', 1)
             .attr("transform", (d) => `rotate(${d.x}, 0, 0)`);
         const lineGen = this.hc_d3.lineRadial()
@@ -95,13 +97,13 @@ class GoldenRodSpider {
             .enter()
             .append("path")
             .classed('link', true)
-            .attr('stroke', "darkgray")
+            .attr('stroke', (d) => d.target.color_set.gray)
             .attr('fill', "none")
             .attr('stroke-width', 1)
             .attr("d", (d) => lineGen([d.target, d.source]));
         this.nodes_group = svgNode.select('g.nodes');
         this.links_group = svgNode.select('g.links');
-        this.content_wrapper?.append(svgNode.node());
+        this.head_child_wrapper?.append(svgNode.node());
     }
 }
 export default GoldenRodSpider;

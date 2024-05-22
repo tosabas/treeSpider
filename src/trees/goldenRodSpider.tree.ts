@@ -1,6 +1,5 @@
 import { TTreeClassParams } from "src/types/utils.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
-import { IChartHead } from "src/types/MainTypes.js";
 
 class GoldenRodSpider {
     protected content_wrapper: HTMLElement | null = null;
@@ -9,8 +8,6 @@ class GoldenRodSpider {
     protected hcInnerContainer: HTMLElement | null = null;
 
     chartHelper: ChartMainHelper | undefined;
-
-    tree_data: Array<IChartHead> = [];
 
     hc_d3: typeof globalThis.d3 = window.d3;
 
@@ -21,12 +18,10 @@ class GoldenRodSpider {
     rotate_deg = 0;
     animation_interval: NodeJS.Timeout = -1 as any;
 
-    constructor ({tree_data, hcInnerContainer}: TTreeClassParams) {
+    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer;
 
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
 
         setTimeout(() => {
             this.organizeUI();
@@ -68,7 +63,7 @@ class GoldenRodSpider {
         const root = this.hc_d3.hierarchy(data)
         .sort((a,b) => b.height - a.height || a.data.name.localeCompare(b.data.name));
 
-        const radius = 540 * Math.sqrt(this.tree_data.length/3);
+        const radius = 540 * Math.sqrt(this.chartHelper!.tree_data.length/3);
 
         const treeLayout = this.hc_d3.cluster()
         .size([360, radius])
@@ -93,6 +88,7 @@ class GoldenRodSpider {
         root.each((node: any) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
             node['head'] = chartHead!.node();
+            node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id as unknown as number);
         });
 
         // draw nodes
@@ -100,8 +96,13 @@ class GoldenRodSpider {
         .selectAll('svg.node')
         .data(root.descendants())
         .enter()
-        .append((d: any) => d.head)
+        .append((d: any) => {
+            d.head.querySelector('rect').style.fill = "white"
+            d.head.querySelector('rect').style.strokeWidth = "1"
+            return d.head
+        })
         .classed('node', true)
+        .attr('style', 'background-color: red; fill: yellow')
         .attr("transform", (d: any) => `rotate(${d.x}, 0, 0), translate(0, ${-d.y})`);
         
         svgNode.select('g.nodes')
@@ -113,8 +114,8 @@ class GoldenRodSpider {
         .attr('cx', 0)
         .attr('cy', (d: any) => -d.y)
         .attr('r', 5)
-        .attr("fill", "lightblue")
-        .attr('stroke', "darkgray")
+        .attr("fill", (d: any) => d.color_set.color)
+        .attr('stroke', (d: any) => d.color_set.gray)
         .attr('stroke-width', 1)
         .attr("transform", (d: any) => `rotate(${d.x}, 0, 0)`)
 
@@ -129,7 +130,7 @@ class GoldenRodSpider {
         .enter()
         .append("path")
         .classed('link', true)
-        .attr('stroke', "darkgray")
+        .attr('stroke', (d: any) => d.target.color_set.gray)
         .attr('fill', "none")
         .attr('stroke-width', 1)
         .attr("d", (d: any) => lineGen([d.target, d.source]));
@@ -138,7 +139,7 @@ class GoldenRodSpider {
 
         this.links_group = svgNode.select('g.links');
 
-        this.content_wrapper?.append(svgNode.node() as SVGSVGElement)
+        this.head_child_wrapper?.append(svgNode.node() as SVGSVGElement)
     }
 
 }

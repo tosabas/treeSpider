@@ -2,31 +2,24 @@ import ChartMainHelper from "../helpers/chart-helper.js";
 import { IChartHead } from "../types/MainTypes";
 import { TChildrenMapperReturnEl, TTreeClassParams, TTreeMapArr } from "../types/utils";
 import HCElement from "../utils/st-element.js";
-// @ts-ignore
-import * as d3_v from '../../deps/d3/d3.min.js'
 
 class DefaultTree {
+    private chartHelper: ChartMainHelper | undefined;
 
-    chartHelper: ChartMainHelper | undefined;
+    private tree_map_arr: Array<TTreeMapArr> = [];
 
-    tree_data: Array<IChartHead> = [];
-    tree_map_arr: Array<TTreeMapArr> = [];
-
-    hc_d3: typeof globalThis.d3 = window.d3;
+    private hc_d3: typeof globalThis.d3 = window.d3;
 
     protected content_wrapper: HTMLElement | null = null;
     protected hcInnerContainer: HTMLElement | null = null;
 
     current_scale = 1;
 
-
-    constructor ({tree_data, hcInnerContainer}: TTreeClassParams) {
+    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
-        // console.log("d3_2d3_2d3_2d3_2", d3, d3?.linkHorizontal, d3?.d3);
         
         setTimeout(() => {
             this.organizeUI();
@@ -34,11 +27,13 @@ class DefaultTree {
     }
 
     private map_children_data_to_head (parentSVGEl?: any, parentId?: string): TChildrenMapperReturnEl {
-        const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper!.tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper!.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper!.createDynamicEl();
             const head_UI = this.chartHelper!.makeHead(head as IChartHead);
+            console.log("head_UI", head_UI, this.chartHelper);
+            
             head_UI_wrapper.appendChild(head_UI?.node() as SVGSVGElement);
             const root_el_cls = parentId == undefined ? " st-root-el" : ""
             head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;
@@ -49,8 +44,7 @@ class DefaultTree {
             if (this.chartHelper?.el_has_children(head.id)) {
                 head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id) as HCElement);
             }
-            
-        })
+        });
         childElContainer.className = "hc-head-wrapper child-container";
         if (parentSVGEl === undefined) this.content_wrapper?.appendChild(childElContainer);
         return childElContainer;
@@ -66,13 +60,15 @@ class DefaultTree {
 
     private drawBranchLinkFresh () {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
     }
 
-    private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string) {
+    private drawBranchLink (id: string, svgNode: any, targetChild: SVGSVGElement, parentId: string) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true') return;
-        
+
+        const color_set = this.chartHelper?.color_handler.getColor(id as unknown as number);
+       
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
 
@@ -93,6 +89,7 @@ class DefaultTree {
         .attr('d', link)
         .attr('fill', 'none')
         .attr('class', 'linker-line')
+        .attr('stroke', color_set?.gray)
         .attr('stroke-width', 1)
         .attr('style', 'z-index: -1');
     }

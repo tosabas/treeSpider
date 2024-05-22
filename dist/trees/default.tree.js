@@ -1,29 +1,25 @@
-import ChartMainHelper from "../helpers/chart-helper.js";
 class DefaultTree {
     chartHelper;
-    tree_data = [];
     tree_map_arr = [];
     hc_d3 = window.d3;
     content_wrapper = null;
     hcInnerContainer = null;
     current_scale = 1;
-    constructor({ tree_data, hcInnerContainer }) {
+    constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
-        // console.log("d3_2d3_2d3_2d3_2", d3, d3?.linkHorizontal, d3?.d3);
         setTimeout(() => {
             this.organizeUI();
         }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId) {
-        const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
             const head_UI = this.chartHelper.makeHead(head);
+            console.log("head_UI", head_UI, this.chartHelper);
             head_UI_wrapper.appendChild(head_UI?.node());
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
             head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;
@@ -47,12 +43,13 @@ class DefaultTree {
     }
     drawBranchLinkFresh() {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId));
     }
-    drawBranchLink(svgNode, targetChild, parentId) {
+    drawBranchLink(id, svgNode, targetChild, parentId) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-' + parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true')
             return;
+        const color_set = this.chartHelper?.color_handler.getColor(id);
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
         const lineStartX = (svgSourceNodeBounds.width / this.current_scale) / 2;
@@ -68,6 +65,7 @@ class DefaultTree {
             .attr('d', link)
             .attr('fill', 'none')
             .attr('class', 'linker-line')
+            .attr('stroke', color_set?.gray)
             .attr('stroke-width', 1)
             .attr('style', 'z-index: -1');
     }

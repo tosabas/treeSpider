@@ -1,6 +1,7 @@
 import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
 import { IChartHead, ID3DataFormat } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
+import ColorHandler from "./colorHandler";
 
 class ChartMainHelper {
     hc_d3: typeof globalThis.d3 = window.d3;
@@ -22,6 +23,11 @@ class ChartMainHelper {
         "left": "right",
         "right": "left",
     }
+
+    chartHeadWidth = 120;
+    chartHeadHeight = 130;
+
+    color_handler: ColorHandler = {} as ColorHandler;
 
     constructor () {
         
@@ -55,16 +61,42 @@ class ChartMainHelper {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
 
+        const color_set = this.color_handler.getColor(head_data.id as unknown as number);
+
+        console.log("color_set", color_set);
+
+        // <defs>
+        //     <filter id="f1" x="0" y="0" xmlns="http://www.w3.org/2000/svg">
+        //     <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
+        //     </filter>
+        // </defs>
+        
+
         const svgNode = this.hc_d3?.create('svg')
         .attr("class", "main-svg-el")
-        .attr('width', 120)
-        .attr('height', 130)
+        .attr('width', this.chartHeadWidth)
+        .attr('height', this.chartHeadHeight);
+
+        const defs = svgNode.append('defs')
+        .append('filter')
+        .attr('id', 'blur1')
+        .attr('x', 0)
+        .attr('y', 0)
+        .append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', '3')
+
+        // svgNode.add('class', 'inset-bg')
 
         const rect = svgNode?.append('rect')
-        .attr('rx', 10)
-        .attr('ry', 10)
-        .attr('width', 120)
-        .attr('height', 130)
+        .attr('rx', 16)
+        .attr('ry', 16)
+        .attr('width', this.chartHeadWidth)
+        .attr('height', this.chartHeadHeight)
+        .attr('stroke', color_set.color)
+        .attr('fill', 'none')
+        .attr('stroke-width', 0)
+        // .attr('filter', 'url(#blur1)')
 
         const firstSection = svgNode?.append('g')
         .attr('y', 100)
@@ -72,13 +104,14 @@ class ChartMainHelper {
         firstSection?.append('circle')
         .attr('r', 20)
         .attr('stroke-width', 1)
+        .attr('fill', color_set.color)
         .attr('cx', parseInt(rect!.attr('width'))/2)
         .attr('cy', 35)
 
         firstSection?.append('text')
         .attr('class', '')
         .attr('text-anchor', 'middle')
-        .attr('fill', 'white')
+        .attr('fill', color_set.bright500)
         .attr('x', parseInt(rect!.attr('width'))/2)
         .attr('y', 42)
         .attr('font-size', '95%')
@@ -94,6 +127,7 @@ class ChartMainHelper {
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('y', i > 0 ? 95 : 80)
             .attr('font-size', '85%')
+            .attr('fill', color_set.darker)
             .attr('style', `text-transform: ${i > 0 ? 'none' : 'capitalize'}`)
             .text(name); // employee name
             i > 0 && (move_down = 15);
@@ -112,7 +146,8 @@ class ChartMainHelper {
             positionTitle?.append('tspan')
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('dy', index > 0 ? '.6rem' : 0)
-            .text(title.toString());
+            .text(title.toString())
+            .attr('fill', color_set.dark100);
             index > 0 && (move_down += 10);
         })
 
@@ -122,6 +157,7 @@ class ChartMainHelper {
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('y', 115 + move_down)
             .attr('font-size', '65%')
+            .attr('fill', color_set.dark100);
     
             const location_title = this.splitStringIntoBatch(head_data.location, 19) // role
     
@@ -138,14 +174,17 @@ class ChartMainHelper {
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
 
+        const point_radius = 50
+
         if (pointPosition != false && has_parent) {
             svgNode?.append('path')
             .attr('d', this.hc_d3!.symbol(this.hc_d3!.symbolCircle))
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('y', 0)
             .attr('class', 'hc-linker')
-            .attr('width', 50)
-            .attr('height', 50)
+            .attr('width', point_radius)
+            .attr('height', point_radius)
+            .attr('fill', color_set.gray)
             .attr('transform', this.link_point_position[pointPosition.children](rect))
         }
         
@@ -157,9 +196,10 @@ class ChartMainHelper {
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('y', rect!.attr('height'))
             .attr('class', 'hc-linker')
-            .attr('width', 50)
-            .attr('height', 50)
+            .attr('width', point_radius)
+            .attr('height', point_radius)
             .attr('style', 'cursor: pointer')
+            .attr('fill', color_set.gray)
             .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children] as keyof typeof this.link_point_position](rect))
             .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y))
 
@@ -170,9 +210,10 @@ class ChartMainHelper {
                 .attr('x', parseInt(rect!.attr('width'))/2)
                 .attr('y', rect!.attr('height'))
                 .attr('class', 'hc-linker')
-                .attr('width', 50)
-                .attr('height', 50)
+                .attr('width', point_radius)
+                .attr('height', point_radius)
                 .attr('style', 'cursor: pointer')
+                .attr('fill', color_set.gray)
                 .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent] as keyof typeof this.link_point_position](rect))
                 .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2))
             }
@@ -277,7 +318,7 @@ class ChartMainHelper {
         return this.tree_data.filter(data => data.parentId == el_id).length > 0;
     }
 
-    public data_to_d3_format (parentId?: string) {
+    public data_to_d3_format (parentId?: string, include_stat?: boolean) {
         const parent_el: ID3DataFormat = this.tree_data.find(data => (parentId == undefined ? data.parentId : data.id) == parentId) as ID3DataFormat;
 
         parent_el.children = [];
@@ -285,8 +326,9 @@ class ChartMainHelper {
         const children = this.tree_data.filter(data => data.parentId == parent_el.id);
 
         children.forEach(child => {
+            include_stat && (child.stat = 1);
             if (this.el_has_children(child.id)) {
-                parent_el.children.push(this.data_to_d3_format(child.id))
+                parent_el.children.push(this.data_to_d3_format(child.id, include_stat))
             }else{
                 parent_el.children.push(child)
             }

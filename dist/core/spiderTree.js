@@ -2,6 +2,7 @@ import HCRootContainer from "../utils/st-root-container.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
 import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
+import ColorHandler from "../helpers/colorHandler.js";
 class SpiderTree extends EventTarget {
     /**
      * The library name
@@ -38,8 +39,9 @@ class SpiderTree extends EventTarget {
     hcInnerContainer = null;
     rootCanvasEl = null;
     // protected head_wrapper: HTMLElement | null = null;
-    chartHelper = new ChartMainHelper();
+    chartHelper = {};
     currentChartUI;
+    colorHandler = {};
     /**
      * SpiderTree options
      */
@@ -56,7 +58,6 @@ class SpiderTree extends EventTarget {
         const randData = new RandomDataGenerator({ length: 50 });
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
-        console.log("data", this.options.tree_data);
         this.loadFont();
         this.setOptions(options);
         this.initialize();
@@ -115,6 +116,19 @@ class SpiderTree extends EventTarget {
     }
     createUI() {
         this.hc_d3 = window.d3;
+        this.chartHelper = new ChartMainHelper();
+        this.chartHelper.tree_data = this.options.tree_data;
+        this.colorHandler = new ColorHandler({
+            tree_data: this.options.tree_data,
+            // color_range: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
+            // color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
+            // color_range: ["#828282", "#2d2e2e"],
+            // color_range: ["#3474eb", "#034659"],
+            // color_range: ["#3474eb", "#3474eb"],
+            // color_range: ["darkblue", "lightblue"],
+            color_range: ["#1268b3", "#6812b3"],
+        });
+        this.chartHelper.color_handler = this.colorHandler;
         this.placeRootContainer();
     }
     placeRootContainer() {
@@ -138,27 +152,33 @@ class SpiderTree extends EventTarget {
         this.bindPanning();
         // this.currentChartUI = new DefaultTree({
         //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
         // });
         // this.currentChartUI = new VerticalSpiderWalkTree({
         //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
         // });
         // this.currentChartUI = new HorizontalSpiderTree({
         //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
         // });
         // this.currentChartUI = new HorizontalSpiderWalkTree({
         //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
         // });
         // this.currentChartUI = new CellarSpiderTree({
         //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
         // });
         this.currentChartUI = new GoldenRodSpider({
             tree_data: this.options.tree_data,
-            hcInnerContainer: this.hcInnerContainer
+            hcInnerContainer: this.hcInnerContainer,
+            chartHelper: this.chartHelper
         });
     }
     bindPanning() {

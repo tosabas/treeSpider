@@ -25,6 +25,7 @@ export interface IChartHead {
     role: string;
     location: string;
     parentId?: undefined;
+    stat?: number;
 }
 
 export interface ID3DataFormat extends IChartHead {

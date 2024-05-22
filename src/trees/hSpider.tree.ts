@@ -4,24 +4,21 @@ import { TTreeClassParams, TTreeMapArr } from "../types/utils.js";
 import HCElement from "../utils/st-element.js";
 
 class HorizontalSpiderTree {
-    chartHelper: ChartMainHelper | undefined;
+    private chartHelper: ChartMainHelper | undefined;
 
-    tree_data: Array<IChartHead> = [];
-    tree_map_arr: Array<TTreeMapArr> = [];
+    private tree_map_arr: Array<TTreeMapArr> = [];
 
-    hc_d3: typeof globalThis.d3 = window.d3;
+    private hc_d3: typeof globalThis.d3 = window.d3;
 
     protected content_wrapper: HTMLElement | null = null;
     protected hcInnerContainer: HTMLElement | null = null;
 
-    current_scale = 1;
+    public current_scale = 1;
 
-    constructor ({tree_data, hcInnerContainer}: TTreeClassParams) {
-        this.tree_data = tree_data;
+    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer;
 
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this)
 
         setTimeout(() => {
@@ -42,7 +39,7 @@ class HorizontalSpiderTree {
     }
 
     private map_children_data_to_head (parentSVGEl?: any, parentId?: string) {
-        const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper!.tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper!.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper!.createDynamicEl();
@@ -69,12 +66,14 @@ class HorizontalSpiderTree {
 
     private drawBranchLinkFresh () {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId));
     }
 
-    private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string) {
+    private drawBranchLink (id: string, svgNode: any, targetChild: SVGSVGElement, parentId: string) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true') return;
+
+        const color_set = this.chartHelper?.color_handler.getColor(id as unknown as number);
         
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
@@ -98,6 +97,7 @@ class HorizontalSpiderTree {
         .attr('fill', 'none')
         .attr('class', 'linker-line')
         .attr('stroke-width', 1)
+        .attr('stroke', color_set?.gray)
         .attr('style', 'z-index: -1');
     }
 

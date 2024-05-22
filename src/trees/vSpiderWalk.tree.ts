@@ -13,19 +13,16 @@ class VerticalSpiderWalkTree {
 
     chartHelper: ChartMainHelper | undefined;
 
-    tree_data: Array<IChartHead> = [];
     tree_map_arr: Array<TTreeMapArr> = [];
 
     hc_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
-    constructor ({tree_data, hcInnerContainer}: TTreeClassParams) {
+    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer;
 
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
 
         setTimeout(() => {
@@ -52,16 +49,14 @@ class VerticalSpiderWalkTree {
         this.map_children_data_to_head();
         this.hcInnerContainer!.appendChild(this.content_wrapper);
 
-        // (document.querySelector('#click-me') as HTMLButtonElement).onclick = () => this.chartHelper?.center_root_tree_el(this.hcInnerContainer as HTMLElement, this.current_scale);
-        // this.chartHelper?.center_root_tree_el(this.hcInnerContainer as HTMLElement, this.current_scale);
         this.drawBranchLinkFresh();
         
     }
 
     private map_children_data_to_head (parentSVGEl?: any, parentId?: string, provided_hierarchy?: IChartHead[]) {
-        let hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        let hierarchies = this.chartHelper!.tree_data.filter(data => data.parentId == parentId);
         if (!provided_hierarchy) {
-            hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+            hierarchies = this.chartHelper!.tree_data.filter(data => data.parentId == parentId);
         }else{
             hierarchies = provided_hierarchy
         }
@@ -122,13 +117,15 @@ class VerticalSpiderWalkTree {
 
     private drawBranchLinkFresh () {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId, branch.lineOrigin));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId, branch.lineOrigin));
     }
 
-    private drawBranchLink (svgNode: any, targetChild: SVGSVGElement, parentId: string, lineOrigin: TBranchLineOrigin = "bottom") {
+    private drawBranchLink (id: string, svgNode: any, targetChild: SVGSVGElement, parentId: string, lineOrigin: TBranchLineOrigin = "bottom") {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
         const isElParentRootEl = this.chartHelper!.getIsParentRootEl(parentId as string);
         if (isParentChildrenHidden === 'true' && !isElParentRootEl) return;
+
+        const color_set = this.chartHelper?.color_handler.getColor(id as unknown as number);
         
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
@@ -151,6 +148,7 @@ class VerticalSpiderWalkTree {
         .attr('fill', 'none')
         .attr('class', 'linker-line')
         .attr('stroke-width', 1)
+        .attr('stroke', color_set?.gray)
         .attr('style', 'z-index: -1');
     }
 
@@ -201,9 +199,9 @@ class VerticalSpiderWalkTree {
 
         let immediate_root_children = [] as any[];
         if (clicked_pos == 0) {
-            immediate_root_children = this.tree_data.filter(data => data.parentId == id && this.chartHelper!.getElemRelPosInTree(data.id as string) % 2 == 0);
+            immediate_root_children = this.chartHelper!.tree_data.filter(data => data.parentId == id && this.chartHelper!.getElemRelPosInTree(data.id as string) % 2 == 0);
         }else{
-            immediate_root_children = this.tree_data.filter(data => data.parentId == id && this.chartHelper!.getElemRelPosInTree(data.id as string) % 2 != 0);
+            immediate_root_children = this.chartHelper!.tree_data.filter(data => data.parentId == id && this.chartHelper!.getElemRelPosInTree(data.id as string) % 2 != 0);
         }
 
         if (((!nodeTopChildrenHidden || nodeTopChildrenHidden == "false") && clicked_pos == 0) || ((!nodeBottomChildrenHidden || nodeBottomChildrenHidden == "false") && clicked_pos != 0)) {

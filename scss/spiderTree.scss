@@ -4,13 +4,15 @@
     --zoom-level: 1;
     --move-x: 0px;
     --move-y: 0px;
+
+    --head-shadow-color: '';
 }
 
 $root-gray: rgb(95, 95, 95);
 $root-light-gray: rgb(187, 186, 186);
 $circle-fill: rgb(170, 170, 170);
 $line-gray: #545454;
-$vertical-space: 150px;
+$vertical-space: 250px;
 
 .hv-root-wrapper-element * {
     -webkit-user-select: none;  /* Safari */
@@ -52,31 +54,45 @@ $vertical-space: 150px;
 .main-svg-el {
     background-color: white !important;
     overflow: visible;
-    border-radius: 10px;
+    border-radius: 16px;
+
+    box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
+    -webkit-box-shadow: -1px 2px 14px 3px rgba(91,91,91,0.19);
+    -moz-box-shadow: -1px 2px 14px 3px rgba(91,91,91,0.19);
 }
 
 .main-svg-el rect {
-    stroke: $root-light-gray;
-    stroke-width: 1px;
-    fill: none;
+    // stroke: $root-light-gray;
+    // stroke-width: .3px;
+    // fill: rgb(255, 255, 255);
+
+    // box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
+    // -webkit-box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
+    // -moz-box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
 }
 
-.main-svg-el text, tspan, .hc-linker {
-    fill: $root-gray;
+.inset-shadow {
+    box-shadow: -1px 2px 14px 6px rgba(91, 91, 91, 0.19) inset !important;
+    -webkit-box-shadow: -1px 2px 14px 6px rgba(91, 91, 91, 0.19) inset !important;
+    -moz-box-shadow: -1px 2px 14px 6px rgba(91, 91, 91, 0.19) inset !important;
 }
+
+// .main-svg-el .hc-linker {
+//     // fill: $root-gray;
+// }
 
 .hc-linker {
     z-index: +999;
 }
 
 .main-svg-el .linker-line {
-    stroke: $line-gray;
+    // stroke: $line-gray;
     pointer-events: none;
 }
 
-.main-svg-el circle {
-    fill: $circle-fill;
-}
+// .main-svg-el circle {
+//     fill: $circle-fill;
+// }
 
 .hc-head-wrapper {
     padding: 10px;
@@ -106,6 +122,7 @@ $vertical-space: 150px;
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
+    align-content: flex-start;
 }
 
 // HC Vertical Tree Styles
@@ -136,12 +153,11 @@ $vertical-space: 150px;
 
 .hc-v-spider-head-wrapper > div:nth-child(2) {
     align-items: center !important;
-    padding-top: $vertical-space;
-
+    padding-top: calc($vertical-space * 2);
 }
 
 .hc-v-spider-head-wrapper > div:nth-child(2) > div {
-    margin-bottom: 0px !important;
+    margin-bottom: $vertical-space !important;
 }
 
 .hc-v-spider-head-wrapper .child-container {

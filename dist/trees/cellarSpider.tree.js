@@ -1,4 +1,3 @@
-import ChartMainHelper from "../helpers/chart-helper.js";
 class CellarSpiderTree {
     content_wrapper = null;
     head_child_wrapper_center = null;
@@ -6,15 +5,12 @@ class CellarSpiderTree {
     head_child_wrapper_2 = null;
     hcInnerContainer = null;
     chartHelper;
-    tree_data = [];
     tree_map_arr = [];
     hc_d3 = window.d3;
     current_scale = 1;
-    constructor({ tree_data, hcInnerContainer }) {
+    constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
-        this.tree_data = tree_data;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
         setTimeout(() => {
             this.organizeUI();
@@ -37,9 +33,9 @@ class CellarSpiderTree {
         this.drawBranchLinkFresh();
     }
     map_children_data_to_head(parentSVGEl, parentId, provided_hierarchy) {
-        let hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        let hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
         if (!provided_hierarchy) {
-            hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+            hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
         }
         else {
             hierarchies = provided_hierarchy;
@@ -98,12 +94,13 @@ class CellarSpiderTree {
     drawBranchLinkFresh() {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
         console.log("trre map arr", this.tree_map_arr);
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild, branch.parentId, branch.lineOrigin));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId, branch.lineOrigin));
     }
-    drawBranchLink(svgNode, targetChild, parentId, lineOrigin = "bottom") {
+    drawBranchLink(id, svgNode, targetChild, parentId, lineOrigin = "bottom") {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-' + parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true')
             return;
+        const color_set = this.chartHelper?.color_handler.getColor(id);
         const parentIsRoot = this.chartHelper.getIsParentRootEl(parentId);
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
@@ -128,6 +125,7 @@ class CellarSpiderTree {
             .attr('fill', 'none')
             .attr('class', 'linker-line')
             .attr('stroke-width', 1)
+            .attr('stroke', color_set?.gray)
             .attr('style', 'z-index: -1');
     }
     handleCollapseChildren(svgNode, id, clicked_pos) {
@@ -171,7 +169,7 @@ class CellarSpiderTree {
     handleCollapseRootElChildren(svgNode, id, clicked_pos) {
         const nodeParent = svgNode.node()?.parentElement;
         const nodeTopChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden');
-        const children = this.tree_data.filter(data => data.parentId == id);
+        const children = this.chartHelper.tree_data.filter(data => data.parentId == id);
         if (!nodeTopChildrenHidden || nodeTopChildrenHidden == "false") {
             children.forEach(child => {
                 const childNodeContainer = this.hcInnerContainer?.querySelector('.hc-w-id-' + child.id);

@@ -1,17 +1,13 @@
-import ChartMainHelper from "../helpers/chart-helper.js";
 class HorizontalSpiderTree {
     chartHelper;
-    tree_data = [];
     tree_map_arr = [];
     hc_d3 = window.d3;
     content_wrapper = null;
     hcInnerContainer = null;
     current_scale = 1;
-    constructor({ tree_data, hcInnerContainer }) {
-        this.tree_data = tree_data;
+    constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
-        this.chartHelper = new ChartMainHelper();
-        this.chartHelper.tree_data = tree_data;
+        this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this);
         setTimeout(() => {
             this.organizeUI();
@@ -28,7 +24,7 @@ class HorizontalSpiderTree {
         }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId) {
-        const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
@@ -51,12 +47,13 @@ class HorizontalSpiderTree {
     }
     drawBranchLinkFresh() {
         document.querySelectorAll('.linker-line').forEach(el => el.remove());
-        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.svgNode, branch.targetChild, branch.parentId));
+        this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId));
     }
-    drawBranchLink(svgNode, targetChild, parentId) {
+    drawBranchLink(id, svgNode, targetChild, parentId) {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-' + parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true')
             return;
+        const color_set = this.chartHelper?.color_handler.getColor(id);
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
         const lineStartX = (svgSourceNodeBounds.width / this.current_scale);
@@ -73,6 +70,7 @@ class HorizontalSpiderTree {
             .attr('fill', 'none')
             .attr('class', 'linker-line')
             .attr('stroke-width', 1)
+            .attr('stroke', color_set?.gray)
             .attr('style', 'z-index: -1');
     }
     handleCollapseChildren(svgNode, id, clicked_pos) {
