@@ -4,6 +4,7 @@ class RandomDataGenerator {
     generated_data = [];
     auto_proceed = true;
     locale = "en_GB";
+    imgAPIs = ['https://picsum.photos/500/500?random=', 'https://avatar.iran.liara.run/public/'];
     constructor({ length, auto_proceed, locale }) {
         length !== undefined && (this.data_length = length);
         auto_proceed !== undefined && (this.auto_proceed = auto_proceed);
@@ -27,11 +28,14 @@ class RandomDataGenerator {
         return this.generated_data;
     }
     generate_data(id) {
+        const should_add_image = Math.floor(Math.random() * 2);
+        const img_endpoints = this.imgAPIs[Math.floor(Math.random() * this.imgAPIs.length)] + id;
         return {
             id,
             name: allFakers[this.locale].person.fullName(),
             role: allFakers[this.locale].person.jobTitle(),
-            location: allFakers[this.locale].location.city() + ", " + allFakers[this.locale].location.country()
+            location: allFakers[this.locale].location.city() + ", " + allFakers[this.locale].location.country(),
+            image: should_add_image ? img_endpoints : ''
         };
     }
 }

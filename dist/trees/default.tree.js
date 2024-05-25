@@ -18,8 +18,9 @@ class DefaultTree {
         const childElContainer = this.chartHelper.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
-            const head_UI = this.chartHelper.makeHead(head);
-            console.log("head_UI", head_UI, this.chartHelper);
+            // const head_UI = this.chartHelper!.makeHead(head as IChartHead);
+            // const head_UI = this.chartHelper!.landscapeHead(head as IChartHead);
+            const head_UI = this.chartHelper.roundedHead(head);
             head_UI_wrapper.appendChild(head_UI?.node());
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
             head_UI_wrapper.className = "hc-head-node-wrapper hc-w-id-" + head.id + root_el_cls;

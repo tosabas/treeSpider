@@ -28,7 +28,7 @@ class ColorHandler {
         const hsl_bright = this.hc_d3.hsl(conv_color as RGBColor)
         hsl_bright.l += 0.6;
 
-        const opac_gray80 = this.hc_d3.gray(85).opacity = .2
+        const opac_gray80 = this.hc_d3.gray(85)
 
         const colorSet: TColorSet = {
             color: color,
@@ -43,13 +43,20 @@ class ColorHandler {
         return colorSet;
     }
 
+    public get_app_gray () {
+        return this.hc_d3.gray(50).toString();
+    }
+
     private get_color_percentage (index: number) {
         return (index / this.tree_data.length);
     }
 
     private interpolateColor () {
-        this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
-        // this.interpolated_color = this.hc_d3.interpolateHslLong(this.color_range[0], this.color_range[1]);
+        if (true) {
+            this.interpolated_color = this.hc_d3.interpolateRainbow;
+        }else{
+            this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
+        }
     }
 }
 

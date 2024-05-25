@@ -102,8 +102,8 @@ class GoldenRodSpider {
             return d.head
         })
         .classed('node', true)
-        .attr('style', 'background-color: red; fill: yellow')
-        .attr("transform", (d: any) => `rotate(${d.x}, 0, 0), translate(0, ${-d.y})`);
+        .select('g')
+        .attr("transform", (d: any) => `rotate(${d.x}, 0, 0) translate(0, ${-d.y})`);
         
         svgNode.select('g.nodes')
         .selectAll('circle.node')
@@ -132,7 +132,7 @@ class GoldenRodSpider {
         .classed('link', true)
         .attr('stroke', (d: any) => d.target.color_set.gray)
         .attr('fill', "none")
-        .attr('stroke-width', 1)
+        .attr('stroke-width', 1.5)
         .attr("d", (d: any) => lineGen([d.target, d.source]));
 
         this.nodes_group = svgNode.select('g.nodes');

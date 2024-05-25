@@ -13,7 +13,7 @@ class HCRootContainer extends HTMLDivElement {
     
 
     connectedCallback () {
-        this.className = "hv-root-wrapper-element";
+        this.className = "hv-root-wrapper-element tree-spider";
     }
 
     attributeChangedCallback(name:string, oldValue:any, newValue:any) {

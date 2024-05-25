@@ -26,8 +26,8 @@ $vertical-space: 250px;
     width: 900px;
     height: 500px;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    // align-items: center;
+    // justify-content: center;
     background-image: var(--hc-root-el-bg-image);
     position: relative;
     overflow: hidden;
@@ -44,11 +44,7 @@ $vertical-space: 250px;
 
 .hv-root-wrapper-element .hc-inner-container {
     width: auto;
-    // transform-style: preserve-3d;
-    transform: scale(var(--zoom-level)) translate(var(--move-x), var(--move-y));
-    display: flex;
-    position: absolute;
-    // transition: top 1s ease-in, left 1s ease-in;
+    transform-origin: 0% 0%;
 }
 
 .main-svg-el {
@@ -61,7 +57,7 @@ $vertical-space: 250px;
     -moz-box-shadow: -1px 2px 14px 3px rgba(91,91,91,0.19);
 }
 
-.main-svg-el rect {
+// .main-svg-el rect {
     // stroke: $root-light-gray;
     // stroke-width: .3px;
     // fill: rgb(255, 255, 255);
@@ -69,7 +65,7 @@ $vertical-space: 250px;
     // box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
     // -webkit-box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
     // -moz-box-shadow: -1px 2px 14px 6px rgba(0,0,0,0.19);
-}
+// }
 
 .inset-shadow {
     box-shadow: -1px 2px 14px 6px rgba(91, 91, 91, 0.19) inset !important;
@@ -125,16 +121,16 @@ $vertical-space: 250px;
     align-content: flex-start;
 }
 
-// HC Vertical Tree Styles
+
+//====================================================================
+//================= HC Vertical Tree Styles ===================
+//====================================================================
+
 .hc-v-spider-head-wrapper {
     padding: 10px;
     display: flex !important;
-    // align-items: flex-start;
     flex-wrap: wrap;
     flex-direction: column !important;
-    // justify-content: center;
-    // align-items: center;
-    // transition: top 1s ease-in, left 1s ease-in;
 }
 
 .hc-v-spider-head-wrapper > div {

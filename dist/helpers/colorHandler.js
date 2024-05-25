@@ -19,7 +19,7 @@ class ColorHandler {
         // to_hsl.l += 0.1;
         const hsl_bright = this.hc_d3.hsl(conv_color);
         hsl_bright.l += 0.6;
-        const opac_gray80 = this.hc_d3.gray(85).opacity = .2;
+        const opac_gray80 = this.hc_d3.gray(85);
         const colorSet = {
             color: color,
             darker: conv_color?.darker(0.8).toString(),
@@ -32,12 +32,19 @@ class ColorHandler {
         };
         return colorSet;
     }
+    get_app_gray() {
+        return this.hc_d3.gray(50).toString();
+    }
     get_color_percentage(index) {
         return (index / this.tree_data.length);
     }
     interpolateColor() {
-        this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
-        // this.interpolated_color = this.hc_d3.interpolateHslLong(this.color_range[0], this.color_range[1]);
+        if (true) {
+            this.interpolated_color = this.hc_d3.interpolateRainbow;
+        }
+        else {
+            this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
+        }
     }
 }
 export default ColorHandler;

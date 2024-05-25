@@ -19,8 +19,6 @@
   width: 900px;
   height: 500px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   background-image: var(--hc-root-el-bg-image);
   position: relative;
   overflow: hidden;
@@ -37,9 +35,7 @@
 
 .hv-root-wrapper-element .hc-inner-container {
   width: auto;
-  transform: scale(var(--zoom-level)) translate(var(--move-x), var(--move-y));
-  display: flex;
-  position: absolute;
+  transform-origin: 0% 0%;
 }
 
 .main-svg-el {

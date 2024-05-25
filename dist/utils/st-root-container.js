@@ -8,7 +8,7 @@ class HCRootContainer extends HTMLDivElement {
         this.setCanvasBg();
     }
     connectedCallback() {
-        this.className = "hv-root-wrapper-element";
+        this.className = "hv-root-wrapper-element tree-spider";
     }
     attributeChangedCallback(name, oldValue, newValue) {
         console.log(`Attribute ${name} has changed from ${oldValue} to ${newValue}.`);

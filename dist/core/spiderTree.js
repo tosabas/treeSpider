@@ -1,7 +1,8 @@
 import HCRootContainer from "../utils/st-root-container.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
-import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
+// trees
+import DefaultTree from "../trees/default.tree.js";
 import ColorHandler from "../helpers/colorHandler.js";
 class SpiderTree extends EventTarget {
     /**
@@ -55,9 +56,10 @@ class SpiderTree extends EventTarget {
         if (options.targetContainer == undefined) {
             throw new Error(this.libraryName + ": The target container is required");
         }
-        const randData = new RandomDataGenerator({ length: 50 });
+        const randData = new RandomDataGenerator({ length: 120 });
         this.random_data = randData.generated_data;
         this.options.tree_data = randData.generated_data;
+        // this.options.tree_data = this.tree_data;
         this.loadFont();
         this.setOptions(options);
         this.initialize();
@@ -121,12 +123,12 @@ class SpiderTree extends EventTarget {
         this.colorHandler = new ColorHandler({
             tree_data: this.options.tree_data,
             // color_range: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
-            // color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
+            color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
             // color_range: ["#828282", "#2d2e2e"],
             // color_range: ["#3474eb", "#034659"],
             // color_range: ["#3474eb", "#3474eb"],
             // color_range: ["darkblue", "lightblue"],
-            color_range: ["#1268b3", "#6812b3"],
+            // color_range: ["#1268b3", "#6812b3"],
         });
         this.chartHelper.color_handler = this.colorHandler;
         this.placeRootContainer();
@@ -150,11 +152,11 @@ class SpiderTree extends EventTarget {
             this.targetRootContainer.appendChild(this.rootWrapperContainer);
         }
         this.bindPanning();
-        // this.currentChartUI = new DefaultTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
+        this.currentChartUI = new DefaultTree({
+            tree_data: this.options.tree_data,
+            hcInnerContainer: this.hcInnerContainer,
+            chartHelper: this.chartHelper
+        });
         // this.currentChartUI = new VerticalSpiderWalkTree({
         //     tree_data: this.options.tree_data,
         //     hcInnerContainer: this.hcInnerContainer,
@@ -175,54 +177,37 @@ class SpiderTree extends EventTarget {
         //     hcInnerContainer: this.hcInnerContainer,
         //     chartHelper: this.chartHelper
         // });
-        this.currentChartUI = new GoldenRodSpider({
-            tree_data: this.options.tree_data,
-            hcInnerContainer: this.hcInnerContainer,
-            chartHelper: this.chartHelper
-        });
+        // this.currentChartUI = new GoldenRodSpider({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
+        // });
+        // this.currentChartUI = new RadialSpiderLeg({
+        //     tree_data: this.options.tree_data,
+        //     hcInnerContainer: this.hcInnerContainer,
+        //     chartHelper: this.chartHelper
+        // });
     }
     bindPanning() {
-        this.rootWrapperContainer.onmousedown = (e) => {
-            e.preventDefault();
-            this.last_client_x = e.clientX;
-            this.last_client_y = e.clientY;
-            this.rootWrapperContainer.onmousemove = (e) => this.handleMouseMove(e);
+        const root_cont_rect = this.rootWrapperContainer?.getBoundingClientRect();
+        const zoomFilter = (event) => {
+            event.preventDefault();
+            return (!event.ctrlKey || event.type === 'wheel') && !event.button;
         };
-        this.rootWrapperContainer.onmouseleave = (e) => {
-            this.rootWrapperContainer.onmousemove = () => null;
-            this.rootWrapperContainer.style.setProperty('--hc-root-container-cursor', 'default');
+        const room_container_el = this.hc_d3?.select('.hv-root-wrapper-element');
+        const zoomed = ({ transform }) => {
+            this.hcInnerContainer.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.k})`;
+            this.rootWrapperContainer.style.setProperty('--hc-root-container-cursor', 'grabbing');
+            this.currentChartUI.current_scale = transform.k;
         };
-        this.rootWrapperContainer.onmouseup = (e) => {
-            this.rootWrapperContainer.onmousemove = () => null;
-            this.rootWrapperContainer.style.setProperty('--hc-root-container-cursor', 'default');
-        };
-        this.rootWrapperContainer.onwheel = (e) => {
-            e.preventDefault();
-            if (this.current_scale < this.minimum_scale) {
-                this.current_scale = this.minimum_scale;
-            }
-            else if (this.current_scale > this.maximum_scale) {
-                this.current_scale = this.maximum_scale;
-            }
-            const delta = -e.deltaY / 100; // Adjust sensitivity as needed
-            const newScale = Math.max(this.minimum_scale, this.current_scale + delta); // Limit zoom range
-            const rect = this.hcInnerContainer.getBoundingClientRect();
-            this.rootWrapperContainer?.style.setProperty('--zoom-level', newScale.toString());
-            this.current_scale = newScale;
-            this.currentChartUI.current_scale = this.current_scale;
-            // last_scale_offset_X = e.layerX;
-            // last_scale_offset_Y = e.layerY;
-        };
-    }
-    handleMouseMove(e) {
-        e.preventDefault();
-        this.rootWrapperContainer.style.setProperty('--hc-root-container-cursor', 'grab');
-        this.current_move_x += (e.clientX - this.last_client_x) / this.current_scale;
-        this.current_move_y += (e.clientY - this.last_client_y) / this.current_scale;
-        this.rootWrapperContainer?.style.setProperty('--move-x', this.current_move_x + "px");
-        this.rootWrapperContainer?.style.setProperty('--move-y', this.current_move_y + "px");
-        this.last_client_x = e.clientX;
-        this.last_client_y = e.clientY;
+        room_container_el.call(this.hc_d3.zoom()
+            .filter(zoomFilter)
+            .extent([[0, 0], [root_cont_rect.width, root_cont_rect.height]])
+            // .scaleExtent([1, 8])
+            .on("zoom", zoomed)
+            .on('end', (e) => {
+            this.rootWrapperContainer.style.setProperty('--hc-root-container-cursor', 'grab');
+        }));
     }
 }
 export default SpiderTree;

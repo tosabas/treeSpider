@@ -110,7 +110,6 @@ class HorizontalSpiderTree {
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');            
         }else{
             const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
-            console.log("childrenContainer", childrenContainer);
             
             childrenContainer?.remove();
             nodeAncestor?.querySelectorAll('.linker-line').forEach((line: SVGPathElement) => line.remove());

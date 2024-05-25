@@ -99,7 +99,7 @@ class GoldenRodSpider {
             .classed('link', true)
             .attr('stroke', (d) => d.target.color_set.gray)
             .attr('fill', "none")
-            .attr('stroke-width', 1.5)
+            .attr('stroke-width', 1)
             .attr("d", (d) => lineGen([d.target, d.source]));
         this.nodes_group = svgNode.select('g.nodes');
         this.links_group = svgNode.select('g.links');
