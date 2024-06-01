@@ -47,3 +47,5 @@ export type TColorSet = {
 export type TTreeToItemHierarchy = Array<{level: number, items: Array<IChartHead>}>;
 
 export type TBranchLineOrigin = "top" | "bottom" | "left" | "right"
+
+export type TElementCenterPositions = 'center' | 'top' | 'bottom' | 'right' | 'left'

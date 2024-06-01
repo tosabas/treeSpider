@@ -1,4 +1,4 @@
-import { TChartHeadPointPosition, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
+import { TChartHeadPointPosition, TElementCenterPositions, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
 import { IChartHead, ID3DataFormat } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
 import ColorHandler from "./colorHandler";
@@ -7,6 +7,7 @@ class ChartMainHelper {
     hc_d3: typeof globalThis.d3 = window.d3;
     tree_data: Array<IChartHead> = [];
     handleCollapseChildren: (svgNode: any, id: string, clicked_pos: number) => void | undefined = () => {};
+    center_elem: (rect: DOMRect, position?: TElementCenterPositions) => void = ({}) => null;
 
     itemHierarchy: TTreeToItemHierarchy = [];
 
@@ -78,7 +79,13 @@ class ChartMainHelper {
         const svgNode = this.hc_d3?.create('svg')
         .attr("class", "main-svg-el")
         .attr('width', this.chartHeadWidth)
-        .attr('height', this.chartHeadHeight);
+        .attr('height', this.chartHeadHeight)
+        .on('dblclick', (e: any) => {
+            e.stopPropagation();
+            const curr_target = e.currentTarget;
+            const rect = curr_target.getBoundingClientRect()
+            this.center_elem(rect)
+        });
 
         // Gaussian blur
         const defs = this.hc_d3!.create('defs')
@@ -548,7 +555,9 @@ class ChartMainHelper {
             .attr('class', 'hc-linker')
             .attr('width', point_radius)
             .attr('height', point_radius)
-            .attr('fill', color_set.gray)
+            .attr('fill', color_set.color)
+            .attr('stroke', color_set.gray)
+            .attr('stroke-width', 1)
             .attr('transform', this.link_point_position[pointPosition.children](rect))
         }
         
@@ -562,8 +571,10 @@ class ChartMainHelper {
             .attr('class', 'hc-linker')
             .attr('width', point_radius)
             .attr('height', point_radius)
-            .attr('style', 'cursor: pointer')
-            .attr('fill', color_set.gray)
+            .attr('style', 'cursor: pointer;')
+            .attr('fill', color_set.color)
+            .attr('stroke', color_set.gray)
+            .attr('stroke-width', 1)
             .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children] as keyof typeof this.link_point_position](rect))
             .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y))
 
@@ -577,7 +588,9 @@ class ChartMainHelper {
                 .attr('width', point_radius)
                 .attr('height', point_radius)
                 .attr('style', 'cursor: pointer')
-                .attr('fill', color_set.gray)
+                .attr('fill', color_set.color)
+                .attr('stroke', color_set.gray)
+                .attr('stroke-width', 1)
                 .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent] as keyof typeof this.link_point_position](rect))
                 .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2))
             }

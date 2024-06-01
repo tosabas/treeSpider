@@ -31,9 +31,7 @@ class DefaultTree {
         const childElContainer = this.chartHelper!.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper!.createDynamicEl();
-            // const head_UI = this.chartHelper!.makeHead(head as IChartHead);
-            // const head_UI = this.chartHelper!.landscapeHead(head as IChartHead);
-            const head_UI = this.chartHelper!.roundedHead(head as IChartHead);
+            const head_UI = this.chartHelper!.makeHead(head as IChartHead);
             
             head_UI_wrapper.appendChild(head_UI?.node() as SVGSVGElement);
             const root_el_cls = parentId == undefined ? " st-root-el" : ""
@@ -54,9 +52,15 @@ class DefaultTree {
     private organizeUI () {
         this.content_wrapper = this.chartHelper!.createDynamicEl();
         this.content_wrapper.className = "hc-head-wrapper";
+        
         this.map_children_data_to_head();
         this.hcInnerContainer!.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
+        
+        this.hc_d3!.timeout(() => {
+            const first_svg_el = (this.hc_d3!.select('.main-svg-el')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "top")
+        }, 0)
     }
 
     private drawBranchLinkFresh () {
@@ -91,8 +95,7 @@ class DefaultTree {
         .attr('fill', 'none')
         .attr('class', 'linker-line')
         .attr('stroke', color_set?.gray)
-        .attr('stroke-width', 1)
-        .attr('style', 'z-index: -1');
+        .attr('stroke-width', 1);
     }
 
     private handleCollapseChildren (svgNode: any, id: string, clicked_pos: number) {

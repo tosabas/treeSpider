@@ -50,7 +50,12 @@ class HorizontalSpiderWalkTree {
 
         this.map_children_data_to_head();
 
-        this.drawBranchLinkFresh()
+        this.drawBranchLinkFresh();
+
+        this.hc_d3!.timeout(() => {
+            const first_svg_el = (this.hc_d3!.select('.st-root-el > svg')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "center")
+        }, 0)
 
     }
 

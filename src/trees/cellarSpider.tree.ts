@@ -50,7 +50,12 @@ class CellarSpiderTree {
 
         this.map_children_data_to_head();
 
-        this.drawBranchLinkFresh()
+        this.drawBranchLinkFresh();
+
+        this.hc_d3!.timeout(() => {
+            const first_svg_el = (this.hc_d3!.select('.st-root-el > svg')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "bottom")
+        }, 0)
     }
 
     private map_children_data_to_head (parentSVGEl?: any, parentId?: string, provided_hierarchy?: IChartHead[]) {

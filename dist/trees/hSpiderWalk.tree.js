@@ -31,6 +31,10 @@ class HorizontalSpiderWalkTree {
         this.hcInnerContainer?.append(this.content_wrapper);
         this.map_children_data_to_head();
         this.drawBranchLinkFresh();
+        this.hc_d3.timeout(() => {
+            const first_svg_el = this.hc_d3.select('.st-root-el > svg').node().getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "center");
+        }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId, provided_hierarchy) {
         let hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);

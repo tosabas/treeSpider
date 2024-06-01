@@ -41,9 +41,10 @@ class RadialSpiderLeg {
         this.hcInnerContainer?.append(this.content_wrapper);
 
         this.map_children_data_to_head();
-        setTimeout(() => {
-            // this.animate_chat();
-        }, 0);
+        this.hc_d3!.timeout(() => {
+            const first_svg_el = (this.hc_d3!.select('.main-svg-el')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "center")
+        }, 0)
     }
 
     private animate_chat () {

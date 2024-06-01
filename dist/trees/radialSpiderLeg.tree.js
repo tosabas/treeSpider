@@ -23,8 +23,9 @@ class RadialSpiderLeg {
         this.content_wrapper.appendChild(this.head_child_wrapper);
         this.hcInnerContainer?.append(this.content_wrapper);
         this.map_children_data_to_head();
-        setTimeout(() => {
-            // this.animate_chat();
+        this.hc_d3.timeout(() => {
+            const first_svg_el = this.hc_d3.select('.main-svg-el').node().getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "center");
         }, 0);
     }
     animate_chat() {

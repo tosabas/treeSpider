@@ -32,9 +32,10 @@ class HorizontalSpiderTree {
         this.content_wrapper.className = "hc-head-wrapper";
         this.map_children_data_to_head();
         this.hcInnerContainer!.appendChild(this.content_wrapper);
-        this.drawBranchLinkFresh()
-        setTimeout(() => {
-            this.hcInnerContainer!.style.left = "0px"
+        this.drawBranchLinkFresh();
+        this.hc_d3!.timeout(() => {
+            const first_svg_el = (this.hc_d3!.select('.main-svg-el')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            this.chartHelper?.center_elem(first_svg_el, "left")
         }, 0);
     }
 
