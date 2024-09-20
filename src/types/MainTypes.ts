@@ -14,6 +14,36 @@ export interface ISpiderTreeMain {
      * An array of data containing employee details and relationship
      */
     tree_data: Array<IChartHead>;
+    /**
+     * An array of colors which will be used as color range, set more than 
+     * one color for better output
+     */
+    color_range?: string[];
+    /**
+     * The type of chart, it is set to 'default' by default
+     */
+    tree_type?: 'default' | 'cellar' | 'goldenRod' | 'hSpider' | 'hSpiderWalk' | 'radialSpiderLeg' | 'vSpiderWalk';
+    /**
+     * The type of chart head
+     */
+    chart_head_type?: TChartHeadType;
+    /**
+     * Set this to `false` to not display the tool UI
+     */
+    show_tools?: boolean;
+    /**
+     * Set this parameter to `false` to not show border around the chart head, 
+     * note setting this to `false` will also remove the charthead background for the radialSpiderLeg tree type
+     */
+    show_chart_head_border?: boolean;
+    /**
+     * Use this to set the animation rotation speed
+     */
+    animation_rotation_speed?: number;
+    /**
+     * The degree increment of the rotation, default is 1
+     */
+    animation_rotation_interval?: number
 }
 
 export interface IChartHead {
@@ -32,3 +62,7 @@ export interface IChartHead {
 export interface ID3DataFormat extends IChartHead {
     children: IChartHead[];
 }
+
+export type TTreeType = 'default' | 'cellar' | 'goldenRod' | 'hSpider' | 'hSpiderWalk' | 'radialSpiderLeg' | 'spiderlingsPack' | 'vSpiderWalk';
+
+export type TChartHeadType = 'default' | 'landscape' | 'rounded';

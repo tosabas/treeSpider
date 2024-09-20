@@ -5,12 +5,12 @@ import { TColorSet } from "src/types/utils";
 class ColorHandler {
     private hc_d3: typeof globalThis.d3 = window.d3;
     private tree_data: IChartHead[] = [];
-    private color_range: string[] = ["steelblue", "green"];
+    private color_range: string[] = ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'];
     private interpolated_color: (t: number) => string = (t) => '';
 
     constructor ({tree_data, color_range}: {tree_data: IChartHead[]; color_range?: string[]}) {
         this.tree_data = tree_data;
-        (color_range !== undefined && color_range.length > 1) && (this.color_range = color_range as string[]);
+        (color_range !== undefined && color_range.length > 0) && (this.color_range = color_range as string[]);
         this.interpolateColor();
     }
 
@@ -52,11 +52,11 @@ class ColorHandler {
     }
 
     private interpolateColor () {
-        if (true) {
-            this.interpolated_color = this.hc_d3.interpolateRainbow;
-        }else{
-            this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
-        }
+        // if (true) {
+        //     this.interpolated_color = this.hc_d3.interpolateRainbow;
+        // }else{
+        // }
+        this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
     }
 }
 

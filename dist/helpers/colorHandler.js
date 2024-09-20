@@ -1,11 +1,11 @@
 class ColorHandler {
     hc_d3 = window.d3;
     tree_data = [];
-    color_range = ["steelblue", "green"];
+    color_range = ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'];
     interpolated_color = (t) => '';
     constructor({ tree_data, color_range }) {
         this.tree_data = tree_data;
-        (color_range !== undefined && color_range.length > 1) && (this.color_range = color_range);
+        (color_range !== undefined && color_range.length > 0) && (this.color_range = color_range);
         this.interpolateColor();
     }
     getColor(index) {
@@ -39,12 +39,11 @@ class ColorHandler {
         return (index / this.tree_data.length);
     }
     interpolateColor() {
-        if (true) {
-            this.interpolated_color = this.hc_d3.interpolateRainbow;
-        }
-        else {
-            this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
-        }
+        // if (true) {
+        //     this.interpolated_color = this.hc_d3.interpolateRainbow;
+        // }else{
+        // }
+        this.interpolated_color = this.hc_d3.interpolateRgbBasis(this.color_range);
     }
 }
 export default ColorHandler;

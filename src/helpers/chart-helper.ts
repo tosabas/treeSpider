@@ -1,5 +1,5 @@
 import { TChartHeadPointPosition, TElementCenterPositions, THeadPointPosition, TTreeToItemHierarchy } from "../types/utils";
-import { IChartHead, ID3DataFormat } from "../types/MainTypes";
+import { IChartHead, ID3DataFormat, TChartHeadType } from "../types/MainTypes";
 import HCElement from "../utils/st-element.js";
 import ColorHandler from "./colorHandler";
 
@@ -36,6 +36,12 @@ class ChartMainHelper {
 
     color_handler: ColorHandler = {} as ColorHandler;
 
+    chart_head_type: TChartHeadType = 'default';
+    show_chart_head_border: boolean = true;
+
+    animation_rotation_speed = 50;
+    animation_rotation_interval = 1;
+
     constructor () {
         
     }
@@ -46,28 +52,34 @@ class ChartMainHelper {
 
     public splitStringIntoBatch (text: string, len:number) {
         let arr = [];
-        for(let i = 0; i < text.length; i+=len) {
+        for(let i = 0; i < text?.length; i+=len) {
             arr.push(text.substring(i, Math.min(i+len, text.length)))
         }
         return arr;
     }
 
     public get_user_initials (name: string) {
-        const split_name = name.split(' ')
-        return split_name.length > 1 ? split_name[0][0] + split_name.at(-1)?.[0] : split_name[0][0];
+        const split_name = name?.split(' ')
+        return split_name?.length > 1 ? split_name?.[0][0] + split_name?.at(-1)?.[0] : split_name?.[0][0];
     }
 
     public format_employee_name (name: string, length = 15) {
-        const split_name = name.split(' ')
-        const make_name = split_name.length > 2 ? split_name[0] + " " + split_name.at(-1) : split_name.join(' ');
+        const split_name = name?.split(' ')
+        const make_name = split_name?.length > 2 ? split_name?.[0] + " " + split_name?.at(-1) : split_name?.join(' ');
         const clip_name = this.splitStringIntoBatch(make_name, length)
         return clip_name
     } 
 
     public makeHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = {parent: "bottom", children: "top"}) {
-        return this.defaultHead(head_data, doubleVerticalPoints, pointPosition)
-        // return this.landscapeHead(head_data, doubleVerticalPoints, pointPosition)
-        // return this.roundedHead(head_data, doubleVerticalPoints, pointPosition)
+        if (this.chart_head_type == 'default') {
+            return this.defaultHead(head_data, doubleVerticalPoints, pointPosition)
+        }else if (this.chart_head_type == 'landscape') {
+            return this.landscapeHead(head_data, doubleVerticalPoints, pointPosition)
+        }else if (this.chart_head_type == 'rounded') {
+            return this.roundedHead(head_data, doubleVerticalPoints, pointPosition)            
+        }else{
+            return this.defaultHead(head_data, doubleVerticalPoints, pointPosition)
+        }
     }
 
     public defaultHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = {parent: "bottom", children: "top"}) {
@@ -104,7 +116,7 @@ class ChartMainHelper {
         .attr('ry', 16)
         .attr('width', this.chartHeadWidth)
         .attr('height', this.chartHeadHeight)
-        .attr('stroke', color_set.color)
+        .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
         .attr('fill', 'none')
         .attr('stroke-width', 0)
 
@@ -263,7 +275,13 @@ class ChartMainHelper {
         const svgNode = this.hc_d3?.create('svg')
         .attr("class", "main-svg-el")
         .attr('width', this.chartHeadLandscapeWidth)
-        .attr('height', this.chartHeadLandscapeHeight);
+        .attr('height', this.chartHeadLandscapeHeight)
+        .on('dblclick', (e: any) => {
+            e.stopPropagation();
+            const curr_target = e.currentTarget;
+            const rect = curr_target.getBoundingClientRect()
+            this.center_elem(rect)
+        });
 
         const all_group = svgNode.append('g');
 
@@ -272,7 +290,7 @@ class ChartMainHelper {
         .attr('ry', 16)
         .attr('width', this.chartHeadLandscapeWidth)
         .attr('height', this.chartHeadLandscapeHeight)
-        .attr('stroke', color_set.color)
+        .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
         .attr('fill', 'none')
         .attr('stroke-width', 0)
 
@@ -433,9 +451,17 @@ class ChartMainHelper {
         const color_set = this.color_handler.getColor(head_data.id as unknown as number);
 
         const svgNode = this.hc_d3?.create('svg')
+        .attr('class', 'main-svg-el rounded-head')
         .attr('style', 'overflow: visible;')
         .attr('width', this.chartHeadRoundedWidth)
-        .attr('height', this.chartHeadRoundedHeight);
+        .attr('height', this.chartHeadRoundedHeight)
+        .attr('fill', 'none')
+        .on('dblclick', (e: any) => {
+            e.stopPropagation();
+            const curr_target = e.currentTarget;
+            const rect = curr_target.getBoundingClientRect()
+            this.center_elem(rect)
+        });
 
         const all_group = svgNode.append('g')
 
@@ -444,7 +470,7 @@ class ChartMainHelper {
         .attr('ry', 16)
         .attr('width', this.chartHeadRoundedWidth)
         .attr('height', this.chartHeadRoundedHeight)
-        .attr('stroke', color_set.color)
+        .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
         .attr('fill', 'none')
         .attr('stroke-width', 0)
 
@@ -694,9 +720,9 @@ class ChartMainHelper {
     }
 
     public data_to_d3_format (parentId?: string, include_stat?: boolean) {
-        const parent_el: ID3DataFormat = this.tree_data.find(data => (parentId == undefined ? data.parentId : data.id) == parentId) as ID3DataFormat;
+        let parent_el: ID3DataFormat = this.tree_data?.find(data => (parentId == undefined ? data.parentId : data.id) == parentId) as ID3DataFormat;
 
-        parent_el.children = [];
+        parent_el = {...parent_el, children: []};
 
         const children = this.tree_data.filter(data => data.parentId == parent_el.id);
 

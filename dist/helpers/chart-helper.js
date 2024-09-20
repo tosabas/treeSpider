@@ -24,6 +24,10 @@ class ChartMainHelper {
     chartHeadRoundedWidth = 120;
     chartHeadRoundedHeight = 180;
     color_handler = {};
+    chart_head_type = 'default';
+    show_chart_head_border = true;
+    animation_rotation_speed = 50;
+    animation_rotation_interval = 1;
     constructor() {
     }
     createDynamicEl() {
@@ -31,25 +35,34 @@ class ChartMainHelper {
     }
     splitStringIntoBatch(text, len) {
         let arr = [];
-        for (let i = 0; i < text.length; i += len) {
+        for (let i = 0; i < text?.length; i += len) {
             arr.push(text.substring(i, Math.min(i + len, text.length)));
         }
         return arr;
     }
     get_user_initials(name) {
-        const split_name = name.split(' ');
-        return split_name.length > 1 ? split_name[0][0] + split_name.at(-1)?.[0] : split_name[0][0];
+        const split_name = name?.split(' ');
+        return split_name?.length > 1 ? split_name?.[0][0] + split_name?.at(-1)?.[0] : split_name?.[0][0];
     }
     format_employee_name(name, length = 15) {
-        const split_name = name.split(' ');
-        const make_name = split_name.length > 2 ? split_name[0] + " " + split_name.at(-1) : split_name.join(' ');
+        const split_name = name?.split(' ');
+        const make_name = split_name?.length > 2 ? split_name?.[0] + " " + split_name?.at(-1) : split_name?.join(' ');
         const clip_name = this.splitStringIntoBatch(make_name, length);
         return clip_name;
     }
     makeHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
-        return this.defaultHead(head_data, doubleVerticalPoints, pointPosition);
-        // return this.landscapeHead(head_data, doubleVerticalPoints, pointPosition)
-        // return this.roundedHead(head_data, doubleVerticalPoints, pointPosition)
+        if (this.chart_head_type == 'default') {
+            return this.defaultHead(head_data, doubleVerticalPoints, pointPosition);
+        }
+        else if (this.chart_head_type == 'landscape') {
+            return this.landscapeHead(head_data, doubleVerticalPoints, pointPosition);
+        }
+        else if (this.chart_head_type == 'rounded') {
+            return this.roundedHead(head_data, doubleVerticalPoints, pointPosition);
+        }
+        else {
+            return this.defaultHead(head_data, doubleVerticalPoints, pointPosition);
+        }
     }
     defaultHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
@@ -80,7 +93,7 @@ class ChartMainHelper {
             .attr('ry', 16)
             .attr('width', this.chartHeadWidth)
             .attr('height', this.chartHeadHeight)
-            .attr('stroke', color_set.color)
+            .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
             .attr('fill', 'none')
             .attr('stroke-width', 0);
         const firstSection = all_group?.append('g')
@@ -215,14 +228,20 @@ class ChartMainHelper {
         const svgNode = this.hc_d3?.create('svg')
             .attr("class", "main-svg-el")
             .attr('width', this.chartHeadLandscapeWidth)
-            .attr('height', this.chartHeadLandscapeHeight);
+            .attr('height', this.chartHeadLandscapeHeight)
+            .on('dblclick', (e) => {
+            e.stopPropagation();
+            const curr_target = e.currentTarget;
+            const rect = curr_target.getBoundingClientRect();
+            this.center_elem(rect);
+        });
         const all_group = svgNode.append('g');
         const rect = all_group?.append('rect')
             .attr('rx', 16)
             .attr('ry', 16)
             .attr('width', this.chartHeadLandscapeWidth)
             .attr('height', this.chartHeadLandscapeHeight)
-            .attr('stroke', color_set.color)
+            .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
             .attr('fill', 'none')
             .attr('stroke-width', 0);
         const employee_name_split = this.format_employee_name(head_data.name, 18);
@@ -359,16 +378,24 @@ class ChartMainHelper {
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
         const color_set = this.color_handler.getColor(head_data.id);
         const svgNode = this.hc_d3?.create('svg')
+            .attr('class', 'main-svg-el rounded-head')
             .attr('style', 'overflow: visible;')
             .attr('width', this.chartHeadRoundedWidth)
-            .attr('height', this.chartHeadRoundedHeight);
+            .attr('height', this.chartHeadRoundedHeight)
+            .attr('fill', 'none')
+            .on('dblclick', (e) => {
+            e.stopPropagation();
+            const curr_target = e.currentTarget;
+            const rect = curr_target.getBoundingClientRect();
+            this.center_elem(rect);
+        });
         const all_group = svgNode.append('g');
         const rect = all_group?.append('rect')
             .attr('rx', 16)
             .attr('ry', 16)
             .attr('width', this.chartHeadRoundedWidth)
             .attr('height', this.chartHeadRoundedHeight)
-            .attr('stroke', color_set.color)
+            .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
             .attr('fill', 'none')
             .attr('stroke-width', 0);
         const firstSection = all_group?.append('g');
@@ -587,8 +614,8 @@ class ChartMainHelper {
         return this.tree_data.filter(data => data.parentId == el_id).length > 0;
     }
     data_to_d3_format(parentId, include_stat) {
-        const parent_el = this.tree_data.find(data => (parentId == undefined ? data.parentId : data.id) == parentId);
-        parent_el.children = [];
+        let parent_el = this.tree_data?.find(data => (parentId == undefined ? data.parentId : data.id) == parentId);
+        parent_el = { ...parent_el, children: [] };
         const children = this.tree_data.filter(data => data.parentId == parent_el.id);
         children.forEach(child => {
             include_stat && (child.stat = 1);

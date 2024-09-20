@@ -1,8 +1,8 @@
-import { IChartHead, ISpiderTreeMain } from "../types/MainTypes";
+import { IChartHead, ISpiderTreeMain, TChartHeadType } from "../types/MainTypes";
 import HCCanvas from "../utils/stcanvas.js";
 import HCRootContainer from "../utils/st-root-container.js";
 import HCElement from "../utils/st-element.js";
-import { TChildrenMapperReturnEl, TElementCenterPositions, TSingleChildrenMap, TTreeMapArr } from "../types/utils.js";
+import { TChildrenMapperReturnEl, TElementCenterPositions, THeadPointPosition, TSingleChildrenMap, TTreeMapArr } from "../types/utils.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
 
@@ -17,6 +17,8 @@ import HorizontalSpiderWalkTree from "../trees/hSpiderWalk.tree.js";
 import CellarSpiderTree from "../trees/cellarSpider.tree.js";
 import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
 import RadialSpiderLeg from "../trees/radialSpiderLeg.tree.js";
+import UITools from "../utils/ui-tools.js";
+import { ZoomBehavior } from "d3";
 
 
 class SpiderTree extends EventTarget {
@@ -41,7 +43,6 @@ class SpiderTree extends EventTarget {
         {id: "10", parentId: "3", name: "Adebowale Ajanlekoko", role: "Fullstack Developer"},
     ] as Array<IChartHead>;
 
-    random_data:  Array<IChartHead> = [];
     
     protected targetRootContainer: HTMLElement | null = null;
     protected rootWrapperContainer: HTMLElement | null = null;
@@ -53,11 +54,14 @@ class SpiderTree extends EventTarget {
 
     private currentChartUI: any;
 
-    private zoom_instace: any;
+    private zoom_instace: ZoomBehavior<Element, unknown> | undefined;
     // private root: any;
 
     protected colorHandler: ColorHandler = {} as ColorHandler;
-     
+
+    private tree_default_point_position: TElementCenterPositions = '' as TElementCenterPositions
+
+
     /**
      * SpiderTree options
      */
@@ -65,6 +69,13 @@ class SpiderTree extends EventTarget {
         targetContainer: '',
         placeEl: 'override',
         tree_data: [],
+        color_range: [],
+        tree_type: 'default',
+        chart_head_type: 'rounded',
+        show_tools: true,
+        show_chart_head_border: false,
+        animation_rotation_speed: 10,
+        animation_rotation_interval: 1
     }
 
     constructor (options: ISpiderTreeMain) {
@@ -74,10 +85,13 @@ class SpiderTree extends EventTarget {
             throw new Error(this.libraryName + ": The target container is required")
         }
 
-        const randData = new RandomDataGenerator({length: 10});
-        this.random_data = randData.generated_data;
-        this.options.tree_data = randData.generated_data;
-        // this.options.tree_data = this.tree_data;
+        if (options.tree_data != undefined) {
+            this.options.tree_data = options.tree_data;            
+        }else{
+            const randData = new RandomDataGenerator({length: 150});
+            // this.options.tree_data = [];
+            this.options.tree_data = randData.generated_data;
+        }
 
         this.loadFont();
         this.setOptions(options);
@@ -144,12 +158,16 @@ class SpiderTree extends EventTarget {
         this.chartHelper = new ChartMainHelper();
         this.chartHelper.tree_data = this.options.tree_data;
         this.chartHelper.center_elem = this.center_elem.bind(this)
+        this.chartHelper.chart_head_type = this.options.chart_head_type as TChartHeadType
+        this.chartHelper.animation_rotation_speed = this.options.animation_rotation_speed as number
+        this.chartHelper.animation_rotation_interval = this.options.animation_rotation_interval as number
         
         this.colorHandler = new ColorHandler({
             tree_data: this.options.tree_data,
             // color_range: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
 
-            color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
+            // color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
+            color_range: this.options.color_range,
 
             // color_range: ["#828282", "#2d2e2e"],
             
@@ -163,11 +181,27 @@ class SpiderTree extends EventTarget {
         this.placeRootContainer();
     }
 
+    private zoomInOut(dir='in') {
+        const zoom_level = dir == 'in' ? 1.2 : 0.8
+        this.zoom_instace?.scaleBy(this.hc_d3!.select('.hv-root-wrapper-element'), zoom_level,)
+    }
+
+    private resetZoom() {
+        const first_svg_el = (this.hc_d3!.select('.main-svg-el')!.node() as SVGSVGElement)!.getBoundingClientRect()
+        this.center_elem(first_svg_el as DOMRect, this.tree_default_point_position)
+    }
+
     private placeRootContainer () {
         this.rootWrapperContainer = new HCRootContainer();
 
         this.hcInnerContainer = this.chartHelper.createDynamicEl();
         this.hcInnerContainer.className = "hc-inner-container";
+
+        if (this.options.tree_data.length == 0) {
+            const empty_content_container = new HCElement();
+            empty_content_container.innerText = "No data provided!"
+            this.hcInnerContainer.appendChild(empty_content_container)
+        }
 
         this.rootWrapperContainer.appendChild(this.hcInnerContainer);
 
@@ -184,48 +218,62 @@ class SpiderTree extends EventTarget {
 
         this.bindPanning();
 
-        // this.currentChartUI = new DefaultTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
+        if (this.options.tree_type == 'default') {
+            this.currentChartUI = new DefaultTree({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'vSpiderWalk') {
+            this.currentChartUI = new VerticalSpiderWalkTree({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'hSpider') {
+            this.currentChartUI = new HorizontalSpiderTree({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'hSpiderWalk') {
+            this.currentChartUI = new HorizontalSpiderWalkTree({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'cellar') {
+            this.currentChartUI = new CellarSpiderTree({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'goldenRod') {
+            this.currentChartUI = new GoldenRodSpider({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else if (this.options.tree_type == 'radialSpiderLeg') {
+            this.currentChartUI = new RadialSpiderLeg({
+                tree_data: this.options.tree_data,
+                hcInnerContainer: this.hcInnerContainer,
+                chartHelper: this.chartHelper
+            });            
+        }else{
+            throw new Error('Not implemented and you are welcome to implement it :)')
+        } 
 
-        // this.currentChartUI = new VerticalSpiderWalkTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
-
-        // this.currentChartUI = new HorizontalSpiderTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
-        
-        // this.currentChartUI = new HorizontalSpiderWalkTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
-        
-        // this.currentChartUI = new CellarSpiderTree({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
-        
-        // this.currentChartUI = new GoldenRodSpider({
-        //     tree_data: this.options.tree_data,
-        //     hcInnerContainer: this.hcInnerContainer,
-        //     chartHelper: this.chartHelper
-        // });
-        
-        this.currentChartUI = new RadialSpiderLeg({
-            tree_data: this.options.tree_data,
-            hcInnerContainer: this.hcInnerContainer,
-            chartHelper: this.chartHelper
-        });
-
+        if (this.options.tree_data.length > 0 && this.options.show_tools) {
+            
+            const uitool = new UITools({
+                root_ui_element: this.rootWrapperContainer,
+                zoomInOut: this.zoomInOut.bind(this),
+                resetZoom: this.resetZoom.bind(this),
+                animate_chat: this.currentChartUI?.animate_chat?.bind(this.currentChartUI)
+            })      
+            uitool.tree_type = this.options.tree_type      
+        }
 
     }
 
@@ -254,6 +302,7 @@ class SpiderTree extends EventTarget {
             .on('end', (e: any) => {
                 this.rootWrapperContainer!.style.setProperty('--hc-root-container-cursor', 'grab')
             })
+        
             
         root_container_el.call(this.zoom_instace).on("dblclick.zoom", (e: any) => null);
     }
@@ -261,6 +310,8 @@ class SpiderTree extends EventTarget {
     private center_elem (rect: DOMRect, position: TElementCenterPositions = 'center') {
         const root_container_el = this.hc_d3?.select('.hv-root-wrapper-element') as any;
 
+        this.tree_default_point_position == '' as TElementCenterPositions && (this.tree_default_point_position = position);
+        
         const root_cont_rect = root_container_el.node()?.getBoundingClientRect();
         const inner_cont_rect = this.hcInnerContainer?.getBoundingClientRect();
 
@@ -293,7 +344,7 @@ class SpiderTree extends EventTarget {
         }
 
         root_container_el.transition().duration(2500).call(
-            this.zoom_instace.transform,
+            this.zoom_instace?.transform,
             this.hc_d3?.zoomIdentity.translate(-moveX, -moveY),
         );
     }

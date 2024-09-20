@@ -16,7 +16,8 @@ class RadialSpiderLeg {
     root_svg: any = undefined
 
     rotate_deg = 0;
-    animation_interval: NodeJS.Timeout = -1 as any;
+    animation_interval: NodeJS.Timeout | undefined = undefined;
+    start_animation: boolean = false;
 
     constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
         this.hcInnerContainer = hcInnerContainer;
@@ -47,13 +48,21 @@ class RadialSpiderLeg {
         }, 0)
     }
 
-    private animate_chat () {
-        this.root_svg.attr('style', `transition: transform .3s linear`);
-
-        this.animation_interval = setInterval(() => {
-            this.rotate_deg += 1;
-            this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
-        }, 50);
+    public animate_chat (once=false, anti=false) {
+        if (once) {
+            this.rotate_deg += (this.chartHelper?.animation_rotation_interval as number) * (anti ? -1 : 1);
+            return this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`)
+        }
+        this.start_animation = !this.start_animation
+        if (this.start_animation) {
+            this.animation_interval = setInterval(() => {
+                this.rotate_deg += (this.chartHelper?.animation_rotation_interval as number) * (anti ? -1 : 1);
+                this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+            }, this.chartHelper?.animation_rotation_speed);          
+        }else{
+            this.animation_interval != undefined && clearInterval(this.animation_interval);
+            this.animation_interval = undefined;
+        }
     }
 
     private map_children_data_to_head () {
@@ -72,6 +81,7 @@ class RadialSpiderLeg {
 
         root.each((node: any) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
+            console.log("chartHead", chartHead)
             node['head'] = chartHead!.node();
             node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id as unknown as number);
         });
@@ -106,7 +116,7 @@ class RadialSpiderLeg {
                 .radius((d: any) => d.y) as any);
 
         const mainNode = svg.append("g")
-            .attr("fill", "blue")
+            // .attr("fill", "blue")
             .selectAll("g")
             .data(root.descendants())
             .join("g")
@@ -119,15 +129,17 @@ class RadialSpiderLeg {
             .attr("r", r);
 
         mainNode.append((d: any) => {
-            d.head.querySelector('rect').style.fill = "white";
-            d.head.querySelector('rect').style.strokeWidth = "1";
+            if (this.chartHelper?.chart_head_type != 'rounded' && this.chartHelper?.show_chart_head_border) {
+                d.head.querySelector('rect').style.fill = "white";
+                d.head.querySelector('rect').style.strokeWidth = "1";                
+            }
             return d.head
         })
 
         mainNode.append("title")
             .text(d => d.data.name + " - " + d.data.role);
 
-        this.root_svg = svg.node();
+        this.root_svg = svg;
 
         this.head_child_wrapper?.append(svg.node() as SVGSVGElement);
 

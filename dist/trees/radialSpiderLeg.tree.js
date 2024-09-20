@@ -7,7 +7,8 @@ class RadialSpiderLeg {
     current_scale = 1;
     root_svg = undefined;
     rotate_deg = 0;
-    animation_interval = -1;
+    animation_interval = undefined;
+    start_animation = false;
     constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
         this.chartHelper = chartHelper;
@@ -28,12 +29,22 @@ class RadialSpiderLeg {
             this.chartHelper?.center_elem(first_svg_el, "center");
         }, 0);
     }
-    animate_chat() {
-        this.root_svg.attr('style', `transition: transform .3s linear`);
-        this.animation_interval = setInterval(() => {
-            this.rotate_deg += 1;
-            this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
-        }, 50);
+    animate_chat(once = false, anti = false) {
+        if (once) {
+            this.rotate_deg += this.chartHelper?.animation_rotation_interval * (anti ? -1 : 1);
+            return this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+        }
+        this.start_animation = !this.start_animation;
+        if (this.start_animation) {
+            this.animation_interval = setInterval(() => {
+                this.rotate_deg += this.chartHelper?.animation_rotation_interval * (anti ? -1 : 1);
+                this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+            }, this.chartHelper?.animation_rotation_speed);
+        }
+        else {
+            this.animation_interval != undefined && clearInterval(this.animation_interval);
+            this.animation_interval = undefined;
+        }
     }
     map_children_data_to_head() {
         const data = this.chartHelper.data_to_d3_format();
@@ -46,6 +57,7 @@ class RadialSpiderLeg {
         const marginTop = 110;
         root.each((node) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
+            console.log("chartHead", chartHead);
             node['head'] = chartHead.node();
             node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id);
         });
@@ -73,7 +85,7 @@ class RadialSpiderLeg {
             .angle((d) => d.x)
             .radius((d) => d.y));
         const mainNode = svg.append("g")
-            .attr("fill", "blue")
+            // .attr("fill", "blue")
             .selectAll("g")
             .data(root.descendants())
             .join("g")
@@ -83,13 +95,15 @@ class RadialSpiderLeg {
             .attr("fill", (d) => d.color_set.color)
             .attr("r", r);
         mainNode.append((d) => {
-            d.head.querySelector('rect').style.fill = "white";
-            d.head.querySelector('rect').style.strokeWidth = "1";
+            if (this.chartHelper?.chart_head_type != 'rounded' && this.chartHelper?.show_chart_head_border) {
+                d.head.querySelector('rect').style.fill = "white";
+                d.head.querySelector('rect').style.strokeWidth = "1";
+            }
             return d.head;
         });
         mainNode.append("title")
             .text(d => d.data.name + " - " + d.data.role);
-        this.root_svg = svg.node();
+        this.root_svg = svg;
         this.head_child_wrapper?.append(svg.node());
     }
 }

@@ -8,7 +8,8 @@ class GoldenRodSpider {
     nodes_group = undefined;
     links_group = undefined;
     rotate_deg = 0;
-    animation_interval = -1;
+    animation_interval = undefined;
+    start_animation = false;
     constructor({ hcInnerContainer, chartHelper }) {
         this.hcInnerContainer = hcInnerContainer;
         this.chartHelper = chartHelper;
@@ -29,14 +30,24 @@ class GoldenRodSpider {
             this.chartHelper?.center_elem(first_svg_el, "center");
         }, 0);
     }
-    animate_chat() {
-        this.nodes_group.attr('style', `transition: transform .3s linear`);
-        this.links_group.attr('style', `transition: transform .3s linear`);
-        this.animation_interval = setInterval(() => {
-            this.rotate_deg += 1;
+    animate_chat(once = false, anti = false) {
+        if (once) {
+            this.rotate_deg += this.chartHelper?.animation_rotation_interval * (anti ? -1 : 1);
             this.nodes_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
-            this.links_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
-        }, 50);
+            return this.links_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+        }
+        this.start_animation = !this.start_animation;
+        if (this.start_animation) {
+            this.animation_interval = setInterval(() => {
+                this.rotate_deg += this.chartHelper?.animation_rotation_interval * (anti ? -1 : 1);
+                this.nodes_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+                this.links_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+            }, this.chartHelper?.animation_rotation_speed);
+        }
+        else {
+            this.animation_interval != undefined && clearInterval(this.animation_interval);
+            this.animation_interval = undefined;
+        }
     }
     map_children_data_to_head() {
         const data = this.chartHelper.data_to_d3_format();
@@ -68,8 +79,10 @@ class GoldenRodSpider {
             .data(root.descendants())
             .enter()
             .append((d) => {
-            d.head.querySelector('rect').style.fill = "white";
-            d.head.querySelector('rect').style.strokeWidth = "1";
+            if (this.chartHelper?.chart_head_type != 'rounded' && this.chartHelper?.show_chart_head_border) {
+                d.head.querySelector('rect').style.fill = "white";
+                d.head.querySelector('rect').style.strokeWidth = "1";
+            }
             return d.head;
         })
             .classed('node', true)

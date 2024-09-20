@@ -38,13 +38,55 @@
   transform-origin: 0% 0%;
 }
 
+.hv-root-wrapper-element .tools-container {
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  display: flex;
+  overflow: hidden;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hv-root-wrapper-element .tools-container .tool-item {
+  width: auto;
+  height: 30px;
+  padding: 0px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.hv-root-wrapper-element .tools-container .tool-item:hover {
+  background-color: rgb(194, 194, 194);
+}
+
+.hv-root-wrapper-element .tools-container .tool-item svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
 .main-svg-el {
-  background-color: white !important;
+  background-color: white;
   overflow: visible;
   border-radius: 16px;
   box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
   -webkit-box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
   -moz-box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
+}
+
+.main-svg-el.rounded-head {
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .inset-shadow {
