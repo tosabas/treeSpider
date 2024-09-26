@@ -49,3 +49,10 @@ export type TTreeToItemHierarchy = Array<{level: number, items: Array<IChartHead
 export type TBranchLineOrigin = "top" | "bottom" | "left" | "right"
 
 export type TElementCenterPositions = 'center' | 'top' | 'bottom' | 'right' | 'left'
+
+export type TLinkerCircleColor = 'brighter' | 'bright500' | 'bright100'
+
+export type TLinkerShape = 'symbolAsterisk' | 'symbolCircle' | 'symbolCross' | 
+    'symbolDiamond' | 'symbolDiamond2' | 'symbolPlus' | 'symbolSquare' | 
+    'symbolSquare2' | 'symbolStar' | 'symbolTriangle' | 'symbolTriangle2' | 
+    'symbolWye' | 'symbolX'

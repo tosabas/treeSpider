@@ -52,8 +52,8 @@ class SpiderTree extends EventTarget {
         placeEl: 'override',
         tree_data: [],
         color_range: [],
-        tree_type: 'default',
-        chart_head_type: 'rounded',
+        tree_type: 'hSpiderWalk',
+        chart_head_type: 'default',
         show_tools: true,
         show_chart_head_border: false,
         animation_rotation_speed: 10,
@@ -68,7 +68,7 @@ class SpiderTree extends EventTarget {
             this.options.tree_data = options.tree_data;
         }
         else {
-            const randData = new RandomDataGenerator({ length: 150 });
+            const randData = new RandomDataGenerator({ length: 40 });
             // this.options.tree_data = [];
             this.options.tree_data = randData.generated_data;
         }
@@ -155,7 +155,7 @@ class SpiderTree extends EventTarget {
         this.zoom_instace?.scaleBy(this.hc_d3.select('.hv-root-wrapper-element'), zoom_level);
     }
     resetZoom() {
-        const first_svg_el = this.hc_d3.select('.main-svg-el').node().getBoundingClientRect();
+        const first_svg_el = this.hc_d3.select('.root-svg-el').node().getBoundingClientRect();
         this.center_elem(first_svg_el, this.tree_default_point_position);
     }
     placeRootContainer() {

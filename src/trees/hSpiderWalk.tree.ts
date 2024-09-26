@@ -134,8 +134,10 @@ class HorizontalSpiderWalkTree {
         
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
+        
+        const st_linker_radius = Math.sqrt(Math.PI * this.chartHelper!.head_button_circle_radius * this.chartHelper!.head_button_circle_radius) / 2
 
-        const lineStartX = lineOrigin == "right" ? 0 : (svgSourceNodeBounds.width / this.current_scale);
+        const lineStartX = lineOrigin == "right" ? (0 - st_linker_radius) : ((svgSourceNodeBounds.width + st_linker_radius) / this.current_scale);
         const lineStartY = (svgSourceNodeBounds.height / this.current_scale) / 2;
 
         const lineEndX = ((elementBounds.x + (lineOrigin == "right" ? elementBounds.width : 0)) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0
@@ -159,6 +161,7 @@ class HorizontalSpiderWalkTree {
 
     private handleCollapseChildren (svgNode: any, id: string, clicked_pos: number) {
         const nodeParent = svgNode.node()?.parentElement;
+        console.log("I'm here")
         const isRootTreeEl = this.chartHelper!.getIsElRootTreeChild(id);
         const nodeChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden')
 

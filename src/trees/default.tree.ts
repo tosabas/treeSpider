@@ -77,8 +77,10 @@ class DefaultTree {
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
 
+        const st_linker_radius = Math.sqrt(Math.PI * this.chartHelper!.head_button_circle_radius * this.chartHelper!.head_button_circle_radius) / 2
+
         const lineStartX = (svgSourceNodeBounds.width / this.current_scale) / 2;
-        const lineStartY = svgSourceNodeBounds.height / this.current_scale;
+        const lineStartY = (svgSourceNodeBounds.height + st_linker_radius) / this.current_scale;
 
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2)
         const lineEndY = (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale)

@@ -28,7 +28,11 @@ class ChartMainHelper {
     show_chart_head_border = true;
     animation_rotation_speed = 50;
     animation_rotation_interval = 1;
+    head_button_circle_radius = 8;
+    linker_collapse_icon_color = 'bright500';
+    linker_shape = 'symbolDiamond2';
     constructor() {
+        console.log('symbolsFill', typeof this.hc_d3.symbolsFill[0]);
     }
     createDynamicEl() {
         return new HCElement();
@@ -50,6 +54,12 @@ class ChartMainHelper {
         const clip_name = this.splitStringIntoBatch(make_name, length);
         return clip_name;
     }
+    symbol_type(symbolName) {
+        const fillSymbols = ['circle', 'cross', 'diamond', 'square', 'star', 'triangle', 'wye'];
+        const strokeSymbols = ['plus', 'x', 'triangle2', 'asterisk', 'square2', 'diamond2'];
+        const trim_name = symbolName.replace(/symbol/, '').toLowerCase();
+        return fillSymbols.includes(trim_name) ? 'fill' : strokeSymbols.includes(trim_name) ? 'stroke' : 'fill';
+    }
     makeHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
         if (this.chart_head_type == 'default') {
             return this.defaultHead(head_data, doubleVerticalPoints, pointPosition);
@@ -69,7 +79,7 @@ class ChartMainHelper {
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
         const color_set = this.color_handler.getColor(head_data.id);
         const svgNode = this.hc_d3?.create('svg')
-            .attr("class", "main-svg-el")
+            .attr("class", "main-svg-el" + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
             .attr('width', this.chartHeadWidth)
             .attr('height', this.chartHeadHeight)
             .on('dblclick', (e) => {
@@ -177,47 +187,7 @@ class ChartMainHelper {
         const container_height = this.chartHeadHeight + move_down;
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
-        const point_radius = 50;
-        if (pointPosition != false && has_parent) {
-            all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                .attr('x', parseInt(rect.attr('width')) / 2)
-                .attr('y', 0)
-                .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
-                .attr('fill', color_set.gray)
-                .attr('transform', this.link_point_position[pointPosition.children](rect));
-        }
-        if (pointPosition != false && has_children) {
-            const _class = this;
-            const translate_y = pointPosition.parent == "bottom" ? 0 : rect.attr('height');
-            all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                .attr('x', parseInt(rect.attr('width')) / 2)
-                .attr('y', rect.attr('height'))
-                .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
-                .attr('style', 'cursor: pointer')
-                .attr('fill', color_set.gray)
-                .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children]](rect))
-                .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y));
-            if (doubleVerticalPoints) {
-                const translate_y_2 = translate_y == 0 ? rect.attr('height') : 0;
-                all_group?.append('path')
-                    .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                    .attr('x', parseInt(rect.attr('width')) / 2)
-                    .attr('y', rect.attr('height'))
-                    .attr('class', 'hc-linker')
-                    .attr('width', point_radius)
-                    .attr('height', point_radius)
-                    .attr('style', 'cursor: pointer')
-                    .attr('fill', color_set.gray)
-                    .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent]](rect))
-                    .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2));
-            }
-        }
+        this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
         return svgNode;
     }
     landscapeHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
@@ -226,7 +196,7 @@ class ChartMainHelper {
         const color_set = this.color_handler.getColor(head_data.id);
         let move_down = 0;
         const svgNode = this.hc_d3?.create('svg')
-            .attr("class", "main-svg-el")
+            .attr("class", "main-svg-el" + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
             .attr('width', this.chartHeadLandscapeWidth)
             .attr('height', this.chartHeadLandscapeHeight)
             .on('dblclick', (e) => {
@@ -330,47 +300,7 @@ class ChartMainHelper {
                 .attr('preserveAspectRatio', 'xMaxYMax slice')
                 .attr('clip-path', 'url(#rounded-corners)');
         }
-        const point_radius = 50;
-        if (pointPosition != false && has_parent) {
-            all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                .attr('x', parseInt(rect.attr('width')) / 2)
-                .attr('y', 0)
-                .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
-                .attr('fill', color_set.gray)
-                .attr('transform', this.link_point_position[pointPosition.children](rect));
-        }
-        if (pointPosition != false && has_children) {
-            const _class = this;
-            const translate_y = pointPosition.parent == "bottom" ? 0 : rect.attr('height');
-            all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                .attr('x', parseInt(rect.attr('width')) / 2)
-                .attr('y', rect.attr('height'))
-                .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
-                .attr('style', 'cursor: pointer')
-                .attr('fill', color_set.gray)
-                .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children]](rect))
-                .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y));
-            if (doubleVerticalPoints) {
-                const translate_y_2 = translate_y == 0 ? rect.attr('height') : 0;
-                all_group?.append('path')
-                    .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
-                    .attr('x', parseInt(rect.attr('width')) / 2)
-                    .attr('y', rect.attr('height'))
-                    .attr('class', 'hc-linker')
-                    .attr('width', point_radius)
-                    .attr('height', point_radius)
-                    .attr('style', 'cursor: pointer')
-                    .attr('fill', color_set.gray)
-                    .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent]](rect))
-                    .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2));
-            }
-        }
+        this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
         return svgNode;
     }
     roundedHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
@@ -378,7 +308,7 @@ class ChartMainHelper {
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
         const color_set = this.color_handler.getColor(head_data.id);
         const svgNode = this.hc_d3?.create('svg')
-            .attr('class', 'main-svg-el rounded-head')
+            .attr('class', 'main-svg-el rounded-head' + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
             .attr('style', 'overflow: visible;')
             .attr('width', this.chartHeadRoundedWidth)
             .attr('height', this.chartHeadRoundedHeight)
@@ -483,54 +413,82 @@ class ChartMainHelper {
         const container_height = this.chartHeadRoundedHeight + move_down;
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
-        const point_radius = 50;
+        this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
+        return svgNode;
+    }
+    add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints) {
+        const ts_linker = Math.PI * this.head_button_circle_radius * this.head_button_circle_radius;
+        console.log("ts_linker", ts_linker, Math.sqrt(ts_linker), Math.SQRT2);
+        const add_link_icon = (type, inverse_link_point_position, class_name) => {
+            if (document.querySelector('.' + class_name) != null)
+                document.querySelector('.' + class_name)?.remove();
+            const color = this.symbol_type(this.linker_shape) == 'stroke' ? color_set.bright100 : color_set[this.linker_collapse_icon_color];
+            return all_group.append('path')
+                .attr('d', this.hc_d3.symbol().type(type == 'cross' ? this.hc_d3.symbolCross : this.hc_d3.symbolX).size(Math.sqrt(ts_linker)))
+                .attr('x', parseInt(rect.attr('width')) / 2)
+                .attr('y', rect.attr('height'))
+                .attr('fill', color)
+                .attr('stroke', type == 'minus' ? color : 'none')
+                .attr('class', class_name)
+                .attr('stroke-width', type == 'minus' ? 2 : 0)
+                .attr('transform', this.link_point_position[inverse_link_point_position](rect));
+        };
         if (pointPosition != false && has_parent) {
             all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
+                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.linker_shape]).size(ts_linker))
                 .attr('x', parseInt(rect.attr('width')) / 2)
                 .attr('y', 0)
                 .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
-                .attr('fill', color_set.color)
-                .attr('stroke', color_set.gray)
-                .attr('stroke-width', 1)
+                .attr('fill', this.symbol_type(this.linker_shape) == 'fill' ? color_set.color : 'none')
+                .attr('stroke', this.symbol_type(this.linker_shape) == 'stroke' ? color_set.gray : 'none')
+                .attr('stroke-width', this.symbol_type(this.linker_shape) == 'stroke' ? 1 : 0)
                 .attr('transform', this.link_point_position[pointPosition.children](rect));
         }
         if (pointPosition != false && has_children) {
             const _class = this;
             const translate_y = pointPosition.parent == "bottom" ? 0 : rect.attr('height');
+            let click_counter = 0;
             all_group?.append('path')
-                .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
+                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.linker_shape]).size(ts_linker))
                 .attr('x', parseInt(rect.attr('width')) / 2)
                 .attr('y', rect.attr('height'))
                 .attr('class', 'hc-linker')
-                .attr('width', point_radius)
-                .attr('height', point_radius)
                 .attr('style', 'cursor: pointer;')
-                .attr('fill', color_set.color)
-                .attr('stroke', color_set.gray)
-                .attr('stroke-width', 1)
+                .attr('fill', this.symbol_type(this.linker_shape) == 'fill' ? color_set.color : 'transparent')
+                .attr('stroke', this.symbol_type(this.linker_shape) == 'stroke' ? color_set.gray : 'none')
+                .attr('stroke-width', this.symbol_type(this.linker_shape) == 'stroke' ? 1 : 0)
                 .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children]](rect))
-                .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y));
+                .on('click', (e) => {
+                click_counter % 2 == 0 ?
+                    add_link_icon('cross', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-1') :
+                    add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-1');
+                click_counter++;
+                _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y);
+            });
+            add_link_icon('minus', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-' + head_data.id + '-1');
             if (doubleVerticalPoints) {
                 const translate_y_2 = translate_y == 0 ? rect.attr('height') : 0;
+                let click_counter_2 = 0;
                 all_group?.append('path')
-                    .attr('d', this.hc_d3.symbol(this.hc_d3.symbolCircle))
+                    .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.linker_shape]).size(ts_linker))
                     .attr('x', parseInt(rect.attr('width')) / 2)
                     .attr('y', rect.attr('height'))
                     .attr('class', 'hc-linker')
-                    .attr('width', point_radius)
-                    .attr('height', point_radius)
                     .attr('style', 'cursor: pointer')
-                    .attr('fill', color_set.color)
-                    .attr('stroke', color_set.gray)
-                    .attr('stroke-width', 1)
+                    .attr('fill', this.symbol_type(this.linker_shape) == 'fill' ? color_set.color : 'transparent')
+                    .attr('stroke', this.symbol_type(this.linker_shape) == 'stroke' ? color_set.gray : 'none')
+                    .attr('stroke-width', this.symbol_type(this.linker_shape) == 'stroke' ? 1 : 0)
                     .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent]](rect))
-                    .on('click', (e) => _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2));
+                    .on('click', (e) => {
+                    click_counter_2 % 2 == 0 ?
+                        add_link_icon('cross', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2') :
+                        add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2');
+                    click_counter_2++;
+                    _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2);
+                });
+                add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2');
             }
         }
-        return svgNode;
     }
     get_tree_items_hierarchy(parentId, parent_index, action) {
         const hierarchies = this.tree_data.filter(data => data.parentId == parentId);
@@ -570,27 +528,6 @@ class ChartMainHelper {
             second_ancestor = get_parent;
         }
         return second_ancestor;
-    }
-    center_root_tree_el(hcInnerContainer, current_scale) {
-        setTimeout(() => {
-            const root_tree_wrapper = document.querySelector('.hc-v-spider-head-wrapper');
-            const root_tree_el = document.querySelector('.st-root-el');
-            const root_tree_el_rect = root_tree_el.getBoundingClientRect();
-            const root_tree_wrapper_rect = root_tree_wrapper.getBoundingClientRect();
-            const root_container_rect = hcInnerContainer?.parentElement?.getBoundingClientRect();
-            const hcInnerContainerRect = hcInnerContainer?.getBoundingClientRect();
-            // const moveX = ((root_container_rect!.width  / 2) - (hcInnerContainerRect.width / 2));
-            // const moveY = ((root_container_rect!.height  / 2) - (hcInnerContainerRect.height / 2));
-            const moveX = (((hcInnerContainer?.parentElement.offsetWidth - hcInnerContainer.clientWidth) / 2) - root_tree_el.clientLeft);
-            const moveY = (((hcInnerContainer?.parentElement.offsetHeight - hcInnerContainer.clientHeight) / 2) - root_tree_el.clientTop);
-            const transformOriginX = root_tree_el.offsetLeft + (root_tree_el_rect.width / 2);
-            const transformOriginY = root_tree_el.offsetTop + (root_tree_el_rect.height / 2);
-            // root_tree_wrapper.style.transformOrigin = `${transformOriginX}px, ${transformOriginY}px)`;
-            // root_tree_wrapper.style.translate = `${this.trsnum}% ${this.trsnum}%`;
-            // this.trsnum += 5
-            hcInnerContainer.style.left = moveX + `px`;
-            hcInnerContainer.style.top = moveY + `px`;
-        }, 1000);
     }
     getElemRelPosInTree(el_id) {
         const find_el = this.tree_data.find(data => data.id == el_id);
