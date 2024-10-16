@@ -12,6 +12,10 @@ class ChartMainHelper {
 
     itemHierarchy: TTreeToItemHierarchy = [];
 
+    tmp_tree_data: IChartHead[] = [];
+    tree_level_step = 2;
+    display_tree_in_step = true
+
     link_point_position: {[key in THeadPointPosition]: Function} = {
         top: (rect: any) => `translate(${parseInt(rect!.attr('width'))/2}, 0)`,
         bottom: (rect: any) => `translate(${parseInt(rect!.attr('width'))/2}, ${rect!.attr('height')})`,
@@ -532,6 +536,7 @@ class ChartMainHelper {
             .attr('fill', color)
             .attr('stroke', type == 'minus' ? color: 'none')
             .attr('class', class_name)
+            .attr('style', 'pointer-events: none')
             .attr('stroke-width', type == 'minus' ? 2 : 0)
             .attr('transform', this.link_point_position[inverse_link_point_position as keyof typeof this.link_point_position](rect))
         }
@@ -563,14 +568,23 @@ class ChartMainHelper {
             .attr('stroke-width', this.symbol_type(this.linker_shape) == 'stroke' ? 1 : 0)
             .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.children] as keyof typeof this.link_point_position](rect))
             .on('click', (e) => {
+                const curr_target_parent = e.currentTarget.parentElement;
                 click_counter % 2 == 0 ? 
-                add_link_icon('cross', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-'+head_data.id+'-1'):
-                add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-'+head_data.id+'-1')
+                add_link_icon('cross', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-'+head_data.id+'-1'):
+                add_link_icon('minus', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-'+head_data.id+'-1')
                 click_counter++;
                 _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y)
+                const rect = curr_target_parent.getBoundingClientRect()
+                setTimeout(() => {
+                    // this.center_elem(rect)                    
+                }, 0);
             })
 
-            add_link_icon('minus', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-'+head_data.id+'-1')
+            if (!this.el_has_children(head_data.id, true)) {
+                click_counter++
+            }
+
+            add_link_icon(!this.el_has_children(head_data.id, true) ? 'cross' : 'minus', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-'+head_data.id+'-1')
             
             if (doubleVerticalPoints) {
                 const translate_y_2 = translate_y == 0 ? rect!.attr('height') as unknown as number : 0;
@@ -647,6 +661,18 @@ class ChartMainHelper {
         return find_all_siblings.findIndex(data => data.id == find_el!.id) + 1;
     }
 
+    public set_tmp_tree_data(el_id?: string | undefined) {
+        if (this.display_tree_in_step) {
+            const id = el_id == undefined ? '1' : el_id
+            this.tmp_tree_data = this.get_children_down_to_level(id, this.tree_level_step)
+            if (el_id == undefined) {
+                this.tmp_tree_data = [this.tree_data[0], ...this.tmp_tree_data]            
+            }            
+        }else{
+            this.tmp_tree_data = this.tree_data
+        }
+    }
+
     public getIsParentRootEl (parent_id: string) {
         if (parent_id == undefined) return false;
         return this.tree_data.find(data => data.id == parent_id)?.parentId == undefined;
@@ -661,8 +687,23 @@ class ChartMainHelper {
         return this.tree_data.find(data => data.parentId == undefined)
     }
 
-    public el_has_children (el_id: string) {
+    public el_has_children (el_id: string, check_tmp_data = false) {
+        if (check_tmp_data) {
+            return this.tmp_tree_data.filter(data => data.parentId == el_id).length > 0;            
+        }
         return this.tree_data.filter(data => data.parentId == el_id).length > 0;
+    }
+
+    public get_children_down_to_level(el_id: string, level_limit: number, current_level = 1): IChartHead[] {
+        let cur_level = current_level
+        let children: IChartHead[] = []
+        const cur_children = this.tree_data.filter(tree => tree.parentId == el_id)
+        let c_levl: IChartHead[] = []
+        if (cur_level < level_limit && cur_children.length > 0) {
+            c_levl = cur_children.map(child => this.get_children_down_to_level(child.id, level_limit, cur_level + 1)).flat()
+        }
+        children = [...cur_children, ...c_levl]
+        return children
     }
 
     public data_to_d3_format (parentId?: string, include_stat?: boolean) {

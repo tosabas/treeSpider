@@ -70,7 +70,7 @@ class SpiderTree extends EventTarget {
         placeEl: 'override',
         tree_data: [],
         color_range: [],
-        tree_type: 'hSpiderWalk',
+        tree_type: 'vSpiderWalk',
         chart_head_type: 'default',
         show_tools: true,
         show_chart_head_border: false,
@@ -88,7 +88,7 @@ class SpiderTree extends EventTarget {
         if (options.tree_data != undefined) {
             this.options.tree_data = options.tree_data;            
         }else{
-            const randData = new RandomDataGenerator({length: 40});
+            const randData = new RandomDataGenerator({length: 5000});
             // this.options.tree_data = [];
             this.options.tree_data = randData.generated_data;
         }

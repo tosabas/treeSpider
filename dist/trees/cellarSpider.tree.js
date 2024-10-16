@@ -29,6 +29,7 @@ class CellarSpiderTree {
         this.content_wrapper.appendChild(this.head_child_wrapper_2);
         this.content_wrapper.appendChild(this.head_child_wrapper_center);
         this.hcInnerContainer?.append(this.content_wrapper);
+        this.chartHelper.set_tmp_tree_data();
         this.map_children_data_to_head();
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
@@ -37,9 +38,9 @@ class CellarSpiderTree {
         }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId, provided_hierarchy) {
-        let hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
+        let hierarchies = this.chartHelper.tmp_tree_data.filter(data => data.parentId == parentId);
         if (!provided_hierarchy) {
-            hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
+            hierarchies = this.chartHelper.tmp_tree_data.filter(data => data.parentId == parentId);
         }
         else {
             hierarchies = provided_hierarchy;
@@ -139,7 +140,9 @@ class CellarSpiderTree {
         if (isRootTreeEl) {
             return this.handleCollapseRootElChildren(svgNode, id, clicked_pos);
         }
-        if (nodeChildrenHidden == 'true') {
+        if (!nodeParent?.hasAttribute('data-hc-head-children-hidden') && nodeParent.querySelector('.child-container').innerHTML == '') {
+            this.chartHelper.set_tmp_tree_data(id);
+            nodeParent.querySelector('.child-container').remove();
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             const get_item_root_item = this.chartHelper.get_second_ancestor_item(id);
             let second_ancestor_rel_pos = get_item_root_item == undefined ? 1 : this.chartHelper.getElemRelPosInTree(get_item_root_item?.id);
@@ -150,15 +153,22 @@ class CellarSpiderTree {
                 nodeParent?.appendChild(remade_children_obj);
             }
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'false');
+            this.drawBranchLinkFresh();
+        }
+        else if (nodeChildrenHidden == 'true') {
+            const childrenContainer = nodeParent?.querySelector('.child-container');
+            childrenContainer.style.visibility = '';
+            nodeParent?.setAttribute('data-hc-head-children-hidden', 'false');
+            this.drawBranchLinkFresh();
         }
         else {
             const childrenContainer = nodeParent?.querySelector('.child-container');
-            childrenContainer?.remove();
+            childrenContainer.style.visibility = 'hidden';
+            // childrenContainer?.remove();
             nodeParent?.querySelectorAll('.linker-line').forEach((line) => line.remove());
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'true');
-            this.removeNodeRecursiveFromTreeMap(id);
+            // this.removeNodeRecursiveFromTreeMap(id)
         }
-        this.drawBranchLinkFresh();
     }
     removeNodeRecursiveFromTreeMap(node_id, inclusive) {
         const find_node_children = this.tree_map_arr.filter(tree => tree.parentId == node_id);

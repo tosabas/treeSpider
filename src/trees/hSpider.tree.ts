@@ -30,6 +30,7 @@ class HorizontalSpiderTree {
     private organizeUI () {
         this.content_wrapper = this.chartHelper!.createDynamicEl();
         this.content_wrapper.className = "hc-head-wrapper";
+        this.chartHelper!.set_tmp_tree_data()
         this.map_children_data_to_head();
         this.hcInnerContainer!.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
@@ -40,7 +41,7 @@ class HorizontalSpiderTree {
     }
 
     private map_children_data_to_head (parentSVGEl?: any, parentId?: string) {
-        const hierarchies = this.chartHelper!.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper!.tmp_tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper!.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper!.createDynamicEl();
@@ -105,19 +106,27 @@ class HorizontalSpiderTree {
     private handleCollapseChildren (svgNode: any, id: string, clicked_pos: number) {
         const nodeAncestor = svgNode.node()?.parentElement.parentElement;
         const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden')
-        if (nodeChildrenHidden == 'true') {
+        const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
+        console.log("nodeAncestor", nodeAncestor, svgNode.node()?.parentElement);
+        
+        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.child-container').innerHTML == '') {
+            this.chartHelper!.set_tmp_tree_data(id)
+            nodeAncestor.querySelector('.child-container').remove()
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             nodeAncestor?.appendChild(remade_children_obj);
+            nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false'); 
+            this.drawBranchLinkFresh();
+        }else if (nodeChildrenHidden == 'true') {
+            childrenContainer.style.visibility = ''
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');            
+            this.drawBranchLinkFresh();
         }else{
-            const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
-            
-            childrenContainer?.remove();
+            childrenContainer.style.visibility = 'hidden'
+            // childrenContainer?.remove();
             nodeAncestor?.querySelectorAll('.linker-line').forEach((line: SVGPathElement) => line.remove());
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'true')
-            this.removeNodeRecursiveFromTreeMap(id)
+            // this.removeNodeRecursiveFromTreeMap(id)
         }
-        this.drawBranchLinkFresh();
     }
 
     private removeNodeRecursiveFromTreeMap (node_id: string) {

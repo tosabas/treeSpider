@@ -29,6 +29,7 @@ class HorizontalSpiderWalkTree {
         this.content_wrapper.appendChild(this.head_child_wrapper_center);
         this.content_wrapper.appendChild(this.head_child_wrapper_2);
         this.hcInnerContainer?.append(this.content_wrapper);
+        this.chartHelper.set_tmp_tree_data();
         this.map_children_data_to_head();
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
@@ -37,9 +38,9 @@ class HorizontalSpiderWalkTree {
         }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId, provided_hierarchy) {
-        let hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
+        let hierarchies = this.chartHelper.tmp_tree_data.filter(data => data.parentId == parentId);
         if (!provided_hierarchy) {
-            hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
+            hierarchies = this.chartHelper.tmp_tree_data.filter(data => data.parentId == parentId);
         }
         else {
             hierarchies = provided_hierarchy;
@@ -103,6 +104,8 @@ class HorizontalSpiderWalkTree {
         const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-' + parentId)?.getAttribute('data-hc-head-children-hidden');
         if (isParentChildrenHidden === 'true')
             return;
+        const ancestor_pos = this.chartHelper?.getIsParentRootEl(parentId);
+        const extra_root_child_linker_cls = ancestor_pos ? parseInt(id) % 2 == 0 ? 'linker-1' : 'linker-0' : '';
         const color_set = this.chartHelper?.color_handler.getColor(id);
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
@@ -119,7 +122,7 @@ class HorizontalSpiderWalkTree {
             .data(data)
             .attr('d', link)
             .attr('fill', 'none')
-            .attr('class', 'linker-line')
+            .attr('class', 'linker-line linker-' + lineOrigin)
             .attr('stroke-width', 1)
             .attr('stroke', color_set?.gray)
             .attr('style', 'z-index: -1');
@@ -127,12 +130,15 @@ class HorizontalSpiderWalkTree {
     handleCollapseChildren(svgNode, id, clicked_pos) {
         const nodeParent = svgNode.node()?.parentElement;
         console.log("I'm here");
+        console.log("nodeParentnodeParent", nodeParent);
         const isRootTreeEl = this.chartHelper.getIsElRootTreeChild(id);
         const nodeChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden');
         if (isRootTreeEl) {
             return this.handleCollapseRootElChildren(svgNode, id, clicked_pos);
         }
-        if (nodeChildrenHidden == 'true') {
+        if (!nodeParent?.hasAttribute('data-hc-head-children-hidden') && nodeParent.querySelector('.child-container').innerHTML == '') {
+            this.chartHelper.set_tmp_tree_data(id);
+            nodeParent.querySelector('.child-container').remove();
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             const get_item_root_item = this.chartHelper.get_second_ancestor_item(id);
             let second_ancestor_rel_pos = get_item_root_item == undefined ? 1 : this.chartHelper.getElemRelPosInTree(get_item_root_item?.id);
@@ -143,15 +149,27 @@ class HorizontalSpiderWalkTree {
                 nodeParent?.appendChild(remade_children_obj);
             }
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'false');
+            setTimeout(() => {
+                this.drawBranchLinkFresh();
+            }, 0);
+        }
+        else if (nodeChildrenHidden == 'true') {
+            nodeParent.querySelector('.child-container').style.visibility = '';
+            nodeParent?.setAttribute('data-hc-head-children-hidden', 'false');
+            this.drawBranchLinkFresh();
         }
         else {
-            const childrenContainer = nodeParent?.querySelector('.child-container');
-            childrenContainer?.remove();
-            nodeParent?.querySelectorAll('.linker-line').forEach((line) => line.remove());
+            // const childrenContainer = nodeParent?.querySelector('.child-container');
+            // childrenContainer?.remove();
+            // this.removeNodeRecursiveFromTreeMap(id)
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'true');
-            this.removeNodeRecursiveFromTreeMap(id);
+            nodeParent?.querySelectorAll('.linker-line').forEach((line) => line.remove());
+            nodeParent.querySelector('.child-container').style.visibility = 'hidden';
+            console.log("nodeParent.querySelector('.child-container')", nodeParent.querySelector('.child-container'));
         }
-        this.drawBranchLinkFresh();
+        // setTimeout(() => {
+        //     this.drawBranchLinkFresh();
+        // }, 0);
     }
     removeNodeRecursiveFromTreeMap(node_id, inclusive) {
         const find_node_children = this.tree_map_arr.filter(tree => tree.parentId == node_id);
@@ -175,22 +193,38 @@ class HorizontalSpiderWalkTree {
             immediate_root_children = this.chartHelper.tree_data.filter(data => data.parentId == id && this.chartHelper.getElemRelPosInTree(data.id) % 2 != 0);
         }
         if (((!nodeTopChildrenHidden || nodeTopChildrenHidden == "false") && clicked_pos == 0) || ((!nodeBottomChildrenHidden || nodeBottomChildrenHidden == "false") && clicked_pos != 0)) {
-            immediate_root_children.forEach(child => {
-                const childNodeContainer = this.hcInnerContainer?.querySelector('.hc-w-id-' + child.id);
-                const childrenContainer = childNodeContainer?.querySelector('.child-container');
-                childrenContainer?.remove();
-                this.removeNodeRecursiveFromTreeMap(child.id, true);
-                childNodeContainer?.remove();
-            });
+            // immediate_root_children.forEach(child => {
+            //     const childNodeContainer = this.hcInnerContainer?.querySelector('.hc-w-id-'+child.id) as any;
+            //     const childrenContainer = childNodeContainer?.querySelector('.child-container') as HTMLElement;
+            //     // childrenContainer?.remove();
+            //     // this.removeNodeRecursiveFromTreeMap(child.id, true);
+            //     // childNodeContainer?.remove();
+            //     childrenContainer.style.visibility = 'hidden'
+            //     childNodeContainer!.querySelectorAll('.linker-line').forEach((line: SVGPathElement) => line.remove());
+            // });
+            // immediate_root_children[0].parentElement.style.visibility = 'visible'
+            console.log("in here 001", clicked_pos);
+            const section = clicked_pos == 0 ? nodeParent.parentElement.previousElementSibling : nodeParent.parentElement.nextElementSibling;
+            section.style.visibility = 'hidden';
+            console.log("sectionsection", section);
+            section.querySelectorAll('.linker-line').forEach((line) => line.remove());
+            nodeParent.querySelectorAll('.linker-' + (clicked_pos == 0 ? 'left' : 'right')).forEach((node) => node.remove());
             clicked_pos == 0 ? nodeParent?.setAttribute('data-hc-top-head-children-hidden', 'true') :
                 nodeParent?.setAttribute('data-hc-bottom-head-children-hidden', 'true');
         }
         else {
-            this.map_children_data_to_head(svgNode, id, immediate_root_children);
+            // this.map_children_data_to_head(svgNode, id, immediate_root_children);
+            console.log("immediate_root_children", immediate_root_children);
+            console.log("in here 002");
+            const section = clicked_pos == 0 ? nodeParent.parentElement.previousElementSibling : nodeParent.parentElement.nextElementSibling;
+            section.style.visibility = 'visible';
+            setTimeout(() => {
+                this.drawBranchLinkFresh();
+            }, 0);
             clicked_pos == 0 ? nodeParent?.setAttribute('data-hc-top-head-children-hidden', 'false') :
                 nodeParent?.setAttribute('data-hc-bottom-head-children-hidden', 'false');
         }
-        this.drawBranchLinkFresh();
+        // this.drawBranchLinkFresh();
     }
 }
 export default HorizontalSpiderWalkTree;

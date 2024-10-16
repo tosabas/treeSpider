@@ -14,7 +14,7 @@ class DefaultTree {
         }, 0);
     }
     map_children_data_to_head(parentSVGEl, parentId) {
-        const hierarchies = this.chartHelper.tree_data.filter(data => data.parentId == parentId);
+        const hierarchies = this.chartHelper.tmp_tree_data.filter(data => data.parentId == parentId);
         const childElContainer = this.chartHelper.createDynamicEl();
         hierarchies.forEach(head => {
             const head_UI_wrapper = this.chartHelper.createDynamicEl();
@@ -36,6 +36,7 @@ class DefaultTree {
     organizeUI() {
         this.content_wrapper = this.chartHelper.createDynamicEl();
         this.content_wrapper.className = "hc-head-wrapper";
+        this.chartHelper.set_tmp_tree_data();
         this.map_children_data_to_head();
         this.hcInnerContainer.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
@@ -75,19 +76,30 @@ class DefaultTree {
     handleCollapseChildren(svgNode, id, clicked_pos) {
         const nodeAncestor = svgNode.node()?.parentElement;
         const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden');
-        if (nodeChildrenHidden == 'true') {
+        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.child-container').innerHTML == '') {
+            this.chartHelper.set_tmp_tree_data(id);
+            nodeAncestor.querySelector('.child-container').remove();
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             nodeAncestor?.appendChild(remade_children_obj);
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');
+            this.drawBranchLinkFresh();
+        }
+        else if (nodeChildrenHidden == 'true') {
+            const childrenContainer = nodeAncestor?.querySelector('.child-container');
+            childrenContainer.style.visibility = '';
+            nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');
+            setTimeout(() => {
+                this.drawBranchLinkFresh();
+            }, 0);
         }
         else {
             const childrenContainer = nodeAncestor?.querySelector('.child-container');
-            childrenContainer?.remove();
+            childrenContainer.style.visibility = 'hidden';
+            // childrenContainer?.remove();
             nodeAncestor?.querySelectorAll('.linker-line').forEach((line) => line.remove());
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'true');
-            this.removeNodeRecursiveFromTreeMap(id);
+            // this.removeNodeRecursiveFromTreeMap(id)
         }
-        this.drawBranchLinkFresh();
     }
     removeNodeRecursiveFromTreeMap(node_id) {
         const find_node_children = this.tree_map_arr.filter(tree => tree.parentId == node_id);
