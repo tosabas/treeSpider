@@ -43,7 +43,17 @@ export interface ISpiderTreeMain {
     /**
      * The degree increment of the rotation, default is 1
      */
-    animation_rotation_interval?: number
+    animation_rotation_interval?: number;
+    /**
+     * The background pattern of your choice
+     */
+    backgroundPattern?: 'none' | 'default' | 'flux' | 'quad' | 'blurry' | 'chaos' | 
+        'flurry' | 'spiral' | 'circling' | 'replicate' | 'scribble' | 'squiggly' | 
+        'gyrrate' | 'leaves' | 'spot';
+    /**
+     * The size of the background svg pattern
+     */
+    backgroundSize?: string
 }
 
 export interface IChartHead {

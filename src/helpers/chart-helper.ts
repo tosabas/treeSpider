@@ -50,7 +50,7 @@ class ChartMainHelper {
     head_button_circle_radius = 8
     linker_collapse_icon_color: TLinkerCircleColor = 'bright500'
     linker_shape: TLinkerShape = 'symbolDiamond2'
-    head_image_shape: THeadImageShape = 'symbolWye'
+    head_image_shape: THeadImageShape = 'symbolCircle'
     head_image_area: number = 60
 
     
@@ -698,9 +698,9 @@ class ChartMainHelper {
                 add_link_icon('minus', this.inverse_link_point_position[pointPosition.children], 'ts-lnk-icn-'+head_data.id+'-1')
                 click_counter++;
                 _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y)
-                const rect = curr_target_parent.getBoundingClientRect()
+                const rect = curr_target_parent.getBoundingClientRect();
                 setTimeout(() => {
-                    // this.center_elem(rect)                    
+                    click_counter % 2 == 0 && this.center_elem(rect);
                 }, 0);
             })
 

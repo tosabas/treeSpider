@@ -34,7 +34,7 @@ class ChartMainHelper {
     head_button_circle_radius = 8;
     linker_collapse_icon_color = 'bright500';
     linker_shape = 'symbolDiamond2';
-    head_image_shape = 'symbolWye';
+    head_image_shape = 'symbolCircle';
     head_image_area = 60;
     constructor() {
         console.log('symbolsFill', typeof this.hc_d3.symbolsFill[0]);
@@ -576,7 +576,7 @@ class ChartMainHelper {
                 _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y);
                 const rect = curr_target_parent.getBoundingClientRect();
                 setTimeout(() => {
-                    // this.center_elem(rect)                    
+                    click_counter % 2 == 0 && this.center_elem(rect);
                 }, 0);
             });
             if (!this.el_has_children(head_data.id, true)) {

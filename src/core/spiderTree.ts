@@ -75,7 +75,9 @@ class SpiderTree extends EventTarget {
         show_tools: true,
         show_chart_head_border: false,
         animation_rotation_speed: 10,
-        animation_rotation_interval: 1
+        animation_rotation_interval: 1,
+        backgroundPattern: 'circling',
+        backgroundSize: '40%'
     }
 
     constructor (options: ISpiderTreeMain) {
@@ -193,6 +195,8 @@ class SpiderTree extends EventTarget {
 
     private placeRootContainer () {
         this.rootWrapperContainer = new HCRootContainer();
+        this.rootWrapperContainer.setAttribute('backgroundPattern', this.options.backgroundPattern as string)
+        this.rootWrapperContainer.setAttribute('backgroundSize', this.options.backgroundSize as any)
 
         this.hcInnerContainer = this.chartHelper.createDynamicEl();
         this.hcInnerContainer.className = "hc-inner-container";
