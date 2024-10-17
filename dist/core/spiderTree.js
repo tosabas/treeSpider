@@ -52,8 +52,8 @@ class SpiderTree extends EventTarget {
         placeEl: 'override',
         tree_data: [],
         color_range: [],
-        tree_type: 'vSpiderWalk',
-        chart_head_type: 'default',
+        tree_type: 'default',
+        chart_head_type: 'rounded',
         show_tools: true,
         show_chart_head_border: false,
         animation_rotation_speed: 10,
@@ -68,7 +68,7 @@ class SpiderTree extends EventTarget {
             this.options.tree_data = options.tree_data;
         }
         else {
-            const randData = new RandomDataGenerator({ length: 5000 });
+            const randData = new RandomDataGenerator({ length: 200 });
             // this.options.tree_data = [];
             this.options.tree_data = randData.generated_data;
         }

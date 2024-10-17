@@ -56,3 +56,8 @@ export type TLinkerShape = 'symbolAsterisk' | 'symbolCircle' | 'symbolCross' |
     'symbolDiamond' | 'symbolDiamond2' | 'symbolPlus' | 'symbolSquare' | 
     'symbolSquare2' | 'symbolStar' | 'symbolTriangle' | 'symbolTriangle2' | 
     'symbolWye' | 'symbolX'
+
+export type THeadImageShape = 'symbolCircle' | 'symbolCross' | 
+    'symbolDiamond' | 'symbolDiamond2' | 'symbolSquare' | 
+    'symbolSquare2' | 'symbolStar' | 'symbolTriangle' | 'symbolTriangle2' | 
+    'symbolWye'

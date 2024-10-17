@@ -80,9 +80,9 @@ class HorizontalSpiderTree {
         const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden');
         const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
         console.log("nodeAncestor", nodeAncestor, svgNode.node()?.parentElement);
-        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && childrenContainer.innerHTML == '') {
+        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.child-container').innerHTML == '') {
             this.chartHelper.set_tmp_tree_data(id);
-            childrenContainer.remove();
+            nodeAncestor.querySelector('.child-container').remove();
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             nodeAncestor?.appendChild(remade_children_obj);
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');
