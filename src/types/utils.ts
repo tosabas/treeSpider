@@ -61,3 +61,5 @@ export type THeadImageShape = 'symbolCircle' | 'symbolCross' |
     'symbolDiamond' | 'symbolDiamond2' | 'symbolSquare' | 
     'symbolSquare2' | 'symbolStar' | 'symbolTriangle' | 'symbolTriangle2' | 
     'symbolWye'
+
+export type TEventType = 'chart_head.expanded' | 'chart_head.collapsed'

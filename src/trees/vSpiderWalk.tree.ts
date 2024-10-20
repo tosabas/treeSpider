@@ -144,7 +144,8 @@ class VerticalSpiderWalkTree {
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2)
         const lineEndY = lineOrigin == "top" ? ((elementBounds.top + elementBounds.height) / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale) : (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale)
 
-        const link = this.hc_d3!.linkVertical();
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3!.curveBumpY
+        const link = this.hc_d3!.link(curveFactory);
         
         const data = [
             {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},

@@ -1,3 +1,5 @@
+import { THeadImageShape, TLinkerCircleColor, TLinkerShape } from "./utils";
+
 export interface ISpiderTreeMain {
     /**
      * The target container in which SpiderTree will be spawned in
@@ -48,12 +50,77 @@ export interface ISpiderTreeMain {
      * The background pattern of your choice
      */
     backgroundPattern?: 'none' | 'default' | 'flux' | 'quad' | 'blurry' | 'chaos' | 
-        'flurry' | 'spiral' | 'circling' | 'replicate' | 'scribble' | 'squiggly' | 
+        'flurry' | 'spiral' | 'whirling' | 'replicate' | 'scribble' | 'squiggly' | 
         'gyrrate' | 'leaves' | 'spot';
+    /**
+     * The CSS background position of the SVG background
+     */
+    backgroundPosition?: 'bottom' | 'center' | 'inherit' | 'initial' | 'left' | 
+        'right' | 'top' | 'unset' | `${number}%` | `${number}px`;
     /**
      * The size of the background svg pattern
      */
-    backgroundSize?: string
+    backgroundSize?: string;
+    /**
+     * The SVG background to be used instead of the TreeSpider ones
+     */
+    customBackground?: string;
+    /**
+     * The radius/width of the linker thumb
+     */
+    head_linker_thumb_circle_radius?: number;
+    /**
+     * The color of the linker thumb icon that shows if the head children has been collapsed or not
+     */
+    linker_thumb_icon_color?: TLinkerCircleColor;
+    /**
+     * The shape of the linker thumb
+     */
+    linker_thumb_shape?: TLinkerShape;
+    /**
+     * The shape of the head image or the employee initials wrapper if image is unavailable
+     */
+    head_image_shape?: THeadImageShape;
+    /**
+     * The chart head background color, useful in cases where you want the background to 
+     * match your website color mode
+     */
+    chart_head_bg?: string;
+    /**
+     * The parameter to set whether the library should automatically use the webpage's
+     * body tag's background color as the chart head background color
+     */
+    auto_set_chart_head_bg?: boolean;
+    /**
+     * The parameter to set whether to automatically display-in-step when rendering 
+     * large data that is more than 500, it is advisable to keep this parameter to `true`
+     * when working with large data that is more than 3000 employees because it is going
+     * take few seconds to render which is bad for user experience
+     */
+    display_tree_in_step?: boolean;
+    /**
+     * The parameter to disable auto display tree in step feature
+     */
+    auto_display_tree_in_step?: boolean;
+    /**
+     * The steps to display trees, on initialization the number of the provided step will be rendered, 
+     * when a tree whose children are hidden by default
+     * is expanded its children will also be rendered in the number of the provided step
+     */
+    tree_level_step?: number;
+    /**
+     * The parameter to tune the chart head color
+     */
+    pallet?: TColorPallet;
+    /**
+     * The type of tree link you want to use
+     */
+    tree_link_type?: 'curveBumpX' | 'curveBumpY' | 'curveBasisClosed' | 'curveLinear' | 
+        'curveStep' | 'curveStepAfter' | 'curveStepBefore';
+    /**
+     * The length of the random number
+     */
+    random_data_length?: number;
 }
 
 export interface IChartHead {
@@ -73,6 +140,21 @@ export interface ID3DataFormat extends IChartHead {
     children: IChartHead[];
 }
 
+export type TColorPallet = {
+    h: number;
+    s: number;
+    l: number;
+    darker: number;
+    brighter: number;
+    bright100: number;
+    dark100: number;
+    gray: number;
+    gray85: number;
+}
+
 export type TTreeType = 'default' | 'cellar' | 'goldenRod' | 'hSpider' | 'hSpiderWalk' | 'radialSpiderLeg' | 'spiderlingsPack' | 'vSpiderWalk';
 
 export type TChartHeadType = 'default' | 'landscape' | 'rounded';
+
+export type TLinkType = 'curveBumpX' | 'curveBumpY' | 'curveBasisClosed' | 'curveLinear' | 
+'curveStep' | 'curveStepAfter' | 'curveStepBefore'

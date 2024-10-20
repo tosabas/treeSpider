@@ -5,9 +5,11 @@ class HCRootContainer extends HTMLDivElement {
     hc_d3 = window.d3
     main_svg: any = null
     tree_data: any = {}
-    static observeAttributes = ['backgroundPattern', 'backgroundSize']
+    static observeAttributes = ['backgroundPattern', 'backgroundSize', 'customBackground']
     private backgroundPattern: string | null = null
     private backgroundSize: string | null | undefined = undefined
+    private customBackground: SVGSVGElement | string | null | undefined = undefined
+    private backgroundPosition: string | undefined = 'center'
 
     constructor () {
         super();
@@ -19,6 +21,10 @@ class HCRootContainer extends HTMLDivElement {
         this.backgroundPattern = this.getAttribute('backgroundPattern') || 'default'
         this.backgroundSize = this.getAttribute('backgroundSize')
         this.backgroundSize = this.backgroundSize == 'undefined' ? undefined : this.backgroundSize
+        this.customBackground = this.getAttribute('customBackground')
+        this.customBackground = this.customBackground == 'undefined' ? undefined : this.customBackground
+        this.backgroundPosition = this.getAttribute('backgroundPosition') as string;
+        this.backgroundPosition = this.backgroundPosition == 'undefined' ? undefined : this.backgroundPosition
         this.setCanvasBg();
     }
 
@@ -31,7 +37,7 @@ class HCRootContainer extends HTMLDivElement {
             chaos: () => this.chaosPatternBg(), 
             flurry: () => this.flurryPatternBg(), 
             spiral: () => this.spiralPatternBg(), 
-            circling: () => this.circlingPatternBg(), 
+            whirling: () => this.whirlingPatternBg(), 
             replicate: () => this.replicatePatternBg(), 
             scribble: () => this.scribblePatternBg(), 
             squiggly: () => this.squigglyPatternBg(), 
@@ -42,18 +48,27 @@ class HCRootContainer extends HTMLDivElement {
 
         if (this.backgroundPattern == 'none') return;
         
-        const svgPattern = patterns[this.backgroundPattern as keyof typeof patterns]()
+        const svgPattern = this.customBackground || patterns[this.backgroundPattern as keyof typeof patterns]()
+
+        // @ts-ignore
+        console.log("this.customBackground", this.customBackground, typeof this.customBackground, this.customBackground instanceof SVGSVGElement);
 
         let svgData;
         if (typeof svgPattern == 'object') {
             svgData = new XMLSerializer().serializeToString((svgPattern as Selection<SVGSVGElement, undefined, null, undefined>).node() as Node);
         }else{
-            svgData = svgPattern
+            svgData = svgPattern;
         }
 
         const encodeSVG = encodeURIComponent(svgData)
         .replace(/\(/g, '%28')  
         .replace(/\)/g, '%29')  
+
+        console.log("svgData", this.backgroundSize, this.backgroundPosition);
+
+        this.backgroundSize != undefined && (this.style.backgroundSize = this.backgroundSize || '40%');
+        this.backgroundPosition != undefined && (this.style.backgroundPosition = this.backgroundPosition || 'center');
+        
         
         const svgDataUrl = "data:image/svg+xml;charset=utf-8," + encodeSVG;
         this.style.setProperty('--hc-root-el-bg-image', 'url(' + svgDataUrl + ')');
@@ -91,73 +106,73 @@ class HCRootContainer extends HTMLDivElement {
 
     blurryBg () {
         this.style.backgroundSize = '20%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['blurry']
     }
 
     chaosPatternBg () {
         this.style.backgroundSize = this.backgroundSize || '50%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['chaos']
     }
 
     spiralPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '100%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['spiral']
     }
 
     flurryPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '30%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['flurry']
     }
 
-    circlingPatternBg() {
+    whirlingPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '20%'
-        this.style.backgroundPosition = 'center'
-        return backgrounds['circling']
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
+        return backgrounds['whirling']
     }
 
     replicatePatternBg() {
         this.style.backgroundSize = this.backgroundSize || '100%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['replicate']
     }
 
     scribblePatternBg() {
         this.style.backgroundSize = this.backgroundSize || '30%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['scribble']
     }
 
     squigglyPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '20%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['squiggly']
     }
 
     gyrratePatternBg() {
         this.style.backgroundSize = this.backgroundSize || '100%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['gyrate']
     }
 
     leavesPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '40%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['leaves']
     }
 
     reflectionPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '20%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['reflection']
     }
 
     spotPatternBg() {
         this.style.backgroundSize = this.backgroundSize || '40%'
-        this.style.backgroundPosition = 'center'
+        this.style.backgroundPosition = this.backgroundPosition || 'center'
         return backgrounds['spot']
     }
 

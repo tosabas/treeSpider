@@ -1,8 +1,8 @@
-import { IChartHead, ISpiderTreeMain, TChartHeadType } from "../types/MainTypes";
+import { IChartHead, ISpiderTreeMain, TChartHeadType, TLinkType } from "../types/MainTypes";
 import HCCanvas from "../utils/stcanvas.js";
 import HCRootContainer from "../utils/st-root-container.js";
 import HCElement from "../utils/st-element.js";
-import { TChildrenMapperReturnEl, TElementCenterPositions, THeadPointPosition, TSingleChildrenMap, TTreeMapArr } from "../types/utils.js";
+import { TChildrenMapperReturnEl, TElementCenterPositions, TEventType, THeadImageShape, THeadPointPosition, TLinkerCircleColor, TLinkerShape, TSingleChildrenMap, TTreeMapArr } from "../types/utils.js";
 import RandomDataGenerator from "../helpers/randomDataGenerator.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
 
@@ -70,14 +70,38 @@ class SpiderTree extends EventTarget {
         placeEl: 'override',
         tree_data: [],
         color_range: [],
-        tree_type: 'default',
-        chart_head_type: 'rounded',
+        tree_type: 'vSpiderWalk',
+        chart_head_type: 'default',
         show_tools: true,
         show_chart_head_border: false,
         animation_rotation_speed: 10,
         animation_rotation_interval: 1,
-        backgroundPattern: 'circling',
-        backgroundSize: '40%'
+        backgroundPattern: 'whirling',
+        backgroundSize: undefined,
+        customBackground: undefined,
+        backgroundPosition: undefined,
+        head_linker_thumb_circle_radius: 8,
+        linker_thumb_icon_color: 'bright500',
+        linker_thumb_shape: 'symbolCircle',
+        head_image_shape: 'symbolStar',
+        chart_head_bg: '#ffffff',
+        auto_set_chart_head_bg: false,
+        display_tree_in_step: true,
+        auto_display_tree_in_step: true,
+        tree_level_step: 2,
+        pallet: {
+            h: 10,
+            s: 0.5,
+            l: 0.5,
+            darker: 3,
+            brighter: 0.8,
+            bright100: 0.5,
+            dark100: 0.5,
+            gray: 50,
+            gray85: 85
+        },
+        tree_link_type: undefined,
+        random_data_length: 200
     }
 
     constructor (options: ISpiderTreeMain) {
@@ -90,8 +114,9 @@ class SpiderTree extends EventTarget {
         if (options.tree_data != undefined) {
             this.options.tree_data = options.tree_data;            
         }else{
-            const randData = new RandomDataGenerator({length: 200});
-            // this.options.tree_data = [];
+            const randData = new RandomDataGenerator({length: options.random_data_length || this.options.random_data_length});
+            console.log("randData.generated_data", randData.generated_data.length);
+            
             this.options.tree_data = randData.generated_data;
         }
 
@@ -133,10 +158,6 @@ class SpiderTree extends EventTarget {
         document.body.appendChild(fontLink)
     }
 
-    private setOptions (options_to_set: Object) {
-        this.setObjectValue(this.options, options_to_set)
-    }
-
     protected setObjectValue (objectParent: Object, value: Object) {
         const setObj: {[key: string]: any} = objectParent;
         if (Object.keys(setObj).length == 0) return value;
@@ -159,24 +180,26 @@ class SpiderTree extends EventTarget {
 
         this.chartHelper = new ChartMainHelper();
         this.chartHelper.tree_data = this.options.tree_data;
-        this.chartHelper.center_elem = this.center_elem.bind(this)
-        this.chartHelper.chart_head_type = this.options.chart_head_type as TChartHeadType
-        this.chartHelper.animation_rotation_speed = this.options.animation_rotation_speed as number
-        this.chartHelper.animation_rotation_interval = this.options.animation_rotation_interval as number
+        this.chartHelper.center_elem = this.center_elem.bind(this);
+        this.chartHelper.chart_head_type = this.options.chart_head_type as TChartHeadType;
+        this.chartHelper.animation_rotation_speed = this.options.animation_rotation_speed as number;
+        this.chartHelper.animation_rotation_interval = this.options.animation_rotation_interval as number;
+        this.chartHelper.head_linker_thumb_circle_radius = this.options.head_linker_thumb_circle_radius as number;
+        this.chartHelper.linker_thumb_icon_color = this.options.linker_thumb_icon_color as TLinkerCircleColor;
+        this.chartHelper.linker_thumb_shape = this.options.linker_thumb_shape as TLinkerShape;
+        this.chartHelper.head_image_shape = this.options.head_image_shape as THeadImageShape;
+        this.chartHelper.chart_head_bg = this.options.chart_head_bg as string;
+        this.chartHelper.auto_set_chart_head_bg = this.options.auto_set_chart_head_bg as boolean;
+        this.chartHelper.display_tree_in_step = this.options.display_tree_in_step as boolean;
+        this.chartHelper.auto_display_tree_in_step = this.options.auto_display_tree_in_step as boolean;
+        this.chartHelper.tree_level_step = this.options.tree_level_step as number;
+        this.chartHelper.tree_link_type = this.options.tree_link_type as TLinkType;
+        this.chartHelper.emitEvent = this.emitEvent.bind(this);
         
         this.colorHandler = new ColorHandler({
             tree_data: this.options.tree_data,
-            // color_range: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
-
-            // color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
             color_range: this.options.color_range,
-
-            // color_range: ["#828282", "#2d2e2e"],
-            
-            // color_range: ["#3474eb", "#034659"],
-            // color_range: ["#3474eb", "#3474eb"],
-            // color_range: ["darkblue", "lightblue"],
-            // color_range: ["#1268b3", "#6812b3"],
+            pallet: this.options.pallet
         });
         this.chartHelper.color_handler = this.colorHandler;
         
@@ -197,6 +220,8 @@ class SpiderTree extends EventTarget {
         this.rootWrapperContainer = new HCRootContainer();
         this.rootWrapperContainer.setAttribute('backgroundPattern', this.options.backgroundPattern as string)
         this.rootWrapperContainer.setAttribute('backgroundSize', this.options.backgroundSize as any)
+        this.rootWrapperContainer.setAttribute('customBackground', this.options.customBackground as any)
+        this.rootWrapperContainer.setAttribute('backgroundPosition', this.options.backgroundPosition as any)
 
         this.hcInnerContainer = this.chartHelper.createDynamicEl();
         this.hcInnerContainer.className = "hc-inner-container";
@@ -352,6 +377,39 @@ class SpiderTree extends EventTarget {
             this.hc_d3?.zoomIdentity.translate(-moveX, -moveY),
         );
     }
+
+    private emitEvent (eventName: TEventType, data=undefined, cancelable=true) {
+        const customEv = new CustomEvent(eventName, {detail: data, bubbles: true, cancelable});
+        return this.dispatchEvent(customEv);
+    }
+
+    /**
+     * @public @method updateChartHeadBg - Method for programmatically updating all chat head's background color
+     * @param color - The color value to set the chart heads to, you can pass any CSS color values to it
+     */
+    public updateChartHeadBg(color: string) {
+        document.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color);
+        this.addEventListener('chart_head.expanded', () => 
+            document.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color))
+    }
+    
+    /**
+     * The short form for addEventListener
+     * @param eventName - The event you want to subscribe to
+     * @param callbackFn - The callback function
+     */
+    public on(eventName: TEventType, callbackFn: (data?: any) => null) {
+        this.addEventListener(eventName, callbackFn)
+    }
+
+    /**
+     * The method to programatically update parameters
+     * @param options_to_set - The parameter to update
+     */
+    public setOptions (options_to_set: Omit<ISpiderTreeMain,'targetContainer'>) {
+        this.setObjectValue(this.options, options_to_set)
+    }
+    
     
 }
 

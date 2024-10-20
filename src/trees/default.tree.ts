@@ -1,3 +1,4 @@
+import { CurveFactory } from "d3";
 import ChartMainHelper from "../helpers/chart-helper.js";
 import { IChartHead } from "../types/MainTypes";
 import { TChildrenMapperReturnEl, TTreeClassParams, TTreeMapArr } from "../types/utils";
@@ -79,7 +80,7 @@ class DefaultTree {
         const elementBounds = targetChild.getBoundingClientRect();
         const svgSourceNodeBounds = svgNode.node().getBoundingClientRect();
 
-        const st_linker_radius = Math.sqrt(Math.PI * this.chartHelper!.head_button_circle_radius * this.chartHelper!.head_button_circle_radius) / 2
+        const st_linker_radius = Math.sqrt(Math.PI * this.chartHelper!.head_linker_thumb_circle_radius * this.chartHelper!.head_linker_thumb_circle_radius) / 2
 
         const lineStartX = (svgSourceNodeBounds.width / this.current_scale) / 2;
         const lineStartY = (svgSourceNodeBounds.height + st_linker_radius) / this.current_scale;
@@ -87,7 +88,8 @@ class DefaultTree {
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2)
         const lineEndY = (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale)
 
-        const link = this.hc_d3!.linkVertical();
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3!.curveBumpX
+        const link = this.hc_d3!.link(curveFactory);
         
         const data = [
             {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},

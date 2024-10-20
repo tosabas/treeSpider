@@ -52,14 +52,38 @@ class SpiderTree extends EventTarget {
         placeEl: 'override',
         tree_data: [],
         color_range: [],
-        tree_type: 'default',
-        chart_head_type: 'rounded',
+        tree_type: 'vSpiderWalk',
+        chart_head_type: 'default',
         show_tools: true,
         show_chart_head_border: false,
         animation_rotation_speed: 10,
         animation_rotation_interval: 1,
-        backgroundPattern: 'circling',
-        backgroundSize: '40%'
+        backgroundPattern: 'whirling',
+        backgroundSize: undefined,
+        customBackground: undefined,
+        backgroundPosition: undefined,
+        head_linker_thumb_circle_radius: 8,
+        linker_thumb_icon_color: 'bright500',
+        linker_thumb_shape: 'symbolCircle',
+        head_image_shape: 'symbolStar',
+        chart_head_bg: '#ffffff',
+        auto_set_chart_head_bg: false,
+        display_tree_in_step: true,
+        auto_display_tree_in_step: true,
+        tree_level_step: 2,
+        pallet: {
+            h: 10,
+            s: 0.5,
+            l: 0.5,
+            darker: 3,
+            brighter: 0.8,
+            bright100: 0.5,
+            dark100: 0.5,
+            gray: 50,
+            gray85: 85
+        },
+        tree_link_type: undefined,
+        random_data_length: 200
     };
     constructor(options) {
         super();
@@ -70,8 +94,8 @@ class SpiderTree extends EventTarget {
             this.options.tree_data = options.tree_data;
         }
         else {
-            const randData = new RandomDataGenerator({ length: 200 });
-            // this.options.tree_data = [];
+            const randData = new RandomDataGenerator({ length: options.random_data_length || this.options.random_data_length });
+            console.log("randData.generated_data", randData.generated_data.length);
             this.options.tree_data = randData.generated_data;
         }
         this.loadFont();
@@ -108,9 +132,6 @@ class SpiderTree extends EventTarget {
         document.body.appendChild(crossorgin_preconnect);
         document.body.appendChild(fontLink);
     }
-    setOptions(options_to_set) {
-        this.setObjectValue(this.options, options_to_set);
-    }
     setObjectValue(objectParent, value) {
         const setObj = objectParent;
         if (Object.keys(setObj).length == 0)
@@ -138,16 +159,21 @@ class SpiderTree extends EventTarget {
         this.chartHelper.chart_head_type = this.options.chart_head_type;
         this.chartHelper.animation_rotation_speed = this.options.animation_rotation_speed;
         this.chartHelper.animation_rotation_interval = this.options.animation_rotation_interval;
+        this.chartHelper.head_linker_thumb_circle_radius = this.options.head_linker_thumb_circle_radius;
+        this.chartHelper.linker_thumb_icon_color = this.options.linker_thumb_icon_color;
+        this.chartHelper.linker_thumb_shape = this.options.linker_thumb_shape;
+        this.chartHelper.head_image_shape = this.options.head_image_shape;
+        this.chartHelper.chart_head_bg = this.options.chart_head_bg;
+        this.chartHelper.auto_set_chart_head_bg = this.options.auto_set_chart_head_bg;
+        this.chartHelper.display_tree_in_step = this.options.display_tree_in_step;
+        this.chartHelper.auto_display_tree_in_step = this.options.auto_display_tree_in_step;
+        this.chartHelper.tree_level_step = this.options.tree_level_step;
+        this.chartHelper.tree_link_type = this.options.tree_link_type;
+        this.chartHelper.emitEvent = this.emitEvent.bind(this);
         this.colorHandler = new ColorHandler({
             tree_data: this.options.tree_data,
-            // color_range: ['#4285F4', '#DB4437', '#F4B400', '#0F9D58'],
-            // color_range: ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'],
             color_range: this.options.color_range,
-            // color_range: ["#828282", "#2d2e2e"],
-            // color_range: ["#3474eb", "#034659"],
-            // color_range: ["#3474eb", "#3474eb"],
-            // color_range: ["darkblue", "lightblue"],
-            // color_range: ["#1268b3", "#6812b3"],
+            pallet: this.options.pallet
         });
         this.chartHelper.color_handler = this.colorHandler;
         this.placeRootContainer();
@@ -164,6 +190,8 @@ class SpiderTree extends EventTarget {
         this.rootWrapperContainer = new HCRootContainer();
         this.rootWrapperContainer.setAttribute('backgroundPattern', this.options.backgroundPattern);
         this.rootWrapperContainer.setAttribute('backgroundSize', this.options.backgroundSize);
+        this.rootWrapperContainer.setAttribute('customBackground', this.options.customBackground);
+        this.rootWrapperContainer.setAttribute('backgroundPosition', this.options.backgroundPosition);
         this.hcInnerContainer = this.chartHelper.createDynamicEl();
         this.hcInnerContainer.className = "hc-inner-container";
         if (this.options.tree_data.length == 0) {
@@ -303,6 +331,33 @@ class SpiderTree extends EventTarget {
             moveY = rel_posY - offsetMoveY;
         }
         root_container_el.transition().duration(2500).call(this.zoom_instace?.transform, this.hc_d3?.zoomIdentity.translate(-moveX, -moveY));
+    }
+    emitEvent(eventName, data = undefined, cancelable = true) {
+        const customEv = new CustomEvent(eventName, { detail: data, bubbles: true, cancelable });
+        return this.dispatchEvent(customEv);
+    }
+    /**
+     * @public @method updateChartHeadBg - Method for programmatically updating all chat head's background color
+     * @param color - The color value to set the chart heads to, you can pass any CSS color values to it
+     */
+    updateChartHeadBg(color) {
+        document.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color);
+        this.addEventListener('chart_head.expanded', () => document.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color));
+    }
+    /**
+     * The short form for addEventListener
+     * @param eventName - The event you want to subscribe to
+     * @param callbackFn - The callback function
+     */
+    on(eventName, callbackFn) {
+        this.addEventListener(eventName, callbackFn);
+    }
+    /**
+     * The method to programatically update parameters
+     * @param options_to_set - The parameter to update
+     */
+    setOptions(options_to_set) {
+        this.setObjectValue(this.options, options_to_set);
     }
 }
 export default SpiderTree;

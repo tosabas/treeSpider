@@ -120,7 +120,8 @@ class CellarSpiderTree {
         }
         const lineEndX = ((elementBounds.x + (lineOrigin == "right" ? elementBounds.width : 0)) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0;
         const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale));
-        const link = this.hc_d3.linkHorizontal();
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3.curveBumpX;
+        const link = this.hc_d3.link(curveFactory);
         const data = [
             { source: [lineStartX, lineStartY], target: [lineEndX, lineEndY] },
         ];
@@ -185,17 +186,15 @@ class CellarSpiderTree {
         const nodeTopChildrenHidden = nodeParent?.getAttribute('data-hc-head-children-hidden');
         const children = this.chartHelper.tree_data.filter(data => data.parentId == id);
         if (!nodeTopChildrenHidden || nodeTopChildrenHidden == "false") {
-            children.forEach(child => {
-                const childNodeContainer = this.hcInnerContainer?.querySelector('.hc-w-id-' + child.id);
-                const childrenContainer = childNodeContainer?.querySelector('.child-container');
-                childrenContainer?.remove();
-                this.removeNodeRecursiveFromTreeMap(child.id, true);
-                childNodeContainer?.remove();
-            });
+            nodeParent.parentElement.previousElementSibling.style.visibility = 'hidden';
+            nodeParent.parentElement.previousElementSibling.previousElementSibling.style.visibility = 'hidden';
+            nodeParent.parentElement.previousElementSibling.querySelectorAll('.linker-line').forEach((line) => line.remove());
+            nodeParent.parentElement.previousElementSibling.previousElementSibling.querySelectorAll('.linker-line').forEach((line) => line.remove());
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'true');
         }
         else {
-            this.map_children_data_to_head(svgNode, id);
+            nodeParent.parentElement.previousElementSibling.style.visibility = '';
+            nodeParent.parentElement.previousElementSibling.previousElementSibling.style.visibility = '';
             nodeParent?.setAttribute('data-hc-head-children-hidden', 'false');
         }
         this.drawBranchLinkFresh();

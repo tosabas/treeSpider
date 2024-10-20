@@ -79,6 +79,8 @@
   background-color: white;
   overflow: visible;
   border-radius: 16px;
+  margin: 40px !important;
+  transition: background-color 0.3s linear;
   box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
   -webkit-box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
   -moz-box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);

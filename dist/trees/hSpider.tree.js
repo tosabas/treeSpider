@@ -62,7 +62,8 @@ class HorizontalSpiderTree {
         const lineStartY = (svgSourceNodeBounds.height / this.current_scale) / 2;
         const lineEndX = ((elementBounds.x) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0;
         const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale));
-        const link = this.hc_d3.linkHorizontal();
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3.curveBumpX;
+        const link = this.hc_d3.link(curveFactory);
         const data = [
             { source: [lineStartX, lineStartY], target: [lineEndX, lineEndY] },
         ];
