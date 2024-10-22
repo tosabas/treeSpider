@@ -55,7 +55,7 @@ class HorizontalSpiderWalkTree {
         this.drawBranchLinkFresh();
 
         this.hc_d3!.timeout(() => {
-            const first_svg_el = (this.hc_d3!.select('.st-root-el > svg')!.node() as SVGSVGElement)!.getBoundingClientRect();
+            const first_svg_el = (this.hc_d3!.select(`${this.chartHelper!.app_root_unique_selector} .st-root-el > svg`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
 
@@ -124,7 +124,7 @@ class HorizontalSpiderWalkTree {
     }
 
     private drawBranchLinkFresh () {
-        document.querySelectorAll('.linker-line').forEach(el => el.remove());
+        this.chartHelper!.rootWrapperContainer?.querySelectorAll('.linker-line').forEach(el => el.remove());
         this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild as SVGSVGElement, branch.parentId, branch.lineOrigin));
     }
 
@@ -234,14 +234,19 @@ class HorizontalSpiderWalkTree {
             const section = clicked_pos == 0 ? nodeParent.parentElement.previousElementSibling : nodeParent.parentElement.nextElementSibling
             section.style.visibility = 'hidden';
             section.querySelectorAll('.linker-line').forEach((line: SVGPathElement) => line.remove());
-            nodeParent.querySelectorAll('.linker-'+(clicked_pos == 0 ? 'left' : 'right')).forEach((node: SVGSVGElement) => node.remove())
+            nodeParent.querySelectorAll('.linker-'+(clicked_pos == 0 ? 'right' : 'left')).forEach((node: SVGSVGElement) => node.remove())
             clicked_pos == 0 ? nodeParent?.setAttribute('data-hc-top-head-children-hidden', 'true') :
             nodeParent?.setAttribute('data-hc-bottom-head-children-hidden', 'true')
         }else{
             const section = clicked_pos == 0 ? nodeParent.parentElement.previousElementSibling : nodeParent.parentElement.nextElementSibling
             section.style.visibility = 'visible';            
             setTimeout(() => {
-                this.drawBranchLinkFresh();                
+                this.drawBranchLinkFresh();
+                const inverse_link_hidden = (clicked_pos == 0 ? nodeParent?.getAttribute('data-hc-bottom-head-children-hidden') :
+                nodeParent?.getAttribute('data-hc-top-head-children-hidden')) == 'true'
+                if (inverse_link_hidden) {
+                    nodeParent.querySelectorAll('.linker-'+(clicked_pos == 0 ? 'left' : 'right')).forEach((node: SVGSVGElement) => node.remove())                    
+                }
             }, 0);
             clicked_pos == 0 ? nodeParent?.setAttribute('data-hc-top-head-children-hidden', 'false') :
             nodeParent?.setAttribute('data-hc-bottom-head-children-hidden', 'false')

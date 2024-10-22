@@ -33,7 +33,7 @@ class VerticalSpiderWalkTree {
         this.hcInnerContainer.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
-            const first_svg_el = this.hc_d3.select('.st-root-el > svg').node().getBoundingClientRect();
+            const first_svg_el = this.hc_d3.select(`${this.chartHelper.app_root_unique_selector} .st-root-el > svg`).node().getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center");
         }, 0);
     }
@@ -97,7 +97,7 @@ class VerticalSpiderWalkTree {
         return childElContainer;
     }
     drawBranchLinkFresh() {
-        document.querySelectorAll('.linker-line').forEach(el => el.remove());
+        this.chartHelper.rootWrapperContainer?.querySelectorAll('.linker-line').forEach(el => el.remove());
         this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId, branch.lineOrigin));
     }
     drawBranchLink(id, svgNode, targetChild, parentId, lineOrigin = "bottom") {
@@ -196,6 +196,11 @@ class VerticalSpiderWalkTree {
             section.style.visibility = '';
             setTimeout(() => {
                 this.drawBranchLinkFresh();
+                const inverse_link_hidden = (clicked_pos == 0 ? nodeParent?.getAttribute('data-hc-bottom-head-children-hidden') :
+                    nodeParent?.getAttribute('data-hc-top-head-children-hidden')) == 'true';
+                if (inverse_link_hidden) {
+                    nodeParent.querySelectorAll('.linker-' + (clicked_pos == 0 ? 'top' : 'bottom')).forEach((node) => node.remove());
+                }
             }, 0);
             clicked_pos == 0 ? nodeParent?.setAttribute('data-hc-top-head-children-hidden', 'false') :
                 nodeParent?.setAttribute('data-hc-bottom-head-children-hidden', 'false');

@@ -67,12 +67,12 @@ class HCRootContainer extends HTMLDivElement {
         svg.append('rect')
             .attr("width", "20")
             .attr("height", "20")
-            .attr("fill", "white");
+            .attr("fill", "transparent");
         svg.append('circle')
             .attr("cx", "10")
             .attr("cy", "10")
             .attr("r", "1")
-            .attr("fill", "black");
+            .attr("fill", "rgb(150,150,150)");
         this.style.backgroundSize = this.backgroundSize || '2%';
         return svg;
     }

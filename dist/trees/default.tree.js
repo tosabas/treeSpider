@@ -41,12 +41,13 @@ class DefaultTree {
         this.hcInnerContainer.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
-            const first_svg_el = this.hc_d3.select('.main-svg-el').node().getBoundingClientRect();
+            console.log("jdjdjsjsj", this.chartHelper.app_root_unique_selector);
+            const first_svg_el = this.hc_d3.select(`${this.chartHelper.app_root_unique_selector} .root-svg-el`).node().getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "top");
         }, 0);
     }
     drawBranchLinkFresh() {
-        document.querySelectorAll('.linker-line').forEach(el => el.remove());
+        this.chartHelper.rootWrapperContainer?.querySelectorAll('.linker-line').forEach(el => el.remove());
         this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId));
     }
     drawBranchLink(id, svgNode, targetChild, parentId) {
@@ -61,7 +62,7 @@ class DefaultTree {
         const lineStartY = (svgSourceNodeBounds.height + st_linker_radius) / this.current_scale;
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2);
         const lineEndY = (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale);
-        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3.curveBumpX;
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3.curveBumpY;
         const link = this.hc_d3.link(curveFactory);
         const data = [
             { source: [lineStartX, lineStartY], target: [lineEndX, lineEndY] },

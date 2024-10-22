@@ -50,8 +50,14 @@ class ChartMainHelper {
         curveStepBefore: this.hc_d3.curveStepBefore
     };
     tree_link_type = undefined;
+    rootWrapperContainer = null;
+    app_unique_id = '';
+    app_root_unique_selector = '';
     constructor() {
         console.log('symbolsFill', typeof this.hc_d3.symbolsFill[0]);
+        setTimeout(() => {
+            this.app_root_unique_selector = `[data-ts-unique-id='${this.app_unique_id}']`;
+        }, 0);
     }
     createDynamicEl() {
         return new HCElement();
@@ -156,10 +162,11 @@ class ChartMainHelper {
         const rect_half_width = parseInt(rect.attr('width')) / 2;
         const firstSection = all_group?.append('g')
             .attr('y', 100);
+        const chart_head_image_size = Math.pow(this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape), 2);
         if (!head_data.image) {
             move_down = rect_half_width - this.head_image_surface_area < 1 ? Math.abs(rect_half_width - this.head_image_surface_area) + 15 : 0;
             firstSection?.append('path')
-                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(Math.pow(this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape), 2)))
+                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(chart_head_image_size))
                 .attr('stroke', this.symbol_type(this.head_image_shape) == 'stroke' ? color_set.color : 'none')
                 .attr('stroke-width', this.symbol_type(this.head_image_shape) == 'stroke' ? 1 : 0)
                 .attr('fill', this.symbol_type(this.head_image_shape) == 'stroke' ? 'transparent' : color_set.color)
@@ -181,9 +188,9 @@ class ChartMainHelper {
             move_down = rect_half_width - this.head_image_surface_area < 1 ? Math.abs(rect_half_width - this.head_image_surface_area) + 15 : 0;
             firstSection.append('defs')
                 .append('clipPath')
-                .attr('id', "rounded-corners")
+                .attr('id', "default-head-clip-" + head_data.id)
                 .append('path')
-                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(Math.pow(this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape), 2)))
+                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(chart_head_image_size))
                 .attr('transform', `translate(${(parseInt(rect.attr('width')) / 2)}, ${this.head_image_surface_area + extra_y_dist})`)
                 .attr('fill', color_set.bright500);
             firstSection?.append('image')
@@ -193,7 +200,7 @@ class ChartMainHelper {
                 .attr('height', this.head_image_surface_area)
                 .attr('x', (parseInt(rect.attr('width')) / 2) - (this.head_image_surface_area / 2))
                 .attr('y', (this.head_image_surface_area / 2) + extra_y_dist)
-                .attr('clip-path', 'url(#rounded-corners)');
+                .attr('clip-path', `url(#default-head-clip-${head_data.id})`);
         }
         const employee_name_split = this.format_employee_name(head_data.name);
         employee_name_split.forEach((name, i) => {
@@ -312,7 +319,7 @@ class ChartMainHelper {
             rect.attr('width', this.chartHeadLandscapeWidth + chartHeadLandscapeHeight);
             leftGroup.append('defs')
                 .append('clipPath')
-                .attr('id', "rounded-corners")
+                .attr('id', "landscape-clip-" + head_data.id)
                 .append('path')
                 .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(Math.pow(this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape), 2)))
                 .attr('transform', `translate(${(parseInt(rect.attr('height')) / 2)}, ${this.head_image_surface_area + (extra_y_dist + 20)})`)
@@ -324,7 +331,7 @@ class ChartMainHelper {
                 .attr('height', this.head_image_surface_area)
                 .attr('x', (parseInt(rect.attr('height')) / 2) - (this.head_image_surface_area / 2))
                 .attr('y', (this.head_image_surface_area / 2) + (extra_y_dist + 20))
-                .attr('clip-path', 'url(#rounded-corners)');
+                .attr('clip-path', `url(#landscape-clip-${head_data.id})`);
         }
         const leftStartOrigin = parseInt(rect.attr('height'));
         const employeeName = rightGroup?.append('text')
@@ -402,15 +409,16 @@ class ChartMainHelper {
             .attr('stroke-width', 0);
         const rect_half_width = parseInt(rect.attr('width')) / 2;
         const firstSection = all_group?.append('g');
+        const symbol_size = Math.pow((this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape)) * 2, 2);
+        const head_shape_type = this.hc_d3[this.head_image_shape];
         if (!head_data.image) {
             let extra_y_dist = rect_half_width - this.head_image_surface_area;
             extra_y_dist = extra_y_dist > 10 ? 0 : extra_y_dist - 10;
             extra_y_dist = extra_y_dist > 0 ? -extra_y_dist : extra_y_dist;
             extra_y_dist = (rect_half_width - this.head_image_surface_area) <= 10 && extra_y_dist == 0 ? -10 : extra_y_dist;
             move_down = rect_half_width - this.head_image_surface_area < 0 ? Math.abs(rect_half_width - this.head_image_surface_area) * 2 : 0;
-            const symbol_size = Math.pow((this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape)) * 2, 2);
             firstSection?.append('path')
-                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(symbol_size))
+                .attr('d', this.hc_d3.symbol().type(head_shape_type).size(symbol_size))
                 .attr('stroke', this.symbol_type(this.head_image_shape) == 'stroke' ? color_set.color : 'none')
                 .attr('stroke-width', this.symbol_type(this.head_image_shape) == 'stroke' ? 1 : 0)
                 .attr('fill', this.symbol_type(this.head_image_shape) == 'stroke' ? 'transparent' : color_set.color)
@@ -432,9 +440,9 @@ class ChartMainHelper {
             move_down = rect_half_width - this.head_image_surface_area < 0 ? Math.abs(rect_half_width - this.head_image_surface_area) * 2 : 0;
             firstSection.append('defs')
                 .append('clipPath')
-                .attr('id', "rounded-corners")
+                .attr('id', "rounded-corners-" + head_data.id)
                 .append('path')
-                .attr('d', this.hc_d3.symbol().type(this.hc_d3[this.head_image_shape]).size(Math.pow((this.head_image_surface_area - this.get_image_shape_spacing(this.head_image_shape)) * 2, 2)))
+                .attr('d', this.hc_d3.symbol().type(head_shape_type).size(symbol_size))
                 .attr('transform', `translate(${(parseInt(rect.attr('width')) / 2)}, ${(this.head_image_surface_area * 2) - ((this.head_image_surface_area))})`)
                 .attr('fill', color_set.bright500);
             firstSection?.append('image')
@@ -444,7 +452,7 @@ class ChartMainHelper {
                 .attr('height', this.head_image_surface_area * 2)
                 .attr('x', (parseInt(rect.attr('width')) / 2) - (this.head_image_surface_area))
                 .attr('y', (this.head_image_surface_area) - ((this.head_image_surface_area)))
-                .attr('clip-path', 'url(#rounded-corners)');
+                .attr('clip-path', `url(#rounded-corners-${head_data.id})`);
         }
         const employee_name_split = this.format_employee_name(head_data.name, 27);
         employee_name_split.forEach((name, i) => {
@@ -499,8 +507,8 @@ class ChartMainHelper {
         const ts_linker = Math.PI * this.head_linker_thumb_circle_radius * this.head_linker_thumb_circle_radius;
         console.log("ts_linker", ts_linker, Math.sqrt(ts_linker), Math.SQRT2);
         const add_link_icon = (type, inverse_link_point_position, class_name) => {
-            if (document.querySelector('.' + class_name) != null)
-                document.querySelector('.' + class_name)?.remove();
+            if (this.rootWrapperContainer?.querySelector('.' + class_name) != null)
+                this.rootWrapperContainer?.querySelector('.' + class_name)?.remove();
             const color = this.symbol_type(this.linker_thumb_shape) == 'stroke' ? color_set.bright100 : color_set[this.linker_thumb_icon_color];
             return all_group.append('path')
                 .attr('d', this.hc_d3.symbol().type(type == 'cross' ? this.hc_d3.symbolCross : this.hc_d3.symbolX).size(Math.sqrt(ts_linker)))
@@ -570,17 +578,18 @@ class ChartMainHelper {
                     .attr('stroke-width', this.symbol_type(this.linker_thumb_shape) == 'stroke' ? 1 : 0)
                     .attr('transform', this.link_point_position[this.inverse_link_point_position[pointPosition.parent]](rect))
                     .on('click', (e) => {
+                    console.log("second part clicked");
                     const curr_target_parent = e.currentTarget.parentElement;
                     click_counter_2 % 2 == 0 ?
                         add_link_icon('cross', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2') :
                         add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2');
-                    click_counter_2++;
                     _class.handleCollapseChildren?.(svgNode, head_data.id, translate_y_2);
                     const rect = curr_target_parent.getBoundingClientRect();
+                    click_counter_2++;
                     setTimeout(() => {
-                        click_counter % 2 == 0 && this.center_elem(rect);
+                        click_counter_2 % 2 == 0 && this.center_elem(rect);
                     }, 0);
-                    click_counter % 2 == 0 ? this.emitEvent('chart_head.expanded', { svgNode, head_data, pointPosition }, false) :
+                    click_counter_2 % 2 == 0 ? this.emitEvent('chart_head.expanded', { svgNode, head_data, pointPosition }, false) :
                         this.emitEvent('chart_head.collapsed', { svgNode, head_data, pointPosition }, false);
                 });
                 add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-' + head_data.id + '-2');

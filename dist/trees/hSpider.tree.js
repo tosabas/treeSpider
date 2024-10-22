@@ -21,7 +21,7 @@ class HorizontalSpiderTree {
         this.hcInnerContainer.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
-            const first_svg_el = this.hc_d3.select('.main-svg-el').node().getBoundingClientRect();
+            const first_svg_el = this.hc_d3.select(`${this.chartHelper.app_root_unique_selector} .root-svg-el`).node().getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "left");
         }, 0);
     }
@@ -48,7 +48,7 @@ class HorizontalSpiderTree {
         return childElContainer;
     }
     drawBranchLinkFresh() {
-        document.querySelectorAll('.linker-line').forEach(el => el.remove());
+        this.chartHelper.rootWrapperContainer?.querySelectorAll('.linker-line').forEach(el => el.remove());
         this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId));
     }
     drawBranchLink(id, svgNode, targetChild, parentId) {
@@ -81,9 +81,9 @@ class HorizontalSpiderTree {
         const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden');
         const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
         console.log("nodeAncestor", nodeAncestor, svgNode.node()?.parentElement);
-        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.child-container').innerHTML == '') {
+        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.st-single-h-child-container').innerHTML == '') {
             this.chartHelper.set_tmp_tree_data(id);
-            nodeAncestor.querySelector('.child-container').remove();
+            nodeAncestor.querySelector('.st-single-h-child-container').remove();
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             nodeAncestor?.appendChild(remade_children_obj);
             nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');

@@ -13,6 +13,11 @@ export interface ISpiderTreeMain {
     placeEl?: 'override' | 'start' | 'end' | {beforeEl: string};
 
     /**
+     * The parameter to set TreeSpider to not auto initialize
+     */
+    autoInitialize?: boolean;
+
+    /**
      * An array of data containing employee details and relationship
      */
     tree_data: Array<IChartHead>;
@@ -115,12 +120,40 @@ export interface ISpiderTreeMain {
     /**
      * The type of tree link you want to use
      */
-    tree_link_type?: 'curveBumpX' | 'curveBumpY' | 'curveBasisClosed' | 'curveLinear' | 
-        'curveStep' | 'curveStepAfter' | 'curveStepBefore';
+    tree_link_type?: TLinkType;
     /**
      * The length of the random number
      */
     random_data_length?: number;
+    /**
+     * The distance to be zoomed in
+     */
+    zoom_in_distance?: number;
+    /**
+     * The distance to be zoomed out
+     */
+    zoom_out_distance?: number;
+    /**
+     * The vertical space between heads, set this to a lower or higher number to
+     * decrease or increase the distance between parent and children heads
+     */
+    verticalSpace?: string;
+    /**
+     * The CDN of the Google font to be loaded
+     */
+    font_link?: string;
+    /**
+     * The name of the provided font
+     */
+    font_name?: string;
+    /**
+     * The width of the TreeSpider wrapper container
+     */
+    width?: string;
+    /**
+     * The height of the TreeSpider wrapper container
+     */
+    height?: string;
 }
 
 export interface IChartHead {

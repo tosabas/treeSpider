@@ -33,7 +33,7 @@ class CellarSpiderTree {
         this.map_children_data_to_head();
         this.drawBranchLinkFresh();
         this.hc_d3.timeout(() => {
-            const first_svg_el = this.hc_d3.select('.st-root-el > svg').node().getBoundingClientRect();
+            const first_svg_el = this.hc_d3.select(`${this.chartHelper.app_root_unique_selector} .st-root-el > svg`).node().getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "bottom");
         }, 0);
     }
@@ -97,7 +97,7 @@ class CellarSpiderTree {
         return childElContainer;
     }
     drawBranchLinkFresh() {
-        document.querySelectorAll('.linker-line').forEach(el => el.remove());
+        this.chartHelper.rootWrapperContainer?.querySelectorAll('.linker-line').forEach(el => el.remove());
         console.log("trre map arr", this.tree_map_arr);
         this.tree_map_arr.forEach(branch => this.drawBranchLink(branch.id, branch.svgNode, branch.targetChild, branch.parentId, branch.lineOrigin));
     }
