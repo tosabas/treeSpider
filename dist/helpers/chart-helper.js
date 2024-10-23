@@ -124,6 +124,12 @@ class ChartMainHelper {
             return this.defaultHead(head_data, doubleVerticalPoints, pointPosition);
         }
     }
+    handleCenterHead(e) {
+        e.stopPropagation();
+        const curr_target = e.currentTarget;
+        const rect = curr_target.getBoundingClientRect();
+        this.center_elem(rect);
+    }
     defaultHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
@@ -135,12 +141,7 @@ class ChartMainHelper {
             .attr('width', this.chartHeadWidth)
             .attr('height', this.chartHeadHeight)
             .attr('style', 'background-color: ' + chart_head_bg)
-            .on('dblclick', (e) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect();
-            this.center_elem(rect);
-        });
+            .on('dblclick', (e) => this.handleCenterHead(e));
         // Gaussian blur
         const defs = this.hc_d3.create('defs')
             .append('filter')
@@ -248,6 +249,7 @@ class ChartMainHelper {
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
         this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
+        this.emitEvent('chart_head.create', { headNode: svgNode.node() });
         return svgNode;
     }
     landscapeHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
@@ -260,12 +262,7 @@ class ChartMainHelper {
             .attr('width', this.chartHeadLandscapeWidth)
             .attr('height', this.chartHeadLandscapeHeight)
             .attr('style', 'background-color: ' + this.chart_head_bg)
-            .on('dblclick', (e) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect();
-            this.center_elem(rect);
-        });
+            .on('dblclick', (e) => this.handleCenterHead(e));
         const all_group = svgNode.append('g');
         const rect = all_group?.append('rect')
             .attr('rx', 16)
@@ -379,6 +376,7 @@ class ChartMainHelper {
             });
         }
         this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
+        this.emitEvent('chart_head.create', { headNode: svgNode.node() });
         return svgNode;
     }
     roundedHead(head_data, doubleVerticalPoints = false, pointPosition = { parent: "bottom", children: "top" }) {
@@ -392,12 +390,7 @@ class ChartMainHelper {
             .attr('width', this.chartHeadRoundedWidth)
             .attr('height', this.chartHeadRoundedHeight)
             .attr('fill', 'none')
-            .on('dblclick', (e) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect();
-            this.center_elem(rect);
-        });
+            .on('dblclick', (e) => this.handleCenterHead(e));
         const all_group = svgNode.append('g');
         const rect = all_group?.append('rect')
             .attr('rx', 16)
@@ -501,6 +494,7 @@ class ChartMainHelper {
         rect?.attr('height', container_height);
         svgNode?.attr('height', container_height);
         this.add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints);
+        this.emitEvent('chart_head.create', { headNode: svgNode.node() });
         return svgNode;
     }
     add_linker(all_group, has_parent, has_children, pointPosition, color_set, rect, svgNode, head_data, doubleVerticalPoints) {

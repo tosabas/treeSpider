@@ -152,6 +152,13 @@ class ChartMainHelper {
         }
     }
 
+    public handleCenterHead(e: any) {
+        e.stopPropagation();
+        const curr_target = e.currentTarget;
+        const rect = curr_target.getBoundingClientRect()
+        this.center_elem(rect)
+    }
+
     public defaultHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = {parent: "bottom", children: "top"}) {
         const has_children = this.tree_data.filter(data => data.parentId === head_data.id).length > 0;
         const has_parent = this.tree_data.filter(data => data.id === head_data.parentId).length > 0;
@@ -166,12 +173,7 @@ class ChartMainHelper {
         .attr('width', this.chartHeadWidth)
         .attr('height', this.chartHeadHeight)
         .attr('style', 'background-color: ' + chart_head_bg)
-        .on('dblclick', (e: any) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect()
-            this.center_elem(rect)
-        });
+        .on('dblclick', (e) => this.handleCenterHead(e));
 
         // Gaussian blur
         const defs = this.hc_d3!.create('defs')
@@ -303,6 +305,8 @@ class ChartMainHelper {
             color_set, rect, svgNode, head_data, doubleVerticalPoints
         )
 
+        this.emitEvent('chart_head.create', {headNode: svgNode.node()})
+        
         return svgNode;
     }
 
@@ -319,12 +323,7 @@ class ChartMainHelper {
         .attr('width', this.chartHeadLandscapeWidth)
         .attr('height', this.chartHeadLandscapeHeight)
         .attr('style', 'background-color: ' + this.chart_head_bg)
-        .on('dblclick', (e: any) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect()
-            this.center_elem(rect)
-        });
+        .on('dblclick', (e) => this.handleCenterHead(e));
 
         const all_group = svgNode.append('g');
 
@@ -466,6 +465,8 @@ class ChartMainHelper {
             color_set, rect, svgNode, head_data, doubleVerticalPoints
         )
 
+        this.emitEvent('chart_head.create', {headNode: svgNode.node()})
+
         return svgNode;
     }
 
@@ -482,12 +483,7 @@ class ChartMainHelper {
         .attr('width', this.chartHeadRoundedWidth)
         .attr('height', this.chartHeadRoundedHeight)
         .attr('fill', 'none')
-        .on('dblclick', (e: any) => {
-            e.stopPropagation();
-            const curr_target = e.currentTarget;
-            const rect = curr_target.getBoundingClientRect()
-            this.center_elem(rect)
-        });
+        .on('dblclick', (e) => this.handleCenterHead(e));
 
         const all_group = svgNode.append('g')
 
@@ -615,6 +611,8 @@ class ChartMainHelper {
             all_group, has_parent, has_children, pointPosition, 
             color_set, rect, svgNode, head_data, doubleVerticalPoints
         )
+
+        this.emitEvent('chart_head.create', {headNode: svgNode.node()})
 
         return svgNode;
     }

@@ -151,6 +151,9 @@ class SpiderTree extends EventTarget {
         
         this.addD3Script();
         
+        setTimeout(() => {
+            this.emitEvent('library.init', {rootContainer: this.rootWrapperContainer});            
+        }, 0);
         console.info(this.libraryName + ' initialized!')
     }
 
@@ -275,7 +278,7 @@ class SpiderTree extends EventTarget {
      * The method to reset the zoom to the default zoom state
      */
     public resetZoom() {
-        const first_svg_el = (this.hc_d3!.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect()
+        const first_svg_el = (this.hc_d3!.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect()
         this.center_elem(first_svg_el as DOMRect, this.tree_default_point_position)
     }
 
@@ -401,7 +404,7 @@ class SpiderTree extends EventTarget {
 
     private center_elem (rect: DOMRect, position: TElementCenterPositions = 'center') {
         const root_container_el = this.hc_d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
-        console.log("root_container_el", root_container_el, root_container_el?.node());
+        console.log("root_container_el", root_container_el, rect, position);
         
 
         this.tree_default_point_position == '' as TElementCenterPositions && (this.tree_default_point_position = position);
@@ -458,9 +461,15 @@ class SpiderTree extends EventTarget {
      * @param color - The color value to set the chart heads to, you can pass any CSS color values to it
      */
     public updateChartHeadBg(color: string) {
-        this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color);
-        this.addEventListener('chart_head.expanded', () => 
-            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color))
+        if (this.options.tree_type == 'goldenRod') {
+            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color);
+            this.addEventListener('chart_head.expanded', () => 
+                this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color));
+        }else{
+            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color);
+            this.addEventListener('chart_head.expanded', () => 
+                this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color));
+        }
     }
     
     /**

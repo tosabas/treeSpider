@@ -124,6 +124,9 @@ class SpiderTree extends EventTarget {
         this.targetRootContainer.setAttribute('data-tree-spider-initialized', this.instance_unique_id);
         console.log("yah", this.options, this.targetRootContainer);
         this.addD3Script();
+        setTimeout(() => {
+            this.emitEvent('library.init', { rootContainer: this.rootWrapperContainer });
+        }, 0);
         console.info(this.libraryName + ' initialized!');
     }
     addD3Script() {
@@ -239,7 +242,7 @@ class SpiderTree extends EventTarget {
      * The method to reset the zoom to the default zoom state
      */
     resetZoom() {
-        const first_svg_el = this.hc_d3.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el`).node().getBoundingClientRect();
+        const first_svg_el = this.hc_d3.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`).node().getBoundingClientRect();
         this.center_elem(first_svg_el, this.tree_default_point_position);
     }
     placeRootContainer() {
@@ -355,7 +358,7 @@ class SpiderTree extends EventTarget {
     }
     center_elem(rect, position = 'center') {
         const root_container_el = this.hc_d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`);
-        console.log("root_container_el", root_container_el, root_container_el?.node());
+        console.log("root_container_el", root_container_el, rect, position);
         this.tree_default_point_position == '' && (this.tree_default_point_position = position);
         const root_cont_rect = root_container_el.node()?.getBoundingClientRect();
         const inner_cont_rect = this.hcInnerContainer?.getBoundingClientRect();
@@ -402,8 +405,14 @@ class SpiderTree extends EventTarget {
      * @param color - The color value to set the chart heads to, you can pass any CSS color values to it
      */
     updateChartHeadBg(color) {
-        this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color);
-        this.addEventListener('chart_head.expanded', () => this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color));
+        if (this.options.tree_type == 'goldenRod') {
+            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.querySelector('rect').style.fill = color);
+            this.addEventListener('chart_head.expanded', () => this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.querySelector('rect').style.fill = color));
+        }
+        else {
+            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color);
+            this.addEventListener('chart_head.expanded', () => this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => el.style.backgroundColor = color));
+        }
     }
     /**
      * The short form for addEventListener

@@ -62,4 +62,4 @@ export type THeadImageShape = 'symbolCircle' | 'symbolCross' |
     'symbolSquare2' | 'symbolStar' | 'symbolTriangle' | 'symbolTriangle2' | 
     'symbolWye'
 
-export type TEventType = 'chart_head.expanded' | 'chart_head.collapsed' | 'zooming'
+export type TEventType = 'chart_head.create' | 'chart_head.expanded' | 'chart_head.collapsed' | 'zooming' | 'library.init'

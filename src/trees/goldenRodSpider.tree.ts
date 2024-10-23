@@ -45,7 +45,7 @@ class GoldenRodSpider {
         this.map_children_data_to_head();
         
         this.hc_d3!.timeout(() => {
-            const first_svg_el = (this.hc_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+            const first_svg_el = (this.hc_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
     }
@@ -100,6 +100,13 @@ class GoldenRodSpider {
         root.each((node: any) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
             node['head'] = chartHead!.node();
+            node['head'].removeEventListener('dblclick', this.chartHelper!.handleCenterHead)
+            node['head'].ondblclick = (e: any) => {
+                e.stopPropagation()
+                e.preventDefault()
+                const el_rect = e.currentTarget.querySelector('g').getBoundingClientRect()
+                this.chartHelper?.center_elem(el_rect)
+            }
             node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id as unknown as number);
         });
 
