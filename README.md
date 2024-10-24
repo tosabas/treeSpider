@@ -1,7 +1,7 @@
 # TreeSpider
 
 <div align="center">
-    <img src="https://github.com/paulosabayomi/CustUp/blob/master/res/treeSpider.png" alt="TreeSpider logo" width="400" style="object-fit: contain; justify-self:center;"/>
+    <img src="https://github.com/paulosabayomi/CustUp/blob/main/res/treeSpider.png" alt="TreeSpider logo" width="400" style="object-fit: contain; justify-self:center;"/>
 </div>
 
 <!-- [START BADGES] -->
