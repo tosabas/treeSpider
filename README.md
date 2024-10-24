@@ -7,7 +7,7 @@
 <!-- [START BADGES] -->
 <!-- [END BADGES] -->
 
-Display your organization structure in style, use the chart type of your choice and that fits your organization, personalize and more. Built with D3js and TypeScript.
+Display your organization structure in style, personalize and use the chart type of your choice and that fits your organization, and more. Built with D3js and TypeScript.
 
 ## Installation
 
