@@ -32,9 +32,7 @@ jobs:
                   "badge": "https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square",
                   "alt": "PRs Welcome",
                   "link": "${{ env.repo_url }}/pulls"
-                }
-              ],
-              [
+                },
                 {
                   "badge": "https://github.com/paulosabayomi/treeSpider/actions/workflows/package.yml/badge.svg",
                   "alt": "Package",
