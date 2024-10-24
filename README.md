@@ -1,5 +1,9 @@
 # TreeSpider
 
+<div align="center">
+    <img src="https://github.com/paulosabayomi/CustUp/blob/master/res/treeSpider.png" alt="TreeSpider logo" width="400" style="object-fit: contain; justify-self:center;"/>
+</div>
+
 Display your organization structure in style, use the chart type of your choice and that fits your organization. It is built with D3js and TypeScript.
 
 ## Installation
