@@ -1,22 +1,22 @@
 import { IChartHead } from "../types/MainTypes";
 import ChartMainHelper from "../helpers/chart-helper.js";
 import { TTreeClassParams, TTreeMapArr } from "../types/utils.js";
-import HCElement from "../utils/st-element.js";
+import TSElement from "../utils/ts-element.js";
 
-class HorizontalSpiderTree {
+class HorizontalTreeSpider {
     private chartHelper: ChartMainHelper | undefined;
 
     private tree_map_arr: Array<TTreeMapArr> = [];
 
-    private hc_d3: typeof globalThis.d3 = window.d3;
+    private ts_d3: typeof globalThis.d3 = window.d3;
 
     protected content_wrapper: HTMLElement | null = null;
-    protected hcInnerContainer: HTMLElement | null = null;
+    protected tsInnerContainer: HTMLElement | null = null;
 
     public current_scale = 1;
 
-    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
-        this.hcInnerContainer = hcInnerContainer;
+    constructor ({tsInnerContainer, chartHelper}: TTreeClassParams) {
+        this.tsInnerContainer = tsInnerContainer;
 
         this.chartHelper = chartHelper;
         this.chartHelper.handleCollapseChildren = this.handleCollapseChildren.bind(this)
@@ -29,13 +29,13 @@ class HorizontalSpiderTree {
 
     private organizeUI () {
         this.content_wrapper = this.chartHelper!.createDynamicEl();
-        this.content_wrapper.className = "hc-head-wrapper";
+        this.content_wrapper.className = "ts-head-wrapper";
         this.chartHelper!.set_tmp_tree_data()
         this.map_children_data_to_head();
-        this.hcInnerContainer!.appendChild(this.content_wrapper);
+        this.tsInnerContainer!.appendChild(this.content_wrapper);
         this.drawBranchLinkFresh();
-        this.hc_d3!.timeout(() => {
-            const first_svg_el = (this.hc_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        this.ts_d3!.timeout(() => {
+            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "left")
         }, 0);
     }
@@ -51,17 +51,17 @@ class HorizontalSpiderTree {
 
             head_UI_wrapper.appendChild(head_UI_inner);
             const root_el_cls = parentId == undefined ? " st-root-el" : "";
-            head_UI_wrapper.className = "hc-head-node-wrapper st-single-h hc-w-id-" + head.id + root_el_cls;
+            head_UI_wrapper.className = "ts-head-node-wrapper st-single-h ts-w-id-" + head.id + root_el_cls;
             childElContainer.appendChild(head_UI_wrapper);
             
             parentSVGEl != undefined && this.tree_map_arr.push({id: head.id, svgNode: parentSVGEl, targetChild: head_UI?.node() as SVGSVGElement, parentId: parentId as string});
             
             if (this.chartHelper?.el_has_children(head.id)) {
-                head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id) as HCElement);
+                head_UI_wrapper.append(this.map_children_data_to_head(head_UI, head.id) as TSElement);
             }
             
         })
-        childElContainer.className = "hc-head-wrapper st-single-h-child-container";
+        childElContainer.className = "ts-head-wrapper st-single-h-child-container";
         if (parentSVGEl === undefined) this.content_wrapper?.appendChild(childElContainer);
         return childElContainer;
     }
@@ -72,7 +72,7 @@ class HorizontalSpiderTree {
     }
 
     private drawBranchLink (id: string, svgNode: any, targetChild: SVGSVGElement, parentId: string) {
-        const isParentChildrenHidden = this.hcInnerContainer?.querySelector('.hc-w-id-'+parentId)?.getAttribute('data-hc-head-children-hidden');
+        const isParentChildrenHidden = this.tsInnerContainer?.querySelector('.ts-w-id-'+parentId)?.getAttribute('data-ts-head-children-hidden');
         if (isParentChildrenHidden === 'true') return;
 
         const color_set = this.chartHelper?.color_handler.getColor(id as unknown as number);
@@ -87,8 +87,8 @@ class HorizontalSpiderTree {
         const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale));
 
 
-        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.hc_d3!.curveBumpX
-        const link = this.hc_d3!.link(curveFactory);
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.ts_d3!.curveBumpX
+        const link = this.ts_d3!.link(curveFactory);
         
         const data = [
             {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},
@@ -106,27 +106,24 @@ class HorizontalSpiderTree {
 
     private handleCollapseChildren (svgNode: any, id: string, clicked_pos: number) {
         const nodeAncestor = svgNode.node()?.parentElement.parentElement;
-        const nodeChildrenHidden = nodeAncestor?.getAttribute('data-hc-head-children-hidden')
+        const nodeChildrenHidden = nodeAncestor?.getAttribute('data-ts-head-children-hidden')
         const childrenContainer = nodeAncestor?.querySelector("[class*='child-container']");
-        console.log("nodeAncestor", nodeAncestor, svgNode.node()?.parentElement);
         
-        if (!nodeAncestor?.hasAttribute('data-hc-head-children-hidden') && nodeAncestor.querySelector('.st-single-h-child-container').innerHTML == '') {
+        if (!nodeAncestor?.hasAttribute('data-ts-head-children-hidden') && nodeAncestor.querySelector('.st-single-h-child-container').innerHTML == '') {
             this.chartHelper!.set_tmp_tree_data(id)
             nodeAncestor.querySelector('.st-single-h-child-container').remove()
             const remade_children_obj = this.map_children_data_to_head(svgNode, id);
             nodeAncestor?.appendChild(remade_children_obj);
-            nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false'); 
+            nodeAncestor?.setAttribute('data-ts-head-children-hidden', 'false'); 
             this.drawBranchLinkFresh();
         }else if (nodeChildrenHidden == 'true') {
             childrenContainer.style.visibility = ''
-            nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'false');            
+            nodeAncestor?.setAttribute('data-ts-head-children-hidden', 'false');            
             this.drawBranchLinkFresh();
         }else{
             childrenContainer.style.visibility = 'hidden'
-            // childrenContainer?.remove();
             nodeAncestor?.querySelectorAll('.linker-line').forEach((line: SVGPathElement) => line.remove());
-            nodeAncestor?.setAttribute('data-hc-head-children-hidden', 'true')
-            // this.removeNodeRecursiveFromTreeMap(id)
+            nodeAncestor?.setAttribute('data-ts-head-children-hidden', 'true')
         }
     }
 
@@ -139,4 +136,4 @@ class HorizontalSpiderTree {
     }
 }
 
-export default HorizontalSpiderTree;
+export default HorizontalTreeSpider;

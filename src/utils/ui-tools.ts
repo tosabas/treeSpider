@@ -1,6 +1,5 @@
-import { ZoomBehavior } from "d3";
 import icons from "./icons.js";
-import HCElement from "./st-element.js";
+import TSElement from "./ts-element.js";
 import { TTreeType } from "../types/MainTypes";
 
 class UITools {
@@ -23,7 +22,7 @@ class UITools {
     }
 
     private make_tools() {
-        const toolWrapperEl = new HCElement()
+        const toolWrapperEl = new TSElement()
         toolWrapperEl.className = "tools-container"
         this.root_ui_element?.appendChild(toolWrapperEl)
 
@@ -68,7 +67,6 @@ class UITools {
         toolWrapperEl.append(zoomInIcon)
         toolWrapperEl.append(zoomOutIcon)
         toolWrapperEl.append(zoomResetIcon)
-        console.log("this.tree_type", this.tree_type)
         if (this.animatable_trees.includes(this.tree_type as string)) {
             toolWrapperEl.append(rotateIcon)
             toolWrapperEl.append(rotateAnticlockwiseIcon)
@@ -81,13 +79,7 @@ class UITools {
             rotateOnceAnticlockwiseIcon.onclick = (e) =>  this.animate_chat(true, true)
         }
     }
-
-    /**
-     * zoom in
-     * zoom out
-     * reset zoom
-     * animate-rotation
-     */
+    
 }
 
 export default UITools

@@ -4,12 +4,11 @@ import ChartMainHelper from "../helpers/chart-helper.js";
 class RadialSpiderLeg {
     protected content_wrapper: HTMLElement | null = null;
     protected head_child_wrapper: HTMLElement | null = null;
-
-    protected hcInnerContainer: HTMLElement | null = null;
+    protected tsInnerContainer: HTMLElement | null = null;
 
     chartHelper: ChartMainHelper | undefined;
 
-    hc_d3: typeof globalThis.d3 = window.d3;
+    ts_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
@@ -19,9 +18,8 @@ class RadialSpiderLeg {
     animation_interval: NodeJS.Timeout | undefined = undefined;
     start_animation: boolean = false;
 
-    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
-        this.hcInnerContainer = hcInnerContainer;
-
+    constructor ({tsInnerContainer, chartHelper}: TTreeClassParams) {
+        this.tsInnerContainer = tsInnerContainer;
         this.chartHelper = chartHelper;
 
         setTimeout(() => {
@@ -39,11 +37,11 @@ class RadialSpiderLeg {
 
         this.content_wrapper.appendChild(this.head_child_wrapper);
 
-        this.hcInnerContainer?.append(this.content_wrapper);
+        this.tsInnerContainer?.append(this.content_wrapper);
 
         this.map_children_data_to_head();
-        this.hc_d3!.timeout(() => {
-            const first_svg_el = (this.hc_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        this.ts_d3!.timeout(() => {
+            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
     }
@@ -68,7 +66,7 @@ class RadialSpiderLeg {
     private map_children_data_to_head () {
         const data = this.chartHelper!.data_to_d3_format();
 
-        const root = this.hc_d3.hierarchy(data)
+        const root = this.ts_d3.hierarchy(data)
         .sort((a,b) => b.height - a.height || a.data.name.localeCompare(b.data.name));
 
         const radius = 540 * Math.sqrt(this.chartHelper!.tree_data.length/3);
@@ -81,23 +79,21 @@ class RadialSpiderLeg {
 
         root.each((node: any) => {
             const chartHead = this.chartHelper?.makeHead(node.data, false, false);
-            console.log("chartHead", chartHead)
             node['head'] = chartHead!.node();
             node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id as unknown as number);
         });
 
-        const tree = this.hc_d3.tree
+        const tree = this.ts_d3.tree
 
         const strokeWidth = 1.5 // stroke width for links
         const strokeOpacity = 1 // stroke opacity for links
 
-        // const separation = (a: any, b: any) => ((a.parent == b.parent ? 1 : 2) / a.depth) * 1200;
         const separation = (a: any, b: any) => 100;
 
         // Compute the layout.
         tree().size([2 * Math.PI, radius]).separation(separation)(root as any);
 
-        const svg = this.hc_d3!.create("svg")
+        const svg = this.ts_d3!.create("svg")
             .attr("viewBox", [-marginLeft - radius, -marginTop - radius, width, height])
             .attr("width", width)
             .attr("height", height)
@@ -111,12 +107,11 @@ class RadialSpiderLeg {
             .selectAll("path")
             .data(root.links())
             .join("path")
-            .attr("d", this.hc_d3!.linkRadial()
+            .attr("d", this.ts_d3!.linkRadial()
                 .angle((d: any) => d.x)
                 .radius((d: any) => d.y) as any);
 
         const mainNode = svg.append("g")
-            // .attr("fill", "blue")
             .selectAll("g")
             .data(root.descendants())
             .join("g")

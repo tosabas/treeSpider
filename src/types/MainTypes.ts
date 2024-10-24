@@ -1,6 +1,6 @@
 import { THeadImageShape, TLinkerCircleColor, TLinkerShape } from "./utils";
 
-export interface ISpiderTreeMain {
+export interface ITreeSpiderMain {
     /**
      * The target container in which SpiderTree will be spawned in
      */
@@ -20,7 +20,7 @@ export interface ISpiderTreeMain {
     /**
      * An array of data containing employee details and relationship
      */
-    tree_data: Array<IChartHead>;
+    tree_data?: Array<IChartHead>;
     /**
      * An array of colors which will be used as color range, set more than 
      * one color for better output
@@ -125,6 +125,11 @@ export interface ISpiderTreeMain {
      * The length of the random number
      */
     random_data_length?: number;
+    /**
+     * The locale of the random data, it automatically use the user's device's locale 
+     * gotten through the browser
+     */
+    random_data_locale?: string;
     /**
      * The distance to be zoomed in
      */

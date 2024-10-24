@@ -1,5 +1,4 @@
-import ColorHandler from "src/helpers/colorHandler";
-import HCElement from "../utils/st-element";
+import TSElement from "../utils/ts-element";
 import { IChartHead } from "./MainTypes";
 import ChartMainHelper from "src/helpers/chart-helper";
 
@@ -13,16 +12,16 @@ export type TTreeMapArr = {
     lineOrigin?: TBranchLineOrigin;
 }
 
-export type TChildrenMapperReturnEl = HCElement;
+export type TChildrenMapperReturnEl = TSElement;
 
 export type TSingleChildrenMap = {
-    child_el: HCElement;
+    child_el: TSElement;
     children_map_arr: TTreeMapArr[];
 };
 
 export type TTreeClassParams = {
     tree_data: Array<IChartHead>; 
-    hcInnerContainer: HTMLElement;
+    tsInnerContainer: HTMLElement;
     chartHelper: ChartMainHelper;
 }
 

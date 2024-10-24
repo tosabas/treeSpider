@@ -5,11 +5,11 @@ class SpiderlingsPacksTree {
     protected content_wrapper: HTMLElement | null = null;
     protected head_child_wrapper: HTMLElement | null = null;
 
-    protected hcInnerContainer: HTMLElement | null = null;
+    protected tsInnerContainer: HTMLElement | null = null;
 
     private chartHelper: ChartMainHelper | undefined;
 
-    private hc_d3: typeof globalThis.d3 = window.d3;
+    private ts_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
@@ -18,8 +18,8 @@ class SpiderlingsPacksTree {
     private rotate_deg = 0;
     private animation_interval: NodeJS.Timeout = -1 as any;
 
-    constructor ({hcInnerContainer, chartHelper}: TTreeClassParams) {
-        this.hcInnerContainer = hcInnerContainer;
+    constructor ({tsInnerContainer, chartHelper}: TTreeClassParams) {
+        this.tsInnerContainer = tsInnerContainer;
 
         this.chartHelper = chartHelper;
 
@@ -38,7 +38,7 @@ class SpiderlingsPacksTree {
 
         this.content_wrapper.appendChild(this.head_child_wrapper);
 
-        this.hcInnerContainer?.append(this.content_wrapper);
+        this.tsInnerContainer?.append(this.content_wrapper);
         
         this.map_children_data_to_head();
 
@@ -50,7 +50,7 @@ class SpiderlingsPacksTree {
         const svgRootNodeWidth = 260;
         const svgRootNodeHeight = 260;
 
-        const svgRootNode = this.hc_d3.create('svg')
+        const svgRootNode = this.ts_d3.create('svg')
         .attr('width', 260)
         .attr('height', 260)
         .attr('style', 'overflow: visible;');
@@ -58,7 +58,7 @@ class SpiderlingsPacksTree {
         const root_g = svgRootNode.append('g')
         .attr('style', 'fill: none');
 
-        const root = this.hc_d3.hierarchy(data)
+        const root = this.ts_d3.hierarchy(data)
         .sum((d: any) => d.hasOwnProperty("stat") ? d.stat : 0)
         .sort((a: any,b: any) => b.value - a.value);
 
@@ -69,7 +69,7 @@ class SpiderlingsPacksTree {
 
         const partitionSize =  this.chartHelper!.chartHeadWidth * Math.sqrt(this.chartHelper!.tree_data.length * 8);
 
-        const partition = this.hc_d3.pack()
+        const partition = this.ts_d3.pack()
         .size([partitionSize, partitionSize])
         .padding(0);
 

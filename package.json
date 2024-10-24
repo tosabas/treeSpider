@@ -1,11 +1,61 @@
 {
+  "name": "treespider",
+  "version": "0.0.1",
+  "description": "An organization structure chart library for displaying organization structure in style",
+  "main": "./dist/es/treeSpider.bundle.min.js",
+  "author": "Abayomi Amusa",
+  "types": "./src/core/treeSpider.ts",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "rollup": "rollup -c",
+    "rollup-watch": "rollup -w",
+    "sass": "sass scss/treeSpider.scss:dist/css/treeSpider.css -w",
+    "tsw": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulosabayomi/treeSpider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paulosabayomi/treeSpider/issues"
+  },
+  "homepage": "https://github.com/paulosabayomi/treeSpider",
+  "keywords": [
+    "treeSpider",
+    "tree chart",
+    "organization structure",
+    "organization structure library",
+    "organization structure chart",
+    "organization hierarchy",
+    "organization hierarchy library",
+    "organization hierarchy chart",
+    "company structure",
+    "company structure chart",
+    "company hierarchy",
+    "company hierarchy library",
+    "company hierarchy chart",
+    "organization tree",
+    "organization chart"
+  ],
   "devDependencies": {
     "@babel/core": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-env": "^7.25.9",
+    "@babel/preset-typescript": "^7.25.9",
+    "@jest/globals": "^29.7.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "@types/d3": "^7.4.3",
+    "@types/jest": "^29.5.14",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-resolve": "^29.7.0",
+    "jsdom": "^25.0.1",
+    "rollup": "^4.24.0",
+    "rollup-plugin-typescript2": "^0.36.0",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
