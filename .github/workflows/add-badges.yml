@@ -32,11 +32,6 @@ jobs:
                   "badge": "https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square",
                   "alt": "PRs Welcome",
                   "link": "${{ env.repo_url }}/pulls"
-                },
-                {
-                  "badge": "https://img.shields.io/static/v1?label=&labelColor=505050&message=marketplace&color=0076D6&style=flat-square&logo=google-chrome&logoColor=0076D6",
-                  "alt": "website",
-                  "link": "https://github.com/paulosabayomi/treeSpider"
                 }
               ],
               [
