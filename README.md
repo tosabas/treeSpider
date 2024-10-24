@@ -17,7 +17,7 @@ npm i treeSpider
 
 ## Setup
 
-After installation you can either import treeSpider directly in your applicationor load it with the script tag, it has both ES6 and browser bundles.
+After installation you can either import treeSpider directly in your application or load it with the script tag, it has both ES6 and browser bundles.
 
 ### TypeScript
 
