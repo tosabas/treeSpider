@@ -70,7 +70,7 @@ class TreeSpider extends EventTarget {
         head_image_shape: 'symbolCircle',
         chart_head_bg: '#ffffff',
         auto_set_chart_head_bg: false,
-        display_tree_in_step: true,
+        display_tree_in_step: false,
         auto_display_tree_in_step: true,
         tree_level_step: 2,
         pallet: {

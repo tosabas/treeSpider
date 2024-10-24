@@ -1,6 +1,6 @@
 {
   "name": "treespider",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "An organization structure chart library for displaying organization structure in style",
   "main": "./dist/es/treeSpider.bundle.min.js",
   "author": "Abayomi Amusa",
@@ -10,6 +10,7 @@
     "rollup": "rollup -c",
     "rollup-watch": "rollup -w",
     "sass": "sass scss/treeSpider.scss:dist/css/treeSpider.css -w",
+    "sass-c": "sass scss/treeSpider.scss:dist/css/treeSpider.css",
     "tsw": "tsc -w"
   },
   "repository": {
@@ -20,6 +21,10 @@
     "url": "https://github.com/paulosabayomi/treeSpider/issues"
   },
   "homepage": "https://github.com/paulosabayomi/treeSpider",
+  "files": [
+    "dist",
+    "src"
+  ],
   "keywords": [
     "treeSpider",
     "tree chart",
