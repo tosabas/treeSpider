@@ -5,6 +5,7 @@
 </div>
 
 <!-- [START BADGES] -->
+<!-- Please keep comment here to allow auto update -->
 <!-- [END BADGES] -->
 
 Display your organization structure in style, personalize and use the chart type of your choice and that fits your organization, and more. Built with D3js and TypeScript.
@@ -17,21 +18,11 @@ npm i treeSpider
 
 ## Setup
 
-After installation you can either import treeSpider directly in your application or load it with the script tag, it has both ES6 and browser bundles.
+After installation you can either import treeSpider directly in your application or load it via the script tag, it has both ES6 and browser bundles.
 
-### TypeScript
+### ES6 import
 
 ```ts
-import TreeSpider from '/path/to/installation/folder/treeSpider'
-
-const instance1 = new TreeSpider({
-    targetContainer: '#container-1'
-})
-```
-
-### JavaScript
-
-```js
 import TreeSpider from '/path/to/installation/folder/dist/es/treeSpider.bundle.min.js'
 
 const instance1 = new TreeSpider({
@@ -62,7 +53,7 @@ After importing it or loading it with the script tag, add the CSS file
 <link rel="stylesheet" href="/path/to/installation/folder/dist/css/treeSpider.css">
 ```
 
-And that is it, you will see treeSpider running in the browser with random automatically generate data that displays in your locale language, and one cool thing is there is no limit to the number of TreeSpider instances that can be on a page, next add your organization employees data.
+And that is it, you will see treeSpider running in the browser with random automatically generate data, and one cool thing is there is no limit to the number of TreeSpider instances that can be on a page, next add your organization employees data.
 
 ## Adding data
 
@@ -87,7 +78,7 @@ This is an example of an organization's employees data
 
 ```ts
 const tree_data = [
-    {id: "1", name: "Abayomi AmusaOyediran", role: "Manager", location: "Lagos, Nigeria"},
+    {id: "1", name: "Abayomi Amusa", role: "Manager", location: "Lagos, Nigeria"},
     {id: "2", parentId: "1", name: "Trey Anderson", role: "Product Manager", location: "California, United States"},
     {id: "3", parentId: "1", name: "Troy Manuel", role: "Software Developer", location: "Alberta, Canada"},
     {id: "4", parentId: "1", name: "Rebecca Oslon", role: "Software Developer", location: "London, United Kingdom"},

@@ -2,6 +2,7 @@ import { TBranchLineOrigin, TTreeClassParams, TTreeMapArr } from "../types/utils
 import ChartMainHelper from "../helpers/chart-helper.js";
 import { IChartHead } from "../types/MainTypes";
 import TSElement from "../utils/ts-element.js";
+import * as d3 from 'd3'
 
 class CellarTreeSpider {
     protected content_wrapper: HTMLElement | null = null;
@@ -14,8 +15,6 @@ class CellarTreeSpider {
     chartHelper: ChartMainHelper | undefined;
 
     tree_map_arr: Array<TTreeMapArr> = [];
-
-    ts_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
@@ -53,8 +52,8 @@ class CellarTreeSpider {
 
         this.drawBranchLinkFresh();
 
-        this.ts_d3!.timeout(() => {
-            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .st-root-el > svg`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        d3.timeout(() => {
+            const first_svg_el = (d3.select(`${this.chartHelper!.app_root_unique_selector} .st-root-el > svg`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "bottom")
         }, 0)
     }
@@ -150,8 +149,8 @@ class CellarTreeSpider {
         const lineEndX = ((elementBounds.x + (lineOrigin == "right" ? elementBounds.width : 0)) / this.current_scale) - ((svgSourceNodeBounds.x) / this.current_scale) + 0
         const lineEndY = (((elementBounds.top + (elementBounds.height / 2)) / this.current_scale) - ((svgSourceNodeBounds.top) / this.current_scale))
 
-        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.ts_d3!.curveBumpX
-        const link = this.ts_d3!.link(curveFactory);
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : d3.curveBumpX
+        const link = d3.link(curveFactory);
         
         const data = [
             {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},

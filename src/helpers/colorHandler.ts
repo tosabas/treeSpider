@@ -1,9 +1,9 @@
-import { RGBColor } from "d3";
-import { IChartHead, TColorPallet } from "src/types/MainTypes";
-import { TColorSet } from "src/types/utils";
+import * as d3 from "d3";
+import { IChartHead, TColorPallet } from "../types/MainTypes";
+import { TColorSet } from "../types/utils";
+
 
 class ColorHandler {
-    private ts_d3: typeof globalThis.d3 = window.d3;
     private tree_data: IChartHead[] = [];
     private color_range: string[] = ['#b31212', '#b34712', '#b38d12', '#9ab312', '#2fb312', '#12b362', '#12b3a8', '#1278b3', '#1712b3', '#5712b3', '#8d12b3', '#b3128d', '#b3124a', '#b31212'];
     private interpolated_color: (t: number) => string = (t) => '';
@@ -30,16 +30,16 @@ class ColorHandler {
     public getColor (index: number): TColorSet {
         const color_percentage = this.get_color_percentage(index);
         const color = this.interpolated_color(color_percentage);
-        const conv_color = this.ts_d3.color(color);
+        const conv_color = d3.color(color);
         
-        const to_hsl = this.ts_d3.hsl(conv_color as RGBColor);
+        const to_hsl = d3.hsl(conv_color as d3.RGBColor);
         to_hsl.h += this.pallet.h;
         to_hsl.s += this.pallet.s;
 
-        const hsl_bright = this.ts_d3.hsl(conv_color as RGBColor)
+        const hsl_bright = d3.hsl(conv_color as d3.RGBColor)
         hsl_bright.l += this.pallet.l;
 
-        const opac_gray80 = this.ts_d3.gray(this.pallet.gray85)
+        const opac_gray80 = d3.gray(this.pallet.gray85)
 
         const colorSet: TColorSet = {
             color: color,
@@ -48,14 +48,14 @@ class ColorHandler {
             bright100: to_hsl.brighter(this.pallet.bright100).toString() as string,
             dark100: to_hsl.darker(this.pallet.dark100).toString(),
             bright500: hsl_bright.toString() as string,
-            gray: this.ts_d3.gray(this.pallet.gray).toString(),
+            gray: d3.gray(this.pallet.gray).toString(),
             gray85: opac_gray80.toString(),
         }
         return colorSet;
     }
 
     public get_app_gray () {
-        return this.ts_d3.gray(50).toString();
+        return d3.gray(50).toString();
     }
 
     private get_color_percentage (index: number) {
@@ -63,7 +63,7 @@ class ColorHandler {
     }
 
     private interpolateColor () {
-        this.interpolated_color = this.ts_d3.interpolateRgbBasis(this.color_range);
+        this.interpolated_color = d3.interpolateRgbBasis(this.color_range);
     }
 }
 

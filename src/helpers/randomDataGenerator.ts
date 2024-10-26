@@ -1,12 +1,12 @@
 import { IChartHead } from "../types/MainTypes";
-import { allFakers } from '../../deps/faker/index.js';
+import { faker } from '@faker-js/faker';
 
 class RandomDataGenerator {
     private data_length = 50;
     public generated_data: Array<IChartHead> = [];
 
     private auto_proceed = true;
-    private locale: string = "en_GB";
+    private locale: string = "en_GB"; // locale implementation suspended
 
     imgAPIs = [
         'https://picsum.photos/500/500?random=', 
@@ -19,7 +19,7 @@ class RandomDataGenerator {
         locale !== undefined && (this.locale = locale.replace('-', '_'));
 
         if (this.auto_proceed) {
-            this.generate();
+            this.generate()
         }
     }
 
@@ -47,24 +47,15 @@ class RandomDataGenerator {
         return parentId
     }
 
-    private get_locale () {
-        if (allFakers[this.locale as keyof typeof allFakers] != undefined) {
-            return this.locale as keyof typeof allFakers
-        }else if (allFakers[this.locale.split('_')[0] as keyof typeof allFakers] != undefined) {
-            return this.locale.split('_')[0] as keyof typeof allFakers
-        }else{
-            return 'en' as keyof typeof allFakers
-        }
-    }
-
     private generate_data (id?: string): any {
         const should_add_image = Math.floor(Math.random() * 2);
         const img_endpoints = this.imgAPIs[Math.floor(Math.random() * this.imgAPIs.length)] + id
+
         return {
             id,
-            name: allFakers[this.get_locale()].person.fullName(),
-            role: allFakers[this.get_locale()].person.jobTitle(),
-            location: allFakers[this.get_locale()].location.city() + ", " + allFakers[this.get_locale()].location.country(),
+            name: faker.person.fullName(),
+            role: faker.person.jobTitle(),
+            location: faker.location.city() + ", " + faker.location.country(),
             image: should_add_image ? img_endpoints : ''
         }
     }

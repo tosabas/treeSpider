@@ -1,5 +1,6 @@
 import { TTreeClassParams } from "src/types/utils.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
+import * as d3 from 'd3'
 
 class RadialSpiderLeg {
     protected content_wrapper: HTMLElement | null = null;
@@ -8,14 +9,12 @@ class RadialSpiderLeg {
 
     chartHelper: ChartMainHelper | undefined;
 
-    ts_d3: typeof globalThis.d3 = window.d3;
-
     current_scale = 1;
 
     root_svg: any = undefined
 
     rotate_deg = 0;
-    animation_interval: NodeJS.Timeout | undefined = undefined;
+    animation_interval: any = undefined;
     start_animation: boolean = false;
 
     constructor ({tsInnerContainer, chartHelper}: TTreeClassParams) {
@@ -40,8 +39,8 @@ class RadialSpiderLeg {
         this.tsInnerContainer?.append(this.content_wrapper);
 
         this.map_children_data_to_head();
-        this.ts_d3!.timeout(() => {
-            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        d3.timeout(() => {
+            const first_svg_el = (d3.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
     }
@@ -66,7 +65,7 @@ class RadialSpiderLeg {
     private map_children_data_to_head () {
         const data = this.chartHelper!.data_to_d3_format();
 
-        const root = this.ts_d3.hierarchy(data)
+        const root = d3.hierarchy(data)
         .sort((a,b) => b.height - a.height || a.data.name.localeCompare(b.data.name));
 
         const radius = 540 * Math.sqrt(this.chartHelper!.tree_data.length/3);
@@ -83,7 +82,7 @@ class RadialSpiderLeg {
             node['color_set'] = this.chartHelper?.color_handler.getColor(node.data.id as unknown as number);
         });
 
-        const tree = this.ts_d3.tree
+        const tree = d3.tree
 
         const strokeWidth = 1.5 // stroke width for links
         const strokeOpacity = 1 // stroke opacity for links
@@ -93,7 +92,7 @@ class RadialSpiderLeg {
         // Compute the layout.
         tree().size([2 * Math.PI, radius]).separation(separation)(root as any);
 
-        const svg = this.ts_d3!.create("svg")
+        const svg = d3.create("svg")
             .attr("viewBox", [-marginLeft - radius, -marginTop - radius, width, height])
             .attr("width", width)
             .attr("height", height)
@@ -107,7 +106,7 @@ class RadialSpiderLeg {
             .selectAll("path")
             .data(root.links())
             .join("path")
-            .attr("d", this.ts_d3!.linkRadial()
+            .attr("d", d3.linkRadial()
                 .angle((d: any) => d.x)
                 .radius((d: any) => d.y) as any);
 

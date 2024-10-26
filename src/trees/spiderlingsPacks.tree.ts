@@ -1,5 +1,6 @@
 import ChartMainHelper from "../helpers/chart-helper.js";
 import { TTreeClassParams } from "src/types/utils";
+import * as d3 from 'd3'
 
 class SpiderlingsPacksTree {
     protected content_wrapper: HTMLElement | null = null;
@@ -8,8 +9,6 @@ class SpiderlingsPacksTree {
     protected tsInnerContainer: HTMLElement | null = null;
 
     private chartHelper: ChartMainHelper | undefined;
-
-    private ts_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
@@ -50,7 +49,7 @@ class SpiderlingsPacksTree {
         const svgRootNodeWidth = 260;
         const svgRootNodeHeight = 260;
 
-        const svgRootNode = this.ts_d3.create('svg')
+        const svgRootNode = d3.create('svg')
         .attr('width', 260)
         .attr('height', 260)
         .attr('style', 'overflow: visible;');
@@ -58,7 +57,7 @@ class SpiderlingsPacksTree {
         const root_g = svgRootNode.append('g')
         .attr('style', 'fill: none');
 
-        const root = this.ts_d3.hierarchy(data)
+        const root = d3.hierarchy(data)
         .sum((d: any) => d.hasOwnProperty("stat") ? d.stat : 0)
         .sort((a: any,b: any) => b.value - a.value);
 
@@ -69,7 +68,7 @@ class SpiderlingsPacksTree {
 
         const partitionSize =  this.chartHelper!.chartHeadWidth * Math.sqrt(this.chartHelper!.tree_data.length * 8);
 
-        const partition = this.ts_d3.pack()
+        const partition = d3.pack()
         .size([partitionSize, partitionSize])
         .padding(0);
 

@@ -17,7 +17,7 @@ import CellarTreeSpider from "../trees/cellarSpider.tree.js";
 import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
 import RadialSpiderLeg from "../trees/radialSpiderLeg.tree.js";
 import UITools from "../utils/ui-tools.js";
-import { ZoomBehavior } from "d3";
+import * as d3 from "d3"
 
 
 class TreeSpider extends EventTarget {
@@ -25,7 +25,6 @@ class TreeSpider extends EventTarget {
      * The library name
      */
     private libraryName = "TreeSpider";
-    ts_d3: typeof globalThis.d3 | null = null;
     
     protected targetRootContainer: HTMLElement | null = null;
     protected rootWrapperContainer: HTMLElement | null = null;
@@ -36,7 +35,7 @@ class TreeSpider extends EventTarget {
 
     private currentChartUI: any;
 
-    private zoom_instace: ZoomBehavior<Element, unknown> | undefined;
+    private zoom_instace: d3.ZoomBehavior<Element, unknown> | undefined;
 
     protected colorHandler: ColorHandler = {} as ColorHandler;
 
@@ -52,7 +51,7 @@ class TreeSpider extends EventTarget {
         width: '900px',
         height: '500px',
         placeEl: 'override',
-        tree_data: [],
+        tree_data: undefined,
         color_range: [],
         tree_type: 'default',
         chart_head_type: 'default',
@@ -86,7 +85,7 @@ class TreeSpider extends EventTarget {
         },
         tree_link_type: undefined,
         random_data_length: 200,
-        random_data_locale: window.navigator.language, // the user's device's locale
+        // random_data_locale: window.navigator.language, // Suspended - the user's device's locale
         autoInitialize: true,
         zoom_in_distance: 1.5,
         zoom_out_distance: 0.5,
@@ -107,7 +106,6 @@ class TreeSpider extends EventTarget {
         }else{
             const randData = new RandomDataGenerator({
                 length: options.random_data_length || this.options.random_data_length,
-                locale: options.random_data_locale || this.options.random_data_locale,                
             });            
             this.options.tree_data = randData.generated_data;
         }
@@ -127,30 +125,12 @@ class TreeSpider extends EventTarget {
         if (this.targetRootContainer === null) throw new Error(this.libraryName + ": target container not found");
         this.targetRootContainer.setAttribute('data-tree-spider-initialized', this.instance_unique_id);
         
-        this.addD3Script();
+        this.createUI();
         
         setTimeout(() => {
             this.emitEvent('library.init', {rootContainer: this.rootWrapperContainer});            
         }, 0);
         console.info(this.libraryName + ' initialized!')
-    }
-
-    private addD3Script () {           
-        if (!document.querySelector("[src='https://cdn.jsdelivr.net/npm/d3@7']")) {
-            const script = document.createElement('script')
-            script.src = "https://cdn.jsdelivr.net/npm/d3@7"
-            document.head.appendChild(script)
-            script.onload = () => {
-                this.createUI();
-            }            
-        }else{
-            if (globalThis.d3 == undefined) {
-                console.info(this.libraryName, `: while initializing in container ${this.options.targetContainer}, the supported D3 script found is not loaded, waiting for 100ms before rechecking status...`);
-                setTimeout(() => this.addD3Script(), 100);
-            }else{
-                setTimeout(() => this.createUI(), 0);
-            }
-        }
     }
 
     private initialize_root_container () {
@@ -171,26 +151,32 @@ class TreeSpider extends EventTarget {
     }
  
     private loadFont () {
-        if (document.querySelector(`[data-tree-spider-font-loaded='${this.instance_unique_id}']`)) return;
-        const preconnect = document.createElement('link')
-        preconnect.rel = "preconnect"
-        preconnect.href = "https://fonts.googleapis.com"
-        preconnect.setAttribute('data-tree-spider-font-loaded', this.instance_unique_id)
-        const crossorgin_preconnect = document.createElement('link')
-        crossorgin_preconnect.rel = "preconnect"
-        crossorgin_preconnect.href = "https://fonts.gstatic.com"
-        crossorgin_preconnect.crossOrigin = ''
-        let fontLink: HTMLLinkElement | undefined;
+        let fontLink: d3.Selection<HTMLLinkElement, undefined, null, undefined> | undefined, 
+            preconnect: d3.Selection<HTMLLinkElement, undefined, null, undefined> | undefined,
+            crossorgin_preconnect: d3.Selection<HTMLLinkElement, undefined, null, undefined> | undefined;
+
+        if (d3.select(`[href="https://fonts.googleapis.com"]`).node() == null) {
+            preconnect = d3.create('link')
+            .attr("rel", "preconnect")
+            .attr("href", "https://fonts.googleapis.com");           
+        }
+        if (d3.select(`[href="https://fonts.gstatic.com"]`).node() == null) {
+            crossorgin_preconnect = d3.create('link')
+            .attr("rel", "preconnect")
+            .attr("href", "https://fonts.gstatic.com")
+            .attr("crossOrigin", "");
+        }
+
 
         if(this.options.font_link) {
-            fontLink = document.createElement('link')
-            fontLink.href = this.options.font_link as string
-            fontLink.rel = "stylesheet"
+            fontLink = d3.create('link')
+            .attr("href", this.options.font_link as string)
+            .attr("rel", "stylesheet");
         }
         
-        document.head.appendChild(preconnect)
-        document.head.appendChild(crossorgin_preconnect);
-        this.options.font_link && document.head.appendChild(fontLink as HTMLLinkElement);
+        preconnect != undefined && document.head.appendChild(preconnect.node() as HTMLLinkElement);
+        crossorgin_preconnect != undefined && document.head.appendChild(crossorgin_preconnect.node() as HTMLLinkElement);
+        fontLink != undefined && document.head.appendChild(fontLink.node() as HTMLLinkElement);
     }
 
     protected setObjectValue (objectParent: Object, value: Object) {
@@ -211,8 +197,7 @@ class TreeSpider extends EventTarget {
     }
 
     private createUI () {
-        this.initialize_root_container()
-        this.ts_d3 = window.d3;  
+        this.initialize_root_container();
 
         this.chartHelper = new ChartMainHelper();
         this.chartHelper.rootWrapperContainer = this.rootWrapperContainer;
@@ -246,14 +231,14 @@ class TreeSpider extends EventTarget {
 
     private zoomInOut(dir='in') {
         const zoom_level = (dir == 'in' ? this.options.zoom_in_distance : this.options.zoom_out_distance) as number
-        this.zoom_instace?.scaleBy(this.ts_d3!.select(`[data-ts-unique-id='${this.instance_unique_id}']`), zoom_level,)
+        this.zoom_instace?.scaleBy(d3.select(`[data-ts-unique-id='${this.instance_unique_id}']`), zoom_level,)
     }
 
     /**
      * The method to reset the zoom to the default zoom state
      */
     public resetZoom() {
-        const first_svg_el = (this.ts_d3!.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect()
+        const first_svg_el = (d3.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect()
         this.center_elem(first_svg_el as DOMRect, this.tree_default_point_position)
     }
 
@@ -351,7 +336,7 @@ class TreeSpider extends EventTarget {
             return (!event.ctrlKey || event.type === 'wheel') && !event.button;
         }
 
-        const root_container_el = this.ts_d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
+        const root_container_el = d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
 
         const zoomed = (e: any) => {
             const emitedEvent = this.emitEvent('zooming', {e})
@@ -361,7 +346,7 @@ class TreeSpider extends EventTarget {
             this.currentChartUI.current_scale = e.transform.k;
         }
 
-        this.zoom_instace = this.ts_d3!.zoom()
+        this.zoom_instace = d3.zoom()
             .filter(zoomFilter)
             .extent([[0, 0], [root_cont_rect!.width, root_cont_rect!.height]])
             .on("zoom", zoomed)
@@ -374,7 +359,7 @@ class TreeSpider extends EventTarget {
     }
 
     private center_elem (rect: DOMRect, position: TElementCenterPositions = 'center') {
-        const root_container_el = this.ts_d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
+        const root_container_el = d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
 
         this.tree_default_point_position == '' as TElementCenterPositions && (this.tree_default_point_position = position);
         
@@ -411,7 +396,7 @@ class TreeSpider extends EventTarget {
 
         root_container_el.transition().duration(2500).call(
             this.zoom_instace?.transform,
-            this.ts_d3?.zoomIdentity.translate(-moveX, -moveY),
+            d3?.zoomIdentity.translate(-moveX, -moveY),
         );
     }
 

@@ -126,10 +126,11 @@ export interface ITreeSpiderMain {
      */
     random_data_length?: number;
     /**
+     * Suspended - random_data_locale
      * The locale of the random data, it automatically use the user's device's locale 
      * gotten through the browser
      */
-    random_data_locale?: string;
+    // random_data_locale?: string;
     /**
      * The distance to be zoomed in
      */
@@ -168,8 +169,8 @@ export interface IChartHead {
     id: string;
     name: string;
     role: string;
-    location: string;
-    parentId?: undefined;
+    location?: string;
+    parentId?: string;
     stat?: number;
     image?: string;
 }

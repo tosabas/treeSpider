@@ -34,8 +34,11 @@ export default [
 			json(),
 			resolve(),
 			typescript({
-			  tsconfig: 'tsconfig.json',
+			  tsconfig: 'tsconfig.rollup.json',
 			}),
 		],
+		treeshake: {
+			moduleSideEffects: false
+		}
 	}
 ];

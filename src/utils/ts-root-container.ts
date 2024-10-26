@@ -1,8 +1,7 @@
-import { Selection } from "d3";
 import backgrounds from "./backgrounds.js";
+import * as d3 from 'd3'
 
 class TSRootContainer extends HTMLDivElement {
-    ts_d3 = window.d3
     main_svg: any = null
     tree_data: any = {}
     static observeAttributes = ['backgroundPattern', 'backgroundSize', 'customBackground']
@@ -51,7 +50,7 @@ class TSRootContainer extends HTMLDivElement {
 
         let svgData;
         if (typeof svgPattern == 'object') {
-            svgData = new XMLSerializer().serializeToString((svgPattern as Selection<SVGSVGElement, undefined, null, undefined>).node() as Node);
+            svgData = new XMLSerializer().serializeToString((svgPattern as d3.Selection<SVGSVGElement, undefined, null, undefined>).node() as Node);
         }else{
             svgData = svgPattern;
         }
@@ -68,7 +67,7 @@ class TSRootContainer extends HTMLDivElement {
     }
 
     defaultDotsPatternBg () {
-        const svg =  this.ts_d3.create('svg')
+        const svg =  d3.create('svg')
             .attr("width", "20")
             .attr("height", "20");
             

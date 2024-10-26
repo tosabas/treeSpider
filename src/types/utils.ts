@@ -1,8 +1,6 @@
 import TSElement from "../utils/ts-element";
 import { IChartHead } from "./MainTypes";
-import ChartMainHelper from "src/helpers/chart-helper";
-
-export type TD3 = typeof globalThis.d3
+import ChartMainHelper from "../helpers/chart-helper";
 
 export type TTreeMapArr = {
     svgNode: any; 

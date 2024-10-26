@@ -2,6 +2,7 @@ import ChartMainHelper from "../helpers/chart-helper.js";
 import { IChartHead } from "../types/MainTypes";
 import { TBranchLineOrigin, TTreeClassParams, TTreeMapArr } from "../types/utils";
 import TSElement from "../utils/ts-element.js";
+import * as d3 from 'd3'
 
 class VerticalSpiderWalkTree {
     protected content_wrapper: HTMLElement | null = null;
@@ -14,8 +15,6 @@ class VerticalSpiderWalkTree {
     chartHelper: ChartMainHelper | undefined;
 
     tree_map_arr: Array<TTreeMapArr> = [];
-
-    ts_d3: typeof globalThis.d3 = window.d3;
 
     current_scale = 1;
 
@@ -54,8 +53,8 @@ class VerticalSpiderWalkTree {
 
         this.drawBranchLinkFresh();
 
-        this.ts_d3!.timeout(() => {
-            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .st-root-el > svg`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        d3.timeout(() => {
+            const first_svg_el = (d3.select(`${this.chartHelper!.app_root_unique_selector} .st-root-el > svg`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
         
@@ -144,8 +143,8 @@ class VerticalSpiderWalkTree {
         const lineEndX = (elementBounds.x / this.current_scale - svgSourceNodeBounds.x / this.current_scale) + (targetChild.clientWidth / 2)
         const lineEndY = lineOrigin == "top" ? ((elementBounds.top + elementBounds.height) / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale) : (elementBounds.top / this.current_scale) - (svgSourceNodeBounds.top / this.current_scale)
 
-        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : this.ts_d3!.curveBumpY
-        const link = this.ts_d3!.link(curveFactory);
+        const curveFactory = this.chartHelper?.tree_link_type != undefined ? this.chartHelper?.tree_link_types[this.chartHelper?.tree_link_type] : d3.curveBumpY
+        const link = d3.link(curveFactory);
         
         const data = [
             {source: [lineStartX, lineStartY], target: [lineEndX, lineEndY]},

@@ -1,5 +1,6 @@
 import { TTreeClassParams } from "src/types/utils.js";
 import ChartMainHelper from "../helpers/chart-helper.js";
+import * as d3 from 'd3'
 
 class GoldenRodSpider {
     protected content_wrapper: HTMLElement | null = null;
@@ -8,14 +9,12 @@ class GoldenRodSpider {
 
     chartHelper: ChartMainHelper | undefined;
 
-    ts_d3: typeof globalThis.d3 = window.d3;
-
     current_scale = 1;
 
     nodes_group: any = undefined
     links_group: any = undefined;
     rotate_deg = 0;
-    animation_interval: NodeJS.Timeout | undefined = undefined;
+    animation_interval: any = undefined;
     start_animation = false
 
 
@@ -42,8 +41,8 @@ class GoldenRodSpider {
 
         this.map_children_data_to_head();
         
-        this.ts_d3!.timeout(() => {
-            const first_svg_el = (this.ts_d3!.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect();
+        d3.timeout(() => {
+            const first_svg_el = (d3.select(`${this.chartHelper!.app_root_unique_selector} .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect();
             this.chartHelper?.center_elem(first_svg_el, "center")
         }, 0)
     }
@@ -70,18 +69,18 @@ class GoldenRodSpider {
     private map_children_data_to_head () {
         const data = this.chartHelper!.data_to_d3_format();
 
-        const root = this.ts_d3.hierarchy(data)
+        const root = d3.hierarchy(data)
         .sort((a,b) => b.height - a.height || a.data.name.localeCompare(b.data.name));
 
         const radius = 540 * Math.sqrt(this.chartHelper!.tree_data.length/3);
 
-        const treeLayout = this.ts_d3.cluster()
+        const treeLayout = d3.cluster()
         .size([360, radius])
         .separation((a,b) => 50);
 
         treeLayout(root as any);
 
-        const svgNode = this.ts_d3.create('svg');
+        const svgNode = d3.create('svg');
 
         svgNode.attr('width', 580)
         svgNode.attr('height', 250)
@@ -138,7 +137,7 @@ class GoldenRodSpider {
         .attr('stroke-width', 1)
         .attr("transform", (d: any) => `rotate(${d.x}, 0, 0)`)
 
-        const lineGen = this.ts_d3.lineRadial()
+        const lineGen = d3.lineRadial()
         .angle((d: any) => d.x * Math.PI / 180)
         .radius((d: any) => d.y);
 
