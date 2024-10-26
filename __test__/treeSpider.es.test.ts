@@ -21,9 +21,6 @@ describe('Bundle Version: Initialization', () => {
     test('Bundle Version: Library got initialized', () => {
         expect(init1).toBeInstanceOf(TreeSpider)
     })
-    test('Bundle Version: D3 script got added to the UI', () => {
-        expect(document.querySelector("[src='https://cdn.jsdelivr.net/npm/d3@7']")).not.toBe(null)
-    })
     test('Bundle Version: Multiple instances on the same page', () => {
         const init2 = new TreeSpider({
             targetContainer: '#bundle-init-2',

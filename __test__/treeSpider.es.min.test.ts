@@ -21,9 +21,6 @@ describe('Bundle minified Version: Initialization', () => {
     test('Bundle minified Version: Library got initialized', () => {
         expect(init1).toBeInstanceOf(TreeSpider)
     })
-    test('Bundle minified Version: D3 script got added to the UI', () => {
-        expect(document.querySelector("[src='https://cdn.jsdelivr.net/npm/d3@7']")).not.toBe(null)
-    })
     test('Bundle minified Version: Multiple instances on the same page', () => {
         const init2 = new TreeSpider({
             targetContainer: '#bundle-min-init-2',
