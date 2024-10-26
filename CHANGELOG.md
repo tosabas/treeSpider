@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.2 (2024-10-26)
+
+- Fix: Typescript not resolving module error, and typos in the README doc.
+
 ## 0.0.1 (2024-10-26)
 
 - Fix: Bloated bundle size because of bundled faker-js, now bundle size reduced from 15mb to 5.1mb

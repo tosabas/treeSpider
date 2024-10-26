@@ -13,7 +13,7 @@ Display your organization structure in style, personalize and use the chart type
 ## Installation
 
 ```bash
-npm i treeSpider
+npm i treespider
 ```
 
 ## Setup
@@ -53,11 +53,11 @@ After importing it or loading it with the script tag, add the CSS file
 <link rel="stylesheet" href="/path/to/installation/folder/dist/css/treeSpider.css">
 ```
 
-And that is it, you will see treeSpider running in the browser with random automatically generate data, and one cool thing is there is no limit to the number of TreeSpider instances that can be on a page, next add your organization employees data.
+And that is it, you will see treeSpider running in the browser with random automatically generated data, and one cool thing is there is no limit to the number of TreeSpider instances that can be on a page, next, add your organization's employee data.
 
 ## Adding data
 
-The treeSpider data structure is linear and simple, each employees has a parent ID which is the id of the **department head** to whom each employees reports to and the head of the organization doesn't have an ID, and it is required to have one and only one data that doesn't have a parent id which is going to serve as the head of the organization or the organization name in an organization where there's no particular person as the head, the data is an array in the following format
+The treeSpider data structure is linear and simple, each employee has a parent ID which is the id of the **department head** to whom each employee reports to and the head of the organization doesn't have an ID, and it is required to have one and only one data that doesn't have a parent id which is going to serve as the overall head of the organization or the organization's name in an organization where there's no particular person as the head, the data is an array in the following format
 
 ```ts
 {
@@ -72,9 +72,9 @@ The treeSpider data structure is linear and simple, each employees has a parent 
 
 All properties of the data except the `id` are optional, but it is recommended that the name should contain at least one name either first and/or last name, check the documentation for more info on the properties.  
   
-## Passing your organization data
+### Passing your organization's data
 
-This is an example of an organization's employees data
+This is an example of an organization's employee data
 
 ```ts
 const tree_data = [
@@ -96,18 +96,18 @@ const instance1 = new TreeSpider({
 })
 ```
 
-This is going to display the employees data with the default settings, the default tree type, default chart head, default chart link and pallet and all of them can be set, changed or tuned to meet your need, see few of the options below. 
+This is going to display the employee data with the default settings, the default tree type, default chart head, default chart link and pallet and all of them can be set, changed or tuned to meet your need, see few of the options below.
 
 ## Options
 
-TreeSpider can be personalized to your taste, TreeSpider currently has 7 tree types including the default and 3 chart head types including the default, there is also a color pallet for the chart head for personalizing the chart head color. For example displaying the data with the `hSpiderWalk` tree and with the `landscape` chart head
+TreeSpider can be personalized to your taste, TreeSpider currently has 7 tree types including the default and 3 chart head types including the default, there is also a color pallet for the chart head for personalizing the chart head. For example displaying the data with the `hSpiderWalk` tree and with the `landscape` chart head.
 
 ```ts
 const chart = new TreeSpider({
     targetContainer: '#chart-container',
-    tree_data: tree_data
+    tree_data: tree_data,
     chart_head_type: 'landscape',
-    tree_type: 'hSpiderWalk'
+    tree_type: 'hSpiderWalk',
     pallet: {
         darker: .8,
         gray: 10
@@ -120,7 +120,7 @@ See the options documentation for a list of all the options.
 
 ## Methods
 
-TreeSpider has methods for programatically interracting with it, example, the method to programatically initialize the library.
+You can also programmatically interract with TreeSpider through the methods, example, the method to programatically initialize the library.
 
 ```ts
 const chart = new TreeSpider({
@@ -131,7 +131,7 @@ const chart = new TreeSpider({
 document.querySelector('#random-button').onclick = () => chart.initialize()
 ```
 
-The `autoInitialize` option tells TreeSpider to not initilize by default and it gets initialized once the `initialize` method has been called.  
+The `autoInitialize: false` tells TreeSpider to not initialize by default, and it gets initialized once the `initialize` method has been called.  
   
 See the Methods documentation for all the available methods.
 
