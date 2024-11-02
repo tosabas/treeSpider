@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0 (2024-11-02)
+
+- Fix: customElement bug on mobile browsers
+- Fix: bugs on mobile browsers that caused so many parts of the codebase to be reimplemented
+- Added: dropshadow option for the default and landscape chart heads
+
 ## 0.0.2 (2024-10-26)
 
 - Fix: Typescript not resolving module error, and typos in the README doc.

@@ -1,6 +1,7 @@
-import { TChartHeadPointPosition, TColorSet, TElementCenterPositions, TEventType, THeadImageShape, THeadPointPosition, TLinkerCircleColor, TLinkerShape, TTreeToItemHierarchy } from "../types/utils";
-import { IChartHead, ID3DataFormat, TChartHeadType, TLinkType } from "../types/MainTypes";
-import TSElement from "../utils/ts-element.js";
+import { TChartHeadPointPosition, TColorSet, TDropShadow, TElementCenterPositions, TEventType, THeadImageShape, THeadPointPosition, TLinkerCircleColor, TLinkerShape, TTreeToItemHierarchy } from "../types/utils";
+import { IChartHead, ID3DataFormat, } from "../types/MainTypes";
+import { TChartHeadType, TLinkType } from "../types/utils";
+import TSElement from "../utils/ts-element";
 import ColorHandler from "./colorHandler";
 import * as d3 from "d3";
 
@@ -54,7 +55,18 @@ class ChartMainHelper {
     head_image_surface_area: number = 60
 
     chart_head_bg: string = '#ffffff'
-    auto_set_chart_head_bg: boolean = false
+    auto_set_chart_head_bg: boolean = false;
+
+    dropshadow: TDropShadow = {
+        x: "-50%",
+        y: "-50%",
+        width: "200%",
+        height: "200%",
+        dx: 1,
+        dy: 1,
+        stdDeviation: 4,
+        floodColor: "rgba(91, 91, 91, 0.19)",
+    }
 
     emitEvent: (eventName: TEventType, data?: any, cancelable?: boolean) => boolean = () => false;
 
@@ -112,7 +124,7 @@ class ChartMainHelper {
     }
 
     private get_page_body_bg () {
-        const page_style = document.body.style.getPropertyValue('background-color')
+        const page_style = (d3.select('body').node() as HTMLBodyElement).style.getPropertyValue('background-color')
         return page_style == '' ? '#ffffff' : page_style
     }
 
@@ -153,7 +165,7 @@ class ChartMainHelper {
         e.stopPropagation();
         const curr_target = e.currentTarget;
         const rect = curr_target.getBoundingClientRect()
-        this.center_elem(rect)
+        this.center_elem(rect, 'center')
     }
 
     public defaultHead (head_data: IChartHead, doubleVerticalPoints = false, pointPosition: TChartHeadPointPosition = {parent: "bottom", children: "top"}) {
@@ -169,29 +181,24 @@ class ChartMainHelper {
         .attr("class", "main-svg-el" + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
         .attr('width', this.chartHeadWidth)
         .attr('height', this.chartHeadHeight)
-        .attr('style', 'background-color: ' + chart_head_bg)
+        .attr('min-height', '0')
+        .attr('overflow', 'auto')
         .on('dblclick', (e) => this.handleCenterHead(e));
 
-        // Gaussian blur
-        const defs = d3!.create('defs')
-        .append('filter')
-        .attr('id', 'blur1')
-        .attr('x', 0)
-        .attr('y', 0)
-        .append('feGaussianBlur')
-        .attr('in', 'SourceGraphic')
-        .attr('stdDeviation', '3')
+        // Dropshadow blur
+        this.add_drop_shadow(svgNode)
 
         const all_group = svgNode.append('g')
-
+        
         const rect = all_group?.append('rect')
         .attr('rx', 16)
         .attr('ry', 16)
         .attr('width', this.chartHeadWidth)
         .attr('height', this.chartHeadHeight)
         .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
-        .attr('fill', 'none')
+        .attr('fill', chart_head_bg)
         .attr('stroke-width', 0)
+        .attr('filter', 'url(#shadow)')
 
         const rect_half_width = parseInt(rect!.attr('width'))/2
 
@@ -268,7 +275,7 @@ class ChartMainHelper {
         titles.forEach((title: string, index: number) => {
             positionTitle?.append('tspan')
             .attr('x', parseInt(rect!.attr('width'))/2)
-            .attr('dy', index > 0 ? '.6rem' : 0)
+            .attr('dy', index > 0 ? 10 : 0)
             .text(title.toString())
             .attr('fill', color_set.dark100);
             index > 0 && (move_down += 10);
@@ -287,7 +294,7 @@ class ChartMainHelper {
             location_title.forEach((title: string, index: number) => {
                 employeeLocation?.append('tspan')
                 .attr('x', parseInt(rect!.attr('width'))/2)
-                .attr('dy', index > 0 ? '.6rem' : 0)
+                .attr('dy', index > 0 ? 10 : 0)
                 .text(title.toString());
                 index > 0 && (move_down += 10);
             })
@@ -314,6 +321,7 @@ class ChartMainHelper {
         const color_set = this.color_handler.getColor(head_data.id as unknown as number);
 
         let move_down = 0;
+        const chart_head_bg = this.get_chart_head_bg();
 
         const svgNode = d3?.create('svg')
         .attr("class", "main-svg-el" + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
@@ -323,6 +331,7 @@ class ChartMainHelper {
         .on('dblclick', (e) => this.handleCenterHead(e));
 
         const all_group = svgNode.append('g');
+        this.add_drop_shadow(svgNode)
 
         const rect = all_group?.append('rect')
         .attr('rx', 16)
@@ -330,7 +339,8 @@ class ChartMainHelper {
         .attr('width', this.chartHeadLandscapeWidth)
         .attr('height', this.chartHeadLandscapeHeight)
         .attr('stroke', this.show_chart_head_border ? color_set.color : 'none')
-        .attr('fill', 'none')
+        .attr('fill', chart_head_bg)
+        .attr('filter', 'url(#shadow)')
         .attr('stroke-width', 0)
 
         const rect_half_height = parseInt(rect!.attr('height'))/2
@@ -339,7 +349,61 @@ class ChartMainHelper {
 
         const rightGroup = all_group.append('g')
         .attr('x', 0)
-        .attr('y', 0)
+        .attr('y', 0)        
+
+        const leftStartOrigin = parseInt(rect!.attr('height')) + 20;
+
+        const employeeName = rightGroup?.append('text')
+            .attr('x', leftStartOrigin)
+            .attr('y', 30)
+            .attr('font-size', '95%')
+            .attr('fill', color_set.darker);
+    
+        employee_name_split.forEach((title: string, index: number) => {
+            employeeName?.append('tspan')
+            .attr('x', leftStartOrigin)
+            .attr('y', 30)
+            .attr('dy', index > 0 ? move_down + 14 + index : 0)
+            .attr('font-size', '95%')
+            .attr('style', "z-index: +9")
+            .text(title.toString());
+            index > 0 && (move_down += 14);
+        })
+
+        const positionTitle = rightGroup?.append('text')
+        .attr('x', leftStartOrigin)
+        .attr('y', 54 + move_down)
+        .attr('font-size', '65%')
+
+        const titles = this.splitStringIntoBatch(head_data.role, 30) // role
+
+        titles.forEach((title: string, index: number) => {
+            positionTitle?.append('tspan')
+            .attr('x', leftStartOrigin)
+            .attr('dy', index > 0 ? 10 : 0)
+            .attr('y', 54 + move_down)
+            .text(title.toString())
+            .attr('fill', color_set.dark100);
+            index > 0 && (move_down += 10);
+        })
+
+        if (head_data.location !== undefined) {
+            const employeeLocation = rightGroup?.append('text')
+            .attr('x', leftStartOrigin)
+            .attr('y', 69 + move_down)
+            .attr('font-size', '65%')
+            .attr('fill', color_set.dark100);
+    
+            const location_title = this.splitStringIntoBatch(head_data.location, 30) // role
+    
+            location_title.forEach((title: string, index: number) => {
+                employeeLocation?.append('tspan')
+                .attr('x', leftStartOrigin)
+                .attr('dy', index > 0 ? 10 : 0)
+                .text(title.toString());
+                index > 0 && (move_down += 10);
+            })
+        }
 
         const leftGroup = all_group.append('g');
 
@@ -352,21 +416,21 @@ class ChartMainHelper {
             
             rect.attr('height', locked_height + chartHeadLandscapeHeight)
             svgNode.attr('height', locked_height + chartHeadLandscapeHeight)
-            svgNode.attr('width', this.chartHeadLandscapeWidth + chartHeadLandscapeHeight)
-            rect.attr('width', this.chartHeadLandscapeWidth + chartHeadLandscapeHeight)
+            svgNode.attr('width', this.chartHeadLandscapeWidth + 20 + chartHeadLandscapeHeight)
+            rect.attr('width', this.chartHeadLandscapeWidth + 20 + chartHeadLandscapeHeight)
 
             leftGroup?.append('path')
             .attr('d', d3!.symbol().type(d3![this.head_image_shape as unknown as keyof typeof d3] as d3.SymbolType).size(Math.pow(this.head_image_surface_area-this.get_image_shape_spacing(this.head_image_shape),2)))
             .attr('stroke', this.symbol_type(this.head_image_shape) == 'stroke' ? color_set.color : 'none')
             .attr('stroke-width', this.symbol_type(this.head_image_shape) == 'stroke' ? 1 : 0)
             .attr('fill', this.symbol_type(this.head_image_shape) == 'stroke' ? 'transparent' : color_set.color)
-            .attr('transform', `translate(${parseInt(rect!.attr('height'))/2}, 50)`)
+            .attr('transform', `translate(50, ${parseInt(rect!.attr('height'))/2})`)
             
             leftGroup?.append('text')
             .attr('class', '')
             .attr('text-anchor', 'middle')
             .attr('fill', this.symbol_type(this.head_image_shape) == 'stroke' ? color_set.color : color_set.bright500)
-            .attr('x', parseInt(rect!.attr('height'))/2)
+            .attr('x', 50)
             .attr('y', (parseInt(rect!.attr('height'))/2) + 6)
             .attr('font-size', '95%')
             .text(this.get_user_initials(head_data.name)); // employee initials
@@ -388,7 +452,7 @@ class ChartMainHelper {
             .attr('id', "landscape-clip-"+head_data.id)
             .append('path')
             .attr('d', d3!.symbol().type(d3![this.head_image_shape as unknown as keyof typeof d3] as d3.SymbolType).size(Math.pow(this.head_image_surface_area-this.get_image_shape_spacing(this.head_image_shape),2)))
-            .attr('transform', `translate(${(parseInt(rect!.attr('height'))/2)}, ${this.head_image_surface_area + (extra_y_dist + 20)})`)
+            .attr('transform', `translate(50, ${parseInt(rect!.attr('height'))/2})`)
             .attr('fill', color_set.bright500);
 
             leftGroup?.append('image')
@@ -396,64 +460,11 @@ class ChartMainHelper {
             .attr('preserveAspectRatio', 'xMaxYMax slice')
             .attr('width', this.head_image_surface_area)
             .attr('height', this.head_image_surface_area)
-            .attr('x', (parseInt(rect!.attr('height'))/2) - (this.head_image_surface_area/2))
-            .attr('y', (this.head_image_surface_area/2) + (extra_y_dist + 20))
+            .attr('x', 50 - (this.head_image_surface_area/2))
+            .attr('y', parseInt(rect!.attr('height'))/2 - (this.head_image_surface_area/2))
             .attr('clip-path', `url(#landscape-clip-${head_data.id})`);
         }
 
-        const leftStartOrigin = parseInt(rect!.attr('height'));
-
-        const employeeName = rightGroup?.append('text')
-            .attr('x', leftStartOrigin)
-            .attr('y', 30)
-            .attr('font-size', '95%')
-            .attr('fill', color_set.darker);
-    
-        employee_name_split.forEach((title: string, index: number) => {
-            employeeName?.append('tspan')
-            .attr('x', leftStartOrigin)
-            .attr('y', 30)
-            .attr('dy', index > 0 ? '.7rem' : 0)
-            .attr('font-size', '95%')
-            .attr('style', "z-index: +9")
-            .text(title.toString());
-            index > 0 && (move_down += 10);
-        })
-
-        const positionTitle = rightGroup?.append('text')
-        .attr('x', leftStartOrigin)
-        .attr('y', 50 + move_down)
-        .attr('font-size', '65%')
-
-        const titles = this.splitStringIntoBatch(head_data.role, 30) // role
-
-        titles.forEach((title: string, index: number) => {
-            positionTitle?.append('tspan')
-            .attr('x', leftStartOrigin)
-            .attr('dy', index > 0 ? '.6rem' : 0)
-            .attr('y', 50 + move_down)
-            .text(title.toString())
-            .attr('fill', color_set.dark100);
-            index > 0 && (move_down += 10);
-        })
-
-        if (head_data.location !== undefined) {
-            const employeeLocation = rightGroup?.append('text')
-            .attr('x', leftStartOrigin)
-            .attr('y', 65 + move_down)
-            .attr('font-size', '65%')
-            .attr('fill', color_set.dark100);
-    
-            const location_title = this.splitStringIntoBatch(head_data.location, 30) // role
-    
-            location_title.forEach((title: string, index: number) => {
-                employeeLocation?.append('tspan')
-                .attr('x', leftStartOrigin)
-                .attr('dy', index > 0 ? '.6rem' : 0)
-                .text(title.toString());
-                index > 0 && (move_down += 10);
-            })
-        }
 
         this.add_linker(
             all_group, has_parent, has_children, pointPosition, 
@@ -552,7 +563,7 @@ class ChartMainHelper {
             .attr('text-anchor', 'middle')
             .attr('x', parseInt(rect!.attr('width'))/2)
             .attr('y', this.chartHeadRoundedWidth + 18)
-            .attr('dy', i > 0 ? 50+move_down : 0+move_down)
+            .attr('dy', i > 0 ? 15+move_down : 0+move_down)
             .attr('font-size', '105%')
             .attr('fill', color_set.darker)
             .attr('style', `text-transform: ${i > 0 ? 'none' : 'capitalize'}`)
@@ -571,7 +582,7 @@ class ChartMainHelper {
         titles.forEach((title: string, index: number) => {
             positionTitle?.append('tspan')
             .attr('x', parseInt(rect!.attr('width'))/2)
-            .attr('dy', index > 0 ? '.6rem' : 0)
+            .attr('dy', index > 0 ? 10 : 0)
             .text(title.toString())
             .attr('fill', color_set.dark100);
             index > 0 && (move_down += 10);
@@ -590,7 +601,7 @@ class ChartMainHelper {
             location_title.forEach((title: string, index: number) => {
                 employeeLocation?.append('tspan')
                 .attr('x', parseInt(rect!.attr('width'))/2)
-                .attr('dy', index > 0 ? '.6rem' : 0)
+                .attr('dy', index > 0 ? 10 : 0)
                 .text(title.toString());
                 index > 0 && (move_down += 10);
             })
@@ -672,7 +683,7 @@ class ChartMainHelper {
                 }, 0);
                 click_counter % 2 == 0 ? this.emitEvent('chart_head.expanded', {svgNode, head_data, pointPosition}, false) :
                 this.emitEvent('chart_head.collapsed', {svgNode, head_data, pointPosition}, false);
-            })
+            });
 
             if (!this.el_has_children(head_data.id, true)) {
                 click_counter++
@@ -706,12 +717,28 @@ class ChartMainHelper {
                     }, 0);
                     click_counter_2 % 2 == 0 ? this.emitEvent('chart_head.expanded', {svgNode, head_data, pointPosition}, false) :
                     this.emitEvent('chart_head.collapsed', {svgNode, head_data, pointPosition}, false);
-                })
+                });
 
                 add_link_icon('minus', this.inverse_link_point_position[pointPosition.parent], 'ts-lnk-icn-'+head_data.id+'-2')
 
             }
         }
+    }
+
+    private add_drop_shadow (svgNode: d3.Selection<SVGSVGElement, undefined, null, undefined>) {
+        // Dropshadow blur
+        svgNode.append('defs')
+        .append('filter')
+        .attr('id', 'shadow')
+        .attr('x', this.dropshadow.x)
+        .attr('y', this.dropshadow.y)
+        .attr('width', this.dropshadow.width)
+        .attr('height', this.dropshadow.height)
+        .append('feDropShadow')
+        .attr('dx', this.dropshadow.dx)
+        .attr('dy', this.dropshadow.dy)
+        .attr('stdDeviation', this.dropshadow.stdDeviation)
+        .attr('flood-color', this.dropshadow.floodColor)
     }
 
     public get_tree_items_hierarchy (parentId?: string, parent_index?: number, action?: {level?: number; item_id?: string; callbackFn: (item: IChartHead, level: number) => void}) {

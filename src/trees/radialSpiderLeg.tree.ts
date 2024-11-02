@@ -1,5 +1,5 @@
-import { TTreeClassParams } from "src/types/utils.js";
-import ChartMainHelper from "../helpers/chart-helper.js";
+import { TTreeClassParams } from "src/types/utils";
+import ChartMainHelper from "../helpers/chart-helper";
 import * as d3 from 'd3'
 
 class RadialSpiderLeg {
@@ -54,7 +54,7 @@ class RadialSpiderLeg {
         if (this.start_animation) {
             this.animation_interval = setInterval(() => {
                 this.rotate_deg += (this.chartHelper?.animation_rotation_interval as number) * (anti ? -1 : 1);
-                this.root_svg.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
+                this.root_svg.style.transform = `rotate(${this.rotate_deg}deg)`;
             }, this.chartHelper?.animation_rotation_speed);          
         }else{
             this.animation_interval != undefined && clearInterval(this.animation_interval);
@@ -96,7 +96,7 @@ class RadialSpiderLeg {
             .attr("viewBox", [-marginLeft - radius, -marginTop - radius, width, height])
             .attr("width", width)
             .attr("height", height)
-            .attr("style", "background-color: none; max-width: 100%; height: auto;  overflow: visible;")
+            .attr("style", "background-color: none; overflow: visible;")
 
         svg.append("g")
             .attr("fill", "none")
@@ -133,7 +133,7 @@ class RadialSpiderLeg {
         mainNode.append("title")
             .text(d => d.data.name + " - " + d.data.role);
 
-        this.root_svg = svg;
+        this.root_svg = svg.node();
 
         this.head_child_wrapper?.append(svg.node() as SVGSVGElement);
 

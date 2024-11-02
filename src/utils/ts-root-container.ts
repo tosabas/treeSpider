@@ -1,7 +1,8 @@
-import backgrounds from "./backgrounds.js";
+import backgrounds from "./backgrounds";
 import * as d3 from 'd3'
 
-class TSRootContainer extends HTMLDivElement {
+class TSRootContainer extends HTMLElement implements HTMLDivElement {
+    align: string = "auto";
     main_svg: any = null
     tree_data: any = {}
     static observeAttributes = ['backgroundPattern', 'backgroundSize', 'customBackground']
@@ -170,5 +171,6 @@ class TSRootContainer extends HTMLDivElement {
 
 }
 
-window.customElements.define("ts-root-container", TSRootContainer, {extends: 'div'});
+window.customElements.define("ts-root-container", TSRootContainer);
+
 export default TSRootContainer;

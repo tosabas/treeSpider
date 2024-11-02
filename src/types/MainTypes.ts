@@ -1,13 +1,13 @@
-import { THeadImageShape, TLinkerCircleColor, TLinkerShape } from "./utils";
+import { TChartHeadType, TColorPallet, TDropShadow, THeadImageShape, TLinkType, TLinkerCircleColor, TLinkerShape } from "./utils";
 
 export interface ITreeSpiderMain {
     /**
-     * The target container in which SpiderTree will be spawned in
+     * The target container in which TreeSpider will be spawned in
      */
     targetContainer: string;
     /**
-     * How SpiderTree container should be placed in the target root container,
-     * provide a CSS selector to beforeEl if SpiderTree container should be placed
+     * How TreeSpider container should be placed in the target root container,
+     * provide a CSS selector to beforeEl if TreeSpider container should be placed
      * before a container in the provided target container
      */
     placeEl?: 'override' | 'start' | 'end' | {beforeEl: string};
@@ -160,7 +160,11 @@ export interface ITreeSpiderMain {
      * The height of the TreeSpider wrapper container
      */
     height?: string;
-}
+    /**
+     * Drop shadow options
+     */
+    dropshadow?: TDropShadow;
+};
 
 export interface IChartHead {
     /**
@@ -173,27 +177,8 @@ export interface IChartHead {
     parentId?: string;
     stat?: number;
     image?: string;
-}
+};
 
 export interface ID3DataFormat extends IChartHead {
     children: IChartHead[];
-}
-
-export type TColorPallet = {
-    h: number;
-    s: number;
-    l: number;
-    darker: number;
-    brighter: number;
-    bright100: number;
-    dark100: number;
-    gray: number;
-    gray85: number;
-}
-
-export type TTreeType = 'default' | 'cellar' | 'goldenRod' | 'hSpider' | 'hSpiderWalk' | 'radialSpiderLeg' | 'spiderlingsPack' | 'vSpiderWalk';
-
-export type TChartHeadType = 'default' | 'landscape' | 'rounded';
-
-export type TLinkType = 'curveBumpX' | 'curveBumpY' | 'curveBasisClosed' | 'curveLinear' | 
-'curveStep' | 'curveStepAfter' | 'curveStepBefore'
+};

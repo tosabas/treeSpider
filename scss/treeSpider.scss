@@ -11,10 +11,6 @@
     --root-cont-height: 500px;
 }
 
-$root-gray: rgb(95, 95, 95); // useless
-$root-light-gray: rgb(187, 186, 186); // useless
-$circle-fill: rgb(170, 170, 170); // useless
-$line-gray: #545454; // useless
 $vertical-space: var(--vertical-space-var);
 
 .ts-root-wrapper-element * {
@@ -91,15 +87,13 @@ $vertical-space: var(--vertical-space-var);
 }
 
 .main-svg-el {
-    background-color: white;
     overflow: visible;
-    border-radius: 16px;
     margin: 0px !important;
-    transition: background-color .3s linear;
+    background-color: transparent;
+}
 
-    box-shadow: -1px 2px 14px 3px rgba(91, 91, 91, 0.19);
-    -webkit-box-shadow: -1px 2px 14px 3px rgba(91,91,91,0.19);
-    -moz-box-shadow: -1px 2px 14px 3px rgba(91,91,91,0.19);
+.main-svg-el g rect {
+    transition: fill .3s linear;
 }
 
 .main-svg-el.rounded-head {
@@ -114,7 +108,6 @@ $vertical-space: var(--vertical-space-var);
 }
 
 .main-svg-el .linker-line {
-    // stroke: $line-gray;
     pointer-events: none;
 }
 
@@ -155,7 +148,7 @@ $vertical-space: var(--vertical-space-var);
     flex-direction: column !important;
 }
 
-.ts-v-spider-head-wrapper > div {
+.ts-v-spider-head-wrapper > ts-element {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
@@ -165,16 +158,16 @@ $vertical-space: var(--vertical-space-var);
     flex-shrink: 0;
 }
 
-.ts-v-spider-head-wrapper > div:first-child {
+.ts-v-spider-head-wrapper > ts-element:first-child {
     align-items: flex-end !important;
 }
 
-.ts-v-spider-head-wrapper > div:nth-child(2) {
+.ts-v-spider-head-wrapper > ts-element:nth-child(2) {
     align-items: center !important;
     padding-top: calc($vertical-space);
 }
 
-.ts-v-spider-head-wrapper > div:nth-child(2) > div {
+.ts-v-spider-head-wrapper > ts-element:nth-child(2) > ts-element {
     margin-bottom: $vertical-space/2 !important;
 }
 

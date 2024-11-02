@@ -1,4 +1,4 @@
-import ChartMainHelper from "../helpers/chart-helper.js";
+import ChartMainHelper from "../helpers/chart-helper";
 import { TTreeClassParams } from "src/types/utils";
 import * as d3 from 'd3'
 

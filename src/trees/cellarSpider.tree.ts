@@ -1,7 +1,7 @@
 import { TBranchLineOrigin, TTreeClassParams, TTreeMapArr } from "../types/utils";
-import ChartMainHelper from "../helpers/chart-helper.js";
+import ChartMainHelper from "../helpers/chart-helper";
 import { IChartHead } from "../types/MainTypes";
-import TSElement from "../utils/ts-element.js";
+import TSElement from "../utils/ts-element";
 import * as d3 from 'd3'
 
 class CellarTreeSpider {

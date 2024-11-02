@@ -1,4 +1,5 @@
-class TSElement extends HTMLDivElement {
+class TSElement extends HTMLElement implements HTMLDivElement {
+    align: string = "auto"
     constructor () {
         super();
     }
@@ -6,6 +7,6 @@ class TSElement extends HTMLDivElement {
     connectedCallback () {}
 }
 
-window.customElements.define('ts-element', TSElement, {extends: 'div'})
+window.customElements.define('ts-element', TSElement)
 
 export default TSElement;

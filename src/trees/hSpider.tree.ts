@@ -1,7 +1,7 @@
 import { IChartHead } from "../types/MainTypes";
-import ChartMainHelper from "../helpers/chart-helper.js";
-import { TTreeClassParams, TTreeMapArr } from "../types/utils.js";
-import TSElement from "../utils/ts-element.js";
+import ChartMainHelper from "../helpers/chart-helper";
+import { TTreeClassParams, TTreeMapArr } from "../types/utils";
+import TSElement from "../utils/ts-element";
 import * as d3 from 'd3'
 
 class HorizontalTreeSpider {

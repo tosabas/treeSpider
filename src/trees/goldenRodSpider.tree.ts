@@ -1,5 +1,5 @@
-import { TTreeClassParams } from "src/types/utils.js";
-import ChartMainHelper from "../helpers/chart-helper.js";
+import { TTreeClassParams } from "src/types/utils";
+import ChartMainHelper from "../helpers/chart-helper";
 import * as d3 from 'd3'
 
 class GoldenRodSpider {
@@ -55,7 +55,7 @@ class GoldenRodSpider {
         }
         this.start_animation = !this.start_animation
         if (this.start_animation) {
-            this.animation_interval = setInterval(() => {
+            this.animation_interval = setInterval(() => {                
                 this.rotate_deg += (this.chartHelper?.animation_rotation_interval as number) * (anti ? -1 : 1);
                 this.nodes_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);
                 this.links_group.attr('transform', `rotate(${this.rotate_deg}, 0, 0)`);

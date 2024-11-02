@@ -1,22 +1,23 @@
-import { IChartHead, ITreeSpiderMain, TChartHeadType, TLinkType } from "../types/MainTypes";
-import TSRootContainer from "../utils/ts-root-container.js";
-import TSElement from "../utils/ts-element.js";
-import { TElementCenterPositions, TEventType, THeadImageShape, TLinkerCircleColor, TLinkerShape } from "../types/utils.js";
-import RandomDataGenerator from "../helpers/randomDataGenerator.js";
-import ChartMainHelper from "../helpers/chart-helper.js";
+import { IChartHead, ITreeSpiderMain } from "../types/MainTypes";
+import { TChartHeadType, TDropShadow, TLinkType } from "../types/utils";
+import TSRootContainer from "../utils/ts-root-container";
+import TSElement from "../utils/ts-element";
+import { TElementCenterPositions, TEventType, THeadImageShape, TLinkerCircleColor, TLinkerShape } from "../types/utils";
+import RandomDataGenerator from "../helpers/randomDataGenerator";
+import ChartMainHelper from "../helpers/chart-helper";
 
 // color handler
-import ColorHandler from "../helpers/colorHandler.js";
+import ColorHandler from "../helpers/colorHandler";
 
 // trees
-import DefaultTree from "../trees/default.tree.js";
-import VerticalSpiderWalkTree from "../trees/vSpiderWalk.tree.js";
-import HorizontalTreeSpider from "../trees/hSpider.tree.js";
-import HorizontalSpiderWalkTree from "../trees/hSpiderWalk.tree.js";
-import CellarTreeSpider from "../trees/cellarSpider.tree.js";
-import GoldenRodSpider from "../trees/goldenRodSpider.tree.js";
-import RadialSpiderLeg from "../trees/radialSpiderLeg.tree.js";
-import UITools from "../utils/ui-tools.js";
+import DefaultTree from "../trees/default.tree";
+import VerticalSpiderWalkTree from "../trees/vSpiderWalk.tree";
+import HorizontalTreeSpider from "../trees/hSpider.tree";
+import HorizontalSpiderWalkTree from "../trees/hSpiderWalk.tree";
+import CellarTreeSpider from "../trees/cellarSpider.tree";
+import GoldenRodSpider from "../trees/goldenRodSpider.tree";
+import RadialSpiderLeg from "../trees/radialSpiderLeg.tree";
+import UITools from "../utils/ui-tools";
 import * as d3 from "d3"
 
 
@@ -48,7 +49,7 @@ class TreeSpider extends EventTarget {
      */
     protected options: ITreeSpiderMain = {
         targetContainer: '',
-        width: '900px',
+        width: '100%',
         height: '500px',
         placeEl: 'override',
         tree_data: undefined,
@@ -92,6 +93,16 @@ class TreeSpider extends EventTarget {
         verticalSpace: '120px',
         font_link: "https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap",
         font_name: "Lato",
+        dropshadow: {
+            x: "-50%",
+            y: "-50%",
+            width: "200%",
+            height: "200%",
+            dx: 1,
+            dy: 1,
+            stdDeviation: 4,
+            floodColor: "rgba(91, 91, 91, 0.19)",
+        }
     }
 
     constructor (options: ITreeSpiderMain) {
@@ -121,7 +132,7 @@ class TreeSpider extends EventTarget {
      * Method to programatically initialize TreeSpider
      */
     public initialize() {
-        this.targetRootContainer = document.querySelector(this.options.targetContainer);
+        this.targetRootContainer = d3.select(this.options.targetContainer).node() as HTMLElement;
         if (this.targetRootContainer === null) throw new Error(this.libraryName + ": target container not found");
         this.targetRootContainer.setAttribute('data-tree-spider-initialized', this.instance_unique_id);
         
@@ -174,9 +185,9 @@ class TreeSpider extends EventTarget {
             .attr("rel", "stylesheet");
         }
         
-        preconnect != undefined && document.head.appendChild(preconnect.node() as HTMLLinkElement);
-        crossorgin_preconnect != undefined && document.head.appendChild(crossorgin_preconnect.node() as HTMLLinkElement);
-        fontLink != undefined && document.head.appendChild(fontLink.node() as HTMLLinkElement);
+        preconnect != undefined && (d3.select('head').node() as HTMLHeadElement).appendChild(preconnect.node() as HTMLLinkElement);
+        crossorgin_preconnect != undefined && (d3.select('head').node() as HTMLHeadElement).appendChild(crossorgin_preconnect.node() as HTMLLinkElement);
+        fontLink != undefined && (d3.select('head').node() as HTMLHeadElement).appendChild(fontLink.node() as HTMLLinkElement);
     }
 
     protected setObjectValue (objectParent: Object, value: Object) {
@@ -217,6 +228,7 @@ class TreeSpider extends EventTarget {
         this.chartHelper.auto_display_tree_in_step = this.options.auto_display_tree_in_step as boolean;
         this.chartHelper.tree_level_step = this.options.tree_level_step as number;
         this.chartHelper.tree_link_type = this.options.tree_link_type as TLinkType;
+        this.chartHelper.dropshadow = this.options.dropshadow as TDropShadow;
         this.chartHelper.emitEvent = this.emitEvent.bind(this);
         
         this.colorHandler = new ColorHandler({
@@ -238,7 +250,7 @@ class TreeSpider extends EventTarget {
      * The method to reset the zoom to the default zoom state
      */
     public resetZoom() {
-        const first_svg_el = (d3.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect()
+        const first_svg_el = (d3.select(`[data-ts-unique-id='${this.instance_unique_id}'] .root-svg-el > g`)!.node() as SVGSVGElement)!.getBoundingClientRect();
         this.center_elem(first_svg_el as DOMRect, this.tree_default_point_position)
     }
 
@@ -331,6 +343,7 @@ class TreeSpider extends EventTarget {
     private bindPanning () {
         const root_cont_rect = this.rootWrapperContainer?.getBoundingClientRect();
 
+        // zoom filter removed because of issue on mobile browsers
         const zoomFilter = (event: any) => {
             event.preventDefault();
             return (!event.ctrlKey || event.type === 'wheel') && !event.button;
@@ -347,21 +360,20 @@ class TreeSpider extends EventTarget {
         }
 
         this.zoom_instace = d3.zoom()
-            .filter(zoomFilter)
+            // .filter(zoomFilter) // filter removed because of issue on mobile browsers
             .extent([[0, 0], [root_cont_rect!.width, root_cont_rect!.height]])
             .on("zoom", zoomed)
             .on('end', (e: any) => {
                 this.rootWrapperContainer!.style.setProperty('--ts-root-container-cursor', 'grab')
             })
         
-            
         root_container_el.call(this.zoom_instace).on("dblclick.zoom", (e: any) => null);
     }
 
-    private center_elem (rect: DOMRect, position: TElementCenterPositions = 'center') {
+    private center_elem (rect: DOMRect, position?: TElementCenterPositions) {
         const root_container_el = d3?.select(`[data-ts-unique-id='${this.instance_unique_id}']`) as any;
 
-        this.tree_default_point_position == '' as TElementCenterPositions && (this.tree_default_point_position = position);
+        (this.tree_default_point_position == '' as TElementCenterPositions && position != undefined) && (this.tree_default_point_position = position);
         
         const root_cont_rect = root_container_el.node()?.getBoundingClientRect();
         const inner_cont_rect = this.tsInnerContainer?.getBoundingClientRect();
@@ -375,20 +387,20 @@ class TreeSpider extends EventTarget {
         let moveX = 0;
         let moveY = 0;
 
-        if (position == 'center') {
+        if ((position || this.tree_default_point_position) == 'center') {
             moveX = rel_posX - offsetMoveX;
             moveY = rel_posY - offsetMoveY;
-        }else if (position == 'top') {
+        }else if ((position || this.tree_default_point_position) == 'top') {
             moveX = rel_posX - offsetMoveX;
             moveY = rel_posY - 10;            
-        }else if (position == 'bottom') {
+        }else if ((position || this.tree_default_point_position) == 'bottom') {
             moveX = rel_posX - offsetMoveX;
             const el_chunk_sizes_y = (root_cont_rect.height / 2) - (rect.height/2)
             moveY = (rel_posY - (offsetMoveY + el_chunk_sizes_y)) + 10;            
-        }else if (position == 'left') {
+        }else if ((position || this.tree_default_point_position) == 'left') {
             moveX = rel_posX - 10;
             moveY = rel_posY - offsetMoveY;
-        }else if (position == 'right') {
+        }else if ((position || this.tree_default_point_position) == 'right') {
             const el_chunk_sizes_x = (root_cont_rect.width / 2) - (rect.width/2)
             moveX = (rel_posX - (offsetMoveX + el_chunk_sizes_x)) + 10;
             moveY = rel_posY - offsetMoveY;
@@ -410,15 +422,10 @@ class TreeSpider extends EventTarget {
      * @param color - The color value to set the chart heads to, you can pass any CSS color values to it
      */
     public updateChartHeadBg(color: string) {
-        if (this.options.tree_type == 'goldenRod' || this.options.tree_type == 'radialSpiderLeg') {
-            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color);
-            this.addEventListener('chart_head.expanded', () => 
-                this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color));
-        }else{
-            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color);
-            this.addEventListener('chart_head.expanded', () => 
-                this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el as SVGSVGElement).style.backgroundColor = color));
-        }
+        if(this.options.chart_head_type == 'rounded') return;
+        this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color);
+        this.addEventListener('chart_head.expanded', () => 
+            this.rootWrapperContainer?.querySelectorAll('.main-svg-el').forEach(el => (el.querySelector('rect') as SVGRectElement).style.fill = color));
     }
     
     /**
@@ -450,7 +457,6 @@ class TreeSpider extends EventTarget {
      * The method to start rotating the chart clockwisely
      */
     public startStopRotateCW() {
-        // once=false, anti=false
         this.currentChartUI?.animate_chat()
     }
 
@@ -458,7 +464,6 @@ class TreeSpider extends EventTarget {
      * The method to start rotating the chart anti-clockwisely
      */
     public startStopRotateACW() {
-        // once=false, anti=false
         this.currentChartUI?.animate_chat(false, true)
     }
 
@@ -466,7 +471,6 @@ class TreeSpider extends EventTarget {
      * The method to rotate the chart once clockwisely
      */
     public rotateOnceCW() {
-        // once=false, anti=false
         this.currentChartUI?.animate_chat(true)
     }
 
@@ -474,7 +478,6 @@ class TreeSpider extends EventTarget {
      * The method to rotate the chart once clockwisely
      */
     public rotateOnceACW() {
-        // once=false, anti=false
         this.currentChartUI?.animate_chat(true, true)
     }
     

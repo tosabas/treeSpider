@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { IChartHead, TColorPallet } from "../types/MainTypes";
+import { IChartHead } from "../types/MainTypes";
+import { TColorPallet } from "../types/utils";
 import { TColorSet } from "../types/utils";
 
 
@@ -55,7 +56,7 @@ class ColorHandler {
     }
 
     public get_app_gray () {
-        return d3.gray(50).toString();
+        return d3.gray(this.pallet.gray).toString();
     }
 
     private get_color_percentage (index: number) {

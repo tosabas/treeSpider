@@ -1,6 +1,6 @@
 {
   "name": "treespider",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "An organization structure chart library for displaying organization structure in style",
   "main": "./dist/es/treeSpider.bundle.min.js",
   "author": "Abayomi Amusa",
@@ -8,7 +8,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "rollup": "rollup -c",
-    "rollup-watch": "rollup -w",
+    "rollup-watch": "rollup -c='./rollup.config.mjs' -w",
     "sass": "sass scss/treeSpider.scss:dist/css/treeSpider.css -w",
     "sass-c": "sass scss/treeSpider.scss:dist/css/treeSpider.css",
     "tsw": "tsc -w",
