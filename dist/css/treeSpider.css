@@ -81,6 +81,7 @@
 
 .main-svg-el {
   overflow: visible;
+  margin: 0px !important;
   background-color: transparent;
 }
 
@@ -190,7 +191,7 @@
   margin: 0px !important;
 }
 
-.st-single-h > div > svg {
+.st-single-h > ts-element > svg {
   padding: 0px !important;
   margin: 0px !important;
 }
@@ -204,7 +205,7 @@
   justify-content: center;
 }
 
-.st-single-h > div {
+.st-single-h > ts-element {
   height: 100% !important;
   display: flex;
   flex-direction: column;

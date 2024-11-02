@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2024-11-03)
+
+- Fix: hSpider tree type css style issue
+
 ## 1.0.0 (2024-11-02)
 
 - Fix: customElement bug on mobile browsers

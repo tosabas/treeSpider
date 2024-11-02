@@ -207,7 +207,7 @@ $vertical-space: var(--vertical-space-var);
     margin: 0px !important;
 }
 
-.st-single-h > div > svg {
+.st-single-h > ts-element > svg {
     padding: 0px !important;
     margin: 0px !important;
 }
@@ -221,7 +221,7 @@ $vertical-space: var(--vertical-space-var);
     justify-content: center;
 }  
 
-.st-single-h > div {
+.st-single-h > ts-element {
     height: 100% !important;
     display: flex;
     flex-direction: column;
