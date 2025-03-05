@@ -29,6 +29,11 @@ jobs:
                   "link": "https://www.typescriptlang.org"
                 },
                 {
+                  "badge": "https://img.shields.io/github/stars/paulosabayomi/treeSpider",
+                  "alt": "GitHub Stars",
+                  "link": "https://github.com/paulosabayomi/treeSpider/stargazers"
+                },
+                {
                   "badge": "https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square",
                   "alt": "PRs Welcome",
                   "link": "${{ env.repo_url }}/pulls"
