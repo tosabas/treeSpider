@@ -5,8 +5,8 @@
 </div>
 
 <div align="center">
-    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-1.png" alt="TreeSpider logo" width="200" style="object-fit: contain; justify-self:center;"/>
-    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-2.png" alt="TreeSpider logo" width="200" style="object-fit: contain; justify-self:center;"/>
+    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-1.png" alt="TreeSpider logo" width="700" style="object-fit: contain; justify-self:center;"/>
+    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-2.png" alt="TreeSpider logo" width="700" style="object-fit: contain; justify-self:center;"/>
 </div>
 
 <!-- [START BADGES] -->
