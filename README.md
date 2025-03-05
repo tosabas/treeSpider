@@ -60,11 +60,11 @@ const instance1 = new TreeSpider({
 ### Project with bundler
 
 ```ts
-    import TreeSpider from 'treespider';
+import TreeSpider from 'treespider';
 
-    const instance1 = new TreeSpider({
-        targetContainer: '#container-1'
-    });
+const instance1 = new TreeSpider({
+    targetContainer: '#container-1'
+});
 
 ```
 
