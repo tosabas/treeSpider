@@ -4,11 +4,21 @@
     <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/treeSpider.png" alt="TreeSpider logo" width="200" style="object-fit: contain; justify-self:center;"/>
 </div>
 
+<div align="center">
+    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-1.png" alt="TreeSpider logo" width="200" style="object-fit: contain; justify-self:center;"/>
+    <img src="https://github.com/paulosabayomi/treeSpider/blob/main/res/scrshot-2.png" alt="TreeSpider logo" width="200" style="object-fit: contain; justify-self:center;"/>
+</div>
+
 <!-- [START BADGES] -->
 <!-- Please keep comment here to allow auto update -->
 <!-- [END BADGES] -->
 
-Display your organization structure in style, personalize and use the chart type of your choice and that fits your organization, and more. Built with D3js and TypeScript.
+Display your organization structure in style, personalize and use the chart type of your choice and that fits your organization, and more. Built with D3js and TypeScript. TreeSpider is completely free and open source.
+
+## Quick Links
+
+- [Check out the demo](https://paulosabayomi.github.io/treespider-doc/docs/trees)
+- [Visit Documentation](https://paulosabayomi.github.io/treespider-doc/)
 
 ## Installation
 
@@ -47,6 +57,17 @@ const instance1 = new TreeSpider({
 
 ```
 
+### Project with bundler
+
+```ts
+    import TreeSpider from 'treespider';
+
+    const instance1 = new TreeSpider({
+        targetContainer: '#container-1'
+    });
+
+```
+
 After importing it or loading it with the script tag, add the CSS file
 
 ```html
@@ -70,7 +91,7 @@ The treeSpider data structure is linear and simple, each employee has a parent I
 }
 ```
 
-All properties of the data except the `id` are optional, but it is recommended that the name should contain at least one name either first and/or last name, check the documentation for more info on the properties.  
+All properties of the data except the `id` are optional, but it is recommended that the name should contain at least one name either first and/or last name, check the [tree data page in the documentation](https://paulosabayomi.github.io/treespider-doc/docs/tree-data) for more info on the properties.  
   
 ### Passing your organization's data
 
@@ -116,7 +137,7 @@ const chart = new TreeSpider({
 })
 ```
 
-See the options documentation for a list of all the options.
+See the [options page in the documentation](https://paulosabayomi.github.io/treespider-doc/docs/options) for a list of all the options.
 
 ## Methods
 
@@ -133,7 +154,7 @@ document.querySelector('#random-button').onclick = () => chart.initialize()
 
 The `autoInitialize: false` tells TreeSpider to not initialize by default, and it gets initialized once the `initialize` method has been called.  
   
-See the Methods documentation for all the available methods.
+See the [Methods page in the documentation](https://paulosabayomi.github.io/treespider-doc/docs/methods) for all the available methods.
 
 ## Events
 
@@ -150,16 +171,16 @@ chart.on('library.init', (e) => {
 })
 
 // using the addEventListener
-chart.on('chart_head.create', (e) => {
+chart.addEventListener('chart_head.create', (e) => {
     console.log("a chart head has been created", e)
 })
 
 ```
 
-See the documentation for more.
+See the [documentation](https://paulosabayomi.github.io/treespider-doc/) for more.
 
 ## License
 
 [MIT](https://github.com/paulosabayomi/treeSpider/blob/main/README.md)  
   
-Created with :heart: by Abayomi Amusa
+Created with :heart: by [Abayomi Amusa](https://paulosabayomi.github.io/about-me/)

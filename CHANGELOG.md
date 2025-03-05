@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 (2025-03-05)
+
+- Updated: The README.md, and added screenshots and the link to demo and documentation
+
 ## 1.0.1 (2024-11-03)
 
 - Fix: hSpider tree type css style issue

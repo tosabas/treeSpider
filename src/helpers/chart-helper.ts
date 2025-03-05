@@ -327,7 +327,6 @@ class ChartMainHelper {
         .attr("class", "main-svg-el" + (this.getIsElRootTreeChild(head_data.id) ? ' root-svg-el' : ''))
         .attr('width', this.chartHeadLandscapeWidth)
         .attr('height', this.chartHeadLandscapeHeight)
-        .attr('style', 'background-color: ' + this.chart_head_bg)
         .on('dblclick', (e) => this.handleCenterHead(e));
 
         const all_group = svgNode.append('g');
