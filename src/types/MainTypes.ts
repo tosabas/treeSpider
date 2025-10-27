@@ -97,6 +97,11 @@ export interface ITreeSpiderMain {
      */
     auto_set_chart_head_bg?: boolean;
     /**
+     * Whether to shorten names to first + last when there are more than two parts.
+     * Default: true
+     */
+    shorten_head_name?: boolean;
+    /**
      * The parameter to set whether to automatically display-in-step when rendering 
      * large data that is more than 500, it is advisable to keep this parameter to `true`
      * when working with large data that is more than 3000 employees because it is going

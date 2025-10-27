@@ -70,6 +70,7 @@ class TreeSpider extends EventTarget {
         head_image_shape: 'symbolCircle',
         chart_head_bg: '#ffffff',
         auto_set_chart_head_bg: false,
+        shorten_head_name: true,
         display_tree_in_step: false,
         auto_display_tree_in_step: true,
         tree_level_step: 2,
@@ -224,6 +225,7 @@ class TreeSpider extends EventTarget {
         this.chartHelper.head_image_shape = this.options.head_image_shape as THeadImageShape;
         this.chartHelper.chart_head_bg = this.options.chart_head_bg as string;
         this.chartHelper.auto_set_chart_head_bg = this.options.auto_set_chart_head_bg as boolean;
+        this.chartHelper.shorten_head_name = this.options.shorten_head_name as boolean;
         this.chartHelper.display_tree_in_step = this.options.display_tree_in_step as boolean;
         this.chartHelper.auto_display_tree_in_step = this.options.auto_display_tree_in_step as boolean;
         this.chartHelper.tree_level_step = this.options.tree_level_step as number;

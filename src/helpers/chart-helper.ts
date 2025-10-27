@@ -56,6 +56,7 @@ class ChartMainHelper {
 
     chart_head_bg: string = '#ffffff'
     auto_set_chart_head_bg: boolean = false;
+    shorten_head_name: boolean = true;
 
     dropshadow: TDropShadow = {
         x: "-50%",
@@ -131,12 +132,19 @@ class ChartMainHelper {
     }
 
     public format_employee_name (name: string, length = 15) {
-        // Use the full name as given
-        const make_name = name ?? '';
-        // Keep the existing wrapping into chunks of `length` characters
-        const clip_name = this.splitStringIntoBatch(make_name, length)
-        return clip_name
-    } 
+        const original = name ?? '';
+
+        let make_name = original;
+        if (this.shorten_head_name) {
+            const parts = original.split(' ').filter(Boolean);
+            if (parts.length > 2) {
+                make_name = `${parts[0]} ${parts[parts.length - 1]}`;
+            }
+        }
+
+        const clip_name = this.splitStringIntoBatch(make_name, length);
+        return clip_name;
+    }
 
     private symbol_type (symbolName: string): 'stroke' | 'fill' {
         const fillSymbols = ['circle', 'cross', 'diamond', 'square', 'star', 'triangle', 'wye']
