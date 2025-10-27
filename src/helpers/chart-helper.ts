@@ -110,8 +110,9 @@ class ChartMainHelper {
     }
 
     public format_employee_name (name: string, length = 15) {
-        const split_name = name?.split(' ')
-        const make_name = split_name?.length > 2 ? split_name?.[0] + " " + split_name?.at(-1) : split_name?.join(' ');
+        // Use the full name as given
+        const make_name = name ?? '';
+        // Keep the existing wrapping into chunks of `length` characters
         const clip_name = this.splitStringIntoBatch(make_name, length)
         return clip_name
     } 
