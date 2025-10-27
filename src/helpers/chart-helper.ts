@@ -96,11 +96,32 @@ class ChartMainHelper {
         return new TSElement();
     }
 
-    public splitStringIntoBatch (text: string, len:number) {
-        let arr = [];
-        for(let i = 0; i < text?.length; i+=len) {
-            arr.push(text.substring(i, Math.min(i+len, text.length)))
+    public splitStringIntoBatch(text: string, len: number): string[] {
+        const arr: string[] = [];
+        let start = 0;
+
+        while (start < text.length) {
+            // If remaining text fits, push and break
+            if (text.length - start <= len) {
+                arr.push(text.slice(start).trim());
+                break;
+            }
+
+            // Look for the last space before the cutoff
+            let end = start + len;
+            let spaceIndex = text.lastIndexOf(' ', end);
+
+            if (spaceIndex > start) {
+                // Found a space — split there
+                arr.push(text.slice(start, spaceIndex).trim());
+                start = spaceIndex + 1; // skip the space
+            } else {
+                // No space — do a hard break
+                arr.push(text.slice(start, end).trim());
+                start = end;
+            }
         }
+
         return arr;
     }
 
