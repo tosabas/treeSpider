@@ -97,7 +97,12 @@ class ChartMainHelper {
         return new TSElement();
     }
 
-    public splitStringIntoBatch(text: string, len: number): string[] {
+    public splitStringIntoBatch(text: string | undefined | null, len: number): string[] {
+        // Defensive check for invalid input
+        if (typeof text !== 'string' || text.length === 0 || len <= 0) {
+            return [];
+        }
+
         const arr: string[] = [];
         let start = 0;
 
